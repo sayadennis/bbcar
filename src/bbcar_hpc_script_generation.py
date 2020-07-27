@@ -119,4 +119,3 @@ class BBCarScript:
     def write_gatk(self):
         return
 
-
