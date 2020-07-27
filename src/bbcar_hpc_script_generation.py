@@ -13,7 +13,7 @@ class BBCarScript:
         generator = BBCarScript(patid=1419, data_path="/some/path")
         generator.write_bwa() # will create a script in the current directory 
     """
-    def __init__(self, patid, data_path, A="b1042", p="genomics", mail="gannon.cottone@northwestern.edu", mailtype="END,FAIL"):
+    def __init__(self, patid, data_path, A="b1042", p="genomics", mail="user@mail.com", mailtype="END,FAIL"):
         # universal slurm settings
         self.patid = patid
         self.allocation = A
@@ -29,7 +29,7 @@ class BBCarScript:
         self.cores = cores
         self.mem = mem
         self.time = time
-        self.dnout = "/projects/p30007/gannon/bbcar/out"
+        self.dnout = "/output/directory"
         self.fnout = "bwa_{}.out".format(self.patid)
         self.jobname = "bwa_" + str(self.patid)
 
