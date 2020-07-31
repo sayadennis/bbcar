@@ -8,29 +8,29 @@ class BBCarScript:
     """
     This class helps write scripts based on template scripts in the same directory (double check directory requirements).
 
-    Usage:
+    Example usage:
         from bbcar_script_generation import BBCarScript
-        generator = BBCarScript(patid=1419, data_path="/some/path")
-        generator.write_bwa() # this will generate a bwa script in the current directory 
-        generator.write_gatk() # this will generate a gatk script in the current directory
+        generator = BBCarScript(patid=1419, data_path="/path/to/fastq/data")
+        generator.write_bwa(tmp_file="../bwa_tmp.sh", script_dir="../bwa_scripts")
+        generator.write_gatk(temp_file="../gatk_tmp.sh", script_dir="../gatk_scripts")
     """
-    def __init__(self, patid, data_path, A="b1042", p="genomics", mail="user@mail.com", mailtype="END,FAIL"):
+    def __init__(self, patid, data_path, A="b1042", p="genomics", mail="gannon.cottone@northwestern.edu", mailtype="END,FAIL"): # data_path must be absolute path. e.g. "/projects/p30007/Zexian/Alignment/BBCAR/RAW_data/1419/"
         # universal slurm settings
         self.patid = patid
         self.allocation = A
         self.partition = p
         self.mail = mail
         self.mailtype = mailtype
-        self.data_path = data_path # e.g. "/projects/p30007/Zexian/Alignment/BBCAR/RAW_data/1419/"
+        self.data_path = data_path
     
     
-    def write_bwa(self, nodes=1, cores=12, mem="50G", time="12:00:00"):
+    def write_bwa(self, tmp_file, script_dir, nodes=1, cores=12, mem="50G", time="12:00:00"): # tmp_file and script_dir can be relative or absolute path
         # slurm settings
         self.nodes = nodes
         self.cores = cores
         self.mem = mem
         self.time = time
-        self.dnout = "/output/directory"
+        self.dnout = "/projects/p30007/gannon/bbcar/out"
         self.fnout = "bwa_{}.out".format(self.patid)
         self.jobname = "bwa_" + str(self.patid)
 
@@ -51,18 +51,10 @@ class BBCarScript:
                     continue
             pairs_dict[plist[i]] = fpair # elements of flist that matches plist pattern (the two replicates)
 
-        # dn and fn of template script and writing script
-        # dnbwa = "generated_scripts" # set directory name for bwa scripts to go in
         fn = "bwa_" + str(self.patid) + ".sh" # script filename
-        fn_tmp = "bwa_tmp.sh"
 
-        # check if directory exists, if not create one
-        # if not os.path.isdir(dnbwa):
-        #     os.mkdir(dnbwa)
-        # subprocess.call("rm " + dnbwa + "/*", shell=True) # do we need this? 
-
-        with open(fn_tmp, "r") as fsh_tmp: # set directory? 
-            with open(fn, "w") as fsh: # set directory? 
+        with open(tmp_file, "r") as fsh_tmp: # set directory? 
+            with open(os.path.join(script_dir, fn), "w") as fsh: # set directory? 
                 for ln in fsh_tmp.readlines():
                     ln = ln.rstrip()
                     if ln == "[settings]":
@@ -117,7 +109,7 @@ class BBCarScript:
                     else:
                         fsh.write(ln + "\n")
 
-    def write_gatk(self, nodes=1, cores=24, mem="110G", time="00:30:00"):
+    def write_gatk(self, tmp_file, script_dir, nodes=1, cores=24, mem="110G", time="00:30:00"): # tmp_file and script_dir can be relative or absolute path
         # slurm settings
         self.nodes = nodes
         self.cores = cores
@@ -126,14 +118,11 @@ class BBCarScript:
         self.dnout = "/output/directory"
         self.fnout = "gatk_collectreads_{}.out".format(self.patid)
         self.jobname = "gatk_" + str(self.patid)
-
-        # dn and fn of template script and writing script
-        # dnbwa = "generated_scripts" # set directory name for bwa scripts to go in
+        
         fn = "gatk_" + str(self.patid) + ".sh" # script filename
-        fn_tmp = "gatk_tmp.sh"
 
-        with open(fn_tmp, "r") as fsh_tmp: # set directory? 
-            with open(fn, "w") as fsh: # set directory? 
+        with open(tmp_file, "r") as fsh_tmp:
+            with open(os.path.join(script_dir, fn), "w") as fsh:
                 for ln in fsh_tmp.readlines():
                     ln = ln.rstrip()
                     if ln == "[settings]":
