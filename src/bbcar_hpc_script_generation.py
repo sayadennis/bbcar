@@ -11,7 +11,8 @@ class BBCarScript:
     Usage:
         from bbcar_script_generation import BBCarScript
         generator = BBCarScript(patid=1419, data_path="/some/path")
-        generator.write_bwa() # will create a script in the current directory 
+        generator.write_bwa() # this will generate a bwa script in the current directory 
+        generator.write_gatk() # this will generate a gatk script in the current directory
     """
     def __init__(self, patid, data_path, A="b1042", p="genomics", mail="user@mail.com", mailtype="END,FAIL"):
         # universal slurm settings
@@ -116,6 +117,42 @@ class BBCarScript:
                     else:
                         fsh.write(ln + "\n")
 
-    def write_gatk(self):
-        return
+    def write_gatk(self, nodes=1, cores=24, mem="110G", time="00:30:00"):
+        # slurm settings
+        self.nodes = nodes
+        self.cores = cores
+        self.mem = mem
+        self.time = time
+        self.dnout = "/output/directory"
+        self.fnout = "gatk_collectreads_{}.out".format(self.patid)
+        self.jobname = "gatk_" + str(self.patid)
 
+        # dn and fn of template script and writing script
+        # dnbwa = "generated_scripts" # set directory name for bwa scripts to go in
+        fn = "gatk_" + str(self.patid) + ".sh" # script filename
+        fn_tmp = "gatk_tmp.sh"
+
+        with open(fn_tmp, "r") as fsh_tmp: # set directory? 
+            with open(fn, "w") as fsh: # set directory? 
+                for ln in fsh_tmp.readlines():
+                    ln = ln.rstrip()
+                    if ln == "[settings]":
+                        fsh.write("#SBATCH -A {}\n".format(self.allocation))
+                        fsh.write("#SBATCH -p {}\n".format(self.partition))
+                        fsh.write("#SBATCH -t {}\n".format(self.time))
+                        fsh.write("#SBATCH -N {}\n".format(self.nodes))
+                        fsh.write("#SBATCH -n {}\n".format(self.cores))
+                        fsh.write("#SBATCH --mem={}\n".format(self.mem))
+                        fsh.write("#SBATCH --mail-user={}\n".format(self.mail))
+                        fsh.write("#SBATCH --mail-type={}\n".format(self.mailtype))
+                        fsh.write("#SBATCH --output={}\n".format(os.path.join(self.dnout, self.fnout)))
+                        fsh.write("#SBATCH -J {}\n".format(self.jobname))
+                    elif "[patid]" in ln:
+                        lsplit = ln.split("[patid]")
+                        newline = ""
+                        for i in range(len(lsplit)-1):
+                            newline = newline + lsplit[i] + str(self.patid)
+                        newline = newline + lsplit[-1] + "\n"
+                        fsh.write(newline)
+                    else:
+                        fsh.write(ln + "\n")
