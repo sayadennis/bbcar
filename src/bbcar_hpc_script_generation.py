@@ -14,8 +14,9 @@ class BBCarScript:
         generator.write_bwa(tmp_file="../bwa_tmp.sh", script_dir="../bwa_scripts")
         generator.write_gatk(temp_file="../gatk_tmp.sh", script_dir="../gatk_scripts")
     """
-    def __init__(self, patid, data_path, A="b1042", p="genomics", mail="gannon.cottone@northwestern.edu", mailtype="END,FAIL"): # data_path must be absolute path. e.g. "/projects/p30007/Zexian/Alignment/BBCAR/RAW_data/1419/"
-        # universal slurm settings
+    def __init__(self, patid, data_path, A="b1042", p="genomics", mail="sayarenedennis@northwestern.edu", mailtype="END,FAIL"):
+        # data_path must be absolute path. e.g. "/projects/b1122/Zexian/Alignment/BBCAR/RAW_data/1419/"
+        # here we set universal slurm settings
         self.patid = patid
         self.allocation = A
         self.partition = p
@@ -30,7 +31,7 @@ class BBCarScript:
         self.cores = cores
         self.mem = mem
         self.time = time
-        self.dnout = "/projects/p30007/gannon/bbcar/out"
+        self.dnout = "/home/srd6051/bbcar_project/out"
         self.fnout = "bwa_{}.out".format(self.patid)
         self.jobname = "bwa_" + str(self.patid)
 

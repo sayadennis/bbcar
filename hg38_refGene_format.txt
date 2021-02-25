@@ -1,0 +1,20 @@
+  `bin` smallint(5) unsigned NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `chrom` varchar(255) NOT NULL,
+  `strand` char(1) NOT NULL,
+  `txStart` int(10) unsigned NOT NULL,
+  `txEnd` int(10) unsigned NOT NULL,
+  `cdsStart` int(10) unsigned NOT NULL,
+  `cdsEnd` int(10) unsigned NOT NULL,
+  `exonCount` int(10) unsigned NOT NULL,
+  `exonStarts` longblob NOT NULL,
+  `exonEnds` longblob NOT NULL,
+  `score` int(11) default NULL,
+  `name2` varchar(255) NOT NULL,
+  `cdsStartStat` enum('none','unk','incmpl','cmpl') NOT NULL,
+  `cdsEndStat` enum('none','unk','incmpl','cmpl') NOT NULL,
+  `exonFrames` longblob NOT NULL,
+
+
+
+information taken from https://www.biostars.org/p/18480/
