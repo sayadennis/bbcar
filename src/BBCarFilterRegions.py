@@ -129,21 +129,3 @@ def filter_by_genes(cnv_mx, gene_names_fn):
     print("Number of genes that survived from matrix: {}".format(filtered_cnv.shape[1]))
     return filtered_cnv
 
-
-
-
-
-# for i in range(ref.shape[0]):
-#     ref_chrn, ref_start, ref_end, ref_name = ref.iloc[i,0], ref.iloc[i,1], ref.iloc[i,2], ref.iloc[i,3]
-#     for j in range(regions.shape[0]):
-#         reg_chrn, reg_start, reg_end, reg_name = regions.iloc[j,0], regions.iloc[j,1], regions.iloc[j,2], regions.iloc[j,3]
-#         if ref_chrn==reg_chrn:
-#             if (((ref_start > reg_start) & (ref_start < reg_end)) | ((ref_end > reg_start) & (ref_end < reg_end))):
-#                 if ref_name not in reg_names:
-#                     reg_names.append(ref_name)
-#                 else:
-#                     continue
-#             else:
-#                 continue
-#         else:
-#             continue
