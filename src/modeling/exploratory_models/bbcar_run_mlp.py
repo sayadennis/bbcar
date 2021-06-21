@@ -43,6 +43,17 @@ for o,p in opts:
 genomic = pd.read_csv(genfn, index_col=0) # '/projects/b1122/saya/06_modified_data/reg_copy_conf90_intindex.csv'
 y = pd.read_csv(labfn, header=0, index_col=0) # '/projects/b1122/saya/bbcar_label_intindex.csv'
 
+if genfn.startswith('reg_copy'):
+    feature_type = 'regcopy'
+elif genfn.startswith('reg_thres'):
+    feature_type = 'regthres'
+elif genfn.startswith('gene_copy'):
+    feature_type = 'genecopy'
+elif genfn.startswith('gene_thres'):
+    feature_type = 'genethres'
+else:
+    print('Unknown feature type name for file %s' % genfn)
+
 # indexdir = '/projects/b1122/saya/indices'
 train_indices = pd.read_csv('%s/train_indices_0.1val_0.2te.csv' % (indexdir), header=None) #  _5run
 test_indices = pd.read_csv('%s/test_indices_0.1val_0.2te.csv' % (indexdir), header=None)
@@ -62,9 +73,9 @@ y_train, y_val, y_test = y[train_index], y[val_index], y[test_index]
 
 print('C,lr,n_iter,tr bal acc,val bal acc,te acc,te bal acc,te precis,te recall,te f1,celoss') # ,best iter,mse,mse tr,mse val,mse te
 for lr in [0.0001, 0.001, 0.01]: # 0.00001, 0.0001 
-    for C in [0.01, 0.1, 1, 10, 100]: #1000, 0.001 
-        fn = '%s/bbcarmlp_C%s_lr%s_niter%s_seed%s.p' % (outdir, C, lr, niter, seed) # scanmap%d/s%d/ # niter, seed, 
-        m = BBCarMLP(X_train, X_val, y_train, y_val, n_iter=niter, fn=fn)
+    for C in [0.001, 0.01, 0.1, 1, 10, 100, 1000]: #1000, 0.001 
+        fn = '%s/bbcarmlp_%s_C%s_lr%s_niter%s_seed%s.p' % (outdir, feature_type, C, lr, niter, seed) # scanmap%d/s%d/ # niter, seed, 
+        m = BBCarMLP(X_train, X_val, y_train, y_val, n_iter=niter, fn=fn, C=C, lr=lr, device=device)
         m.fit()
 
         chkpt = torch.load(fn)

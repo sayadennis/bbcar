@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch import nn
+from torch.nn.functional import relu
 from collections import  defaultdict
 from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score, balanced_accuracy_score
@@ -12,7 +13,7 @@ import utils
 class BBCarMLP(torch.nn.Module):
     def __init__(self, X, Xval, y = None, yval=None,
                  n_iter = 10, eps = 1e-7,
-                 weight_decay = 1e-5, wortho=1, C=1,
+                 weight_decay = 1e-5, C=1,
                  lr = 1e-2, verbose = False, seed=None, fn=None,
                  device=torch.device('cpu')):
         super(BBCarMLP, self).__init__()
@@ -43,11 +44,25 @@ class BBCarMLP(torch.nn.Module):
         self.y = torch.from_numpy(y).long().to(self.device)
         w = 1 / pd.Series(y).value_counts(normalize=True).sort_index().to_numpy()
         self.loss_cls = nn.CrossEntropyLoss(weight=torch.from_numpy(w).float()).to(self.device) # weight=torch.from_numpy(w).float()
+
+        self.h1_size = 400
+        self.h2_size = 200
+        self.h3_size = 20
         
-        self.fc = nn.Linear(self.m, len(np.unique(y))).to(self.device)
+        self.fc1 = nn.Linear(self.m, self.h1_size).to(self.device)
+        self.fc2 = nn.Linear(self.h1_size, self.h2_size).to(self.device)
+        self.fc3 = nn.Linear(self.h2_size, self.h3_size).to(self.device)
+        self.fc4 = nn.Linear(self.h3_size, len(np.unique(y))).to(self.device)
         
         self.yval = torch.from_numpy(yval).long().to(self.device)
         self.opt = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
+    
+    def forward(self, X):
+        out = relu(self.fc1(X))
+        out = relu(self.fc2(out))
+        out = relu(self.fc3(out))
+        out = torch.softmax(self.fc4(out), dim=1)
+        return out
 
     def to(self,device):
         self.device = device
@@ -62,12 +77,13 @@ class BBCarMLP(torch.nn.Module):
         """
         self.opt.zero_grad()
         if self.y is not None:
-            self.celoss = self.loss_cls(self.fc(self.X), self.y)
+            self.celoss = self.loss_cls(self.forward(self.X), self.y)
             l = self.celoss * self.n # 01/24/20
             # print('cross entropy: %.4f' % (self.loss_cls(self.fc(self.Wtr), self.y)))
-            for p in self.fc.parameters():
-                l = l + p.pow(2).sum() * self.C 
-                # print('complexity: %.4f' % (p.pow(2).sum()))
+            for fc in [self.fc1, self.fc2, self.fc3, self.fc4]:
+                for p in fc.parameters():
+                    l = l + p.pow(2).sum() * self.C 
+            # print('complexity: %.4f' % (p.pow(2).sum()))
 
         l.backward()
         self.opt.step()
@@ -120,46 +136,5 @@ class BBCarMLP(torch.nn.Module):
             return y.detach().numpy()
 
     def __predict__(self, X):
-        y = torch.argmax(self.fc(X), dim=1)
+        y = torch.argmax(self.forward(X), dim=1)
         return y
-
-    # def __init__(self, input_size, hidden_size):
-    #     super(BBCarMLP, self).__init__()
-    #     self.input_size = input_size
-    #     self.hidden_size  = hidden_size
-    #     self.fc1 = torch.nn.Linear(self.input_size, self.hidden_size)
-    #     self.relu = torch.nn.ReLU()
-    #     self.fc2 = torch.nn.Linear(self.hidden_size, 1)
-    #     self.sigmoid = torch.nn.Sigmoid()
-    #     ## alternative A 
-    #     # self.layers = nn.Sequential(
-    #     #     nn.Flatten(),
-    #     #     nn.Linear(32 * 32 * 3, 64),
-    #     #     nn.ReLU(),
-    #     #     nn.Linear(64, 32),
-    #     #     nn.ReLU(),
-    #     #     nn.Linear(32, 10)
-    #     #     )
-    #     ## alternative B
-    #     # self.lin1 = nn.Linear(784, 512, bias=True) 
-    #     # self.lin2 = nn.Linear(512, 256, bias=True)
-    #     # self.lin3 = nn.Linear(256, 10, bias=True)
-    #     ## alternative C
-    #     # self.dropout = nn.Dropout(0.2)
-
-
-    
-    # def forward(self, x):
-    #     hidden = self.fc1(x)
-    #     relu = self.relu(hidden)
-    #     output = self.fc2(relu)
-    #     output = self.sigmoid(output)
-    #     ## alternative A 
-    #     # return self.layers(x)
-    #     ## alternative B
-    #     # x = xb.view(-1,784) 
-    #     # x = F.relu(self.lin1(x))
-    #     # x = F.relu(self.lin2(x))
-    #     # return self.lin3(x)
-    #     return output
-
