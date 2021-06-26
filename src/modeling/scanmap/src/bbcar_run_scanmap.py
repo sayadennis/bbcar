@@ -45,15 +45,18 @@ for o,p in opts:
     if o in ['-n', '--n_iter']:
         niter = int(p)
 
-f = open(genfn, 'rb')
-genomic = pickle.load(f)
-f.close()
+# f = open(genfn, 'rb')
+# genomic = pickle.load(f)
+# f.close()
+
+# read in genomic data
+genomic = pd.read_csv(genfn, index_col=0)
+# read in demographic information as confounding variables
+pts = pd.read_csv(ptsfn, index_col=0)
+# read in labels 
 y = pd.read_csv(labfn, header=0, index_col=0)
 
 print('matrix shape: {0} x {1}'.format(*genomic.shape))
-
-# read in demographic information as confounding variables
-pts = pd.read_csv(ptsfn, index_col=0)
 
 # make sure that the genetic data and confounding variables match each other
 pts_sel = pts.reindex(index = genomic.index)
@@ -67,12 +70,10 @@ val_indices = pd.read_csv('%s/val_indices_0.1val_0.2te.csv' % (indexdir), header
 X = np.array(genomic)
 y, yuniques = pd.factorize(y.values.ravel(), sort=True)
 
-
-
 r = 0
-if genfn=='/projects/b1122/saya/scanmap_data/gene_thres_thres010_abs.pik':
+if 'gene_' in genfn:
     ncs = range(100,501,100) # range(50,501,50)
-elif genfn=='/projects/b1122/saya/scanmap_data/reg_thres.pik':
+elif 'reg_' in genfn:
     ncs = range(60,301,60) # range(30,301,30)
 
 X = X.astype(float)

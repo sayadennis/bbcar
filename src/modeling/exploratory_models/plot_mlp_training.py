@@ -16,7 +16,7 @@ for fn in glob.glob('bbcar/model_performance/results_mlp/results_*.txt'):
         # find best performing model's parameters
         results = pd.read_csv(fn, skiprows=1)
         bestpf = results.sort_values('val bal acc', ascending=False).iloc[0,:]
-        C, lr = int(bestpf['C']), bestpf['lr']
+        C, lr = bestpf['C'], bestpf['lr']
         if C >=1:
             C = int(C)
         # get feature names 
