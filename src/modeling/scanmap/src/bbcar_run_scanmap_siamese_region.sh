@@ -13,76 +13,83 @@
 . ~/anaconda3/etc/profile.d/conda.sh
 conda activate bbcarenv
 
-# #### Region-level features #### 
+datadir="/projects/b1122/saya/06_modified_data"
+cfdir="/projects/b1122/saya/bbcar_non_cnv_features"
+labeldir="/projects/b1122/saya"
+train_record_dir="/projects/b1042/ClareLab/saya/train_record_siamese"
+indexdir="/projects/b1122/saya/indices"
+resultsdir="bbcar/model_performance/results_siamese"
+
+#### Region-level features #### 
 
 # Clinical
 python bbcar/scanmap/src/bbcar_run_scanmap_siamese.py \
-    --genomic /projects/b1122/saya/scanmap_data/reg_thres.pik \
-    --confound /projects/b1122/saya/scanmap_data/bbcar_clin_intindex.csv \
-    --label /projects/b1122/saya/scanmap_data/bbcar_label_intindex.csv \
-    --outdir /projects/b1042/ClareLab/saya/train_record_siamese/regthres_clin \
-    --index /projects/b1122/saya/scanmap_data \
+    --genomic $datadir/reg_thres_conf90_intindex.csv \
+    --confound $cfdir/bbcar_clin_intindex.csv \
+    --label $labeldir/bbcar_label_intindex.csv \
+    --outdir $train_record_dir/regthres_clin \
+    --index $indexdir \
     --n_iter 4000 \
-    > bbcar/scanmap/results_siamese/results_siamese_regthres_clin.txt
+    > $resultsdir/results_siamese_regthres_clin.txt
 #
 
 # Clinical + mutational signature 
 python bbcar/scanmap/src/bbcar_run_scanmap_siamese.py \
-    --genomic /projects/b1122/saya/scanmap_data/reg_thres.pik \
-    --confound /projects/b1122/saya/scanmap_data/bbcar_clin_mut_intindex.csv \
-    --label /projects/b1122/saya/scanmap_data/bbcar_label_intindex.csv \
-    --outdir /projects/b1042/ClareLab/saya/train_record_siamese/regthres_clin_mut \
-    --index /projects/b1122/saya/scanmap_data \
-    > bbcar/scanmap/results_siamese/results_regthres_clin_mut.txt
+    --genomic $datadir/reg_thres_conf90_intindex.csv \
+    --confound $cfdir/bbcar_clin_mut_intindex.csv \
+    --label $labeldir/bbcar_label_intindex.csv \
+    --outdir $train_record_dir/regthres_clin_mut \
+    --index $indexdir \
+    > $resultsdir/results_regthres_clin_mut.txt
 #
 
 # Clinical + PRS 
 python bbcar/scanmap/src/bbcar_run_scanmap_siamese.py \
-    --genomic /projects/b1122/saya/scanmap_data/reg_thres.pik \
-    --confound /projects/b1122/saya/scanmap_data/bbcar_clin_prs_intindex.csv \
-    --label /projects/b1122/saya/scanmap_data/bbcar_label_intindex.csv \
-    --outdir /projects/b1042/ClareLab/saya/train_record_siamese/regthres_clin_prs \
-    --index /projects/b1122/saya/scanmap_data \
-    > bbcar/scanmap/results_siamese/results_regthres_clin_prs.txt
+    --genomic $datadir/reg_thres_conf90_intindex.csv \
+    --confound $cfdir/bbcar_clin_prs_intindex.csv \
+    --label $labeldir/bbcar_label_intindex.csv \
+    --outdir $train_record_dir/regthres_clin_prs \
+    --index $indexdir \
+    > $resultsdir/results_regthres_clin_prs.txt
 #
 
 # Clinical + driver somatic 
 python bbcar/scanmap/src/bbcar_run_scanmap_siamese.py \
-    --genomic /projects/b1122/saya/scanmap_data/reg_thres.pik \
-    --confound /projects/b1122/saya/scanmap_data/bbcar_clin_driversomatic_intindex.csv \
-    --label /projects/b1122/saya/scanmap_data/bbcar_label_intindex.csv \
-    --outdir /projects/b1042/ClareLab/saya/train_record_siamese/regthres_clin_driversomatic \
-    --index /projects/b1122/saya/scanmap_data \
+    --genomic $datadir/reg_thres_conf90_intindex.csv \
+    --confound $cfdir/bbcar_clin_driversomatic_intindex.csv \
+    --label $labeldir/bbcar_label_intindex.csv \
+    --outdir $train_record_dir/regthres_clin_driversomatic \
+    --index $indexdir \
     --n_iter 4000 \
-    > bbcar/scanmap/results_siamese/results_regthres_clin_driversomatic.txt
+    > $resultsdir/results_regthres_clin_driversomatic.txt
 #
 
 # Clinical + mutational signature + PRS
 python bbcar/scanmap/src/bbcar_run_scanmap_siamese.py \
-    --genomic /projects/b1122/saya/scanmap_data/reg_thres.pik \
-    --confound /projects/b1122/saya/scanmap_data/bbcar_clin_mut_prs_intindex.csv \
-    --label /projects/b1122/saya/scanmap_data/bbcar_label_intindex.csv \
-    --outdir /projects/b1042/ClareLab/saya/train_record_siamese/regthres_clin_mut_prs \
-    --index /projects/b1122/saya/scanmap_data \
-    > bbcar/scanmap/results_siamese/results_regthres_clin_mut_prs.txt
+    --genomic $datadir/reg_thres_conf90_intindex.csv \
+    --confound $cfdir/bbcar_clin_mut_prs_intindex.csv \
+    --label $labeldir/bbcar_label_intindex.csv \
+    --outdir $train_record_dir/regthres_clin_mut_prs \
+    --index $indexdir \
+    > $resultsdir/results_regthres_clin_mut_prs.txt
 #
 
 # Clinical + mutational signature + driver somatic mutation
 python bbcar/scanmap/src/bbcar_run_scanmap_siamese.py \
-    --genomic /projects/b1122/saya/scanmap_data/reg_thres.pik \
-    --confound /projects/b1122/saya/scanmap_data/bbcar_clin_mut_driversomatic_intindex.csv \
-    --label /projects/b1122/saya/scanmap_data/bbcar_label_intindex.csv \
-    --outdir /projects/b1042/ClareLab/saya/train_record_siamese/regthres_clin_mut_driversomatic \
-    --index /projects/b1122/saya/scanmap_data \
-    > bbcar/scanmap/results_siamese/results_regthres_clin_mut_driversomatic.txt
+    --genomic $datadir/reg_thres_conf90_intindex.csv \
+    --confound $cfdir/bbcar_clin_mut_driversomatic_intindex.csv \
+    --label $labeldir/bbcar_label_intindex.csv \
+    --outdir $train_record_dir/regthres_clin_mut_driversomatic \
+    --index $indexdir \
+    > $resultsdir/results_regthres_clin_mut_driversomatic.txt
 #
 
 # Clinical + PRS + driver somatic mutation 
 python bbcar/scanmap/src/bbcar_run_scanmap_siamese.py \
-    --genomic /projects/b1122/saya/scanmap_data/reg_thres.pik \
-    --confound /projects/b1122/saya/scanmap_data/bbcar_clin_prs_driversomatic_intindex.csv \
-    --label /projects/b1122/saya/scanmap_data/bbcar_label_intindex.csv \
-    --outdir /projects/b1042/ClareLab/saya/train_record_siamese/regthres_clin_prs_driversomatic \
-    --index /projects/b1122/saya/scanmap_data \
-    > bbcar/scanmap/results_siamese/results_regthres_clin_prs_driversomatic.txt
+    --genomic $datadir/reg_thres_conf90_intindex.csv \
+    --confound $cfdir/bbcar_clin_prs_driversomatic_intindex.csv \
+    --label $labeldir/bbcar_label_intindex.csv \
+    --outdir $train_record_dir/regthres_clin_prs_driversomatic \
+    --index $indexdir \
+    > $resultsdir/results_regthres_clin_prs_driversomatic.txt
 #
