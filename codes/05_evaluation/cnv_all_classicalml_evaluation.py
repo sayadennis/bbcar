@@ -3,8 +3,9 @@ import sys
 import numpy as np
 import pandas as pd
 import pickle
+import matplotlib.pyplot as plt
 
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, roc_auc_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, roc_auc_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve
 
 sys.path.append('classical_ml')
 from ClassicalML import ClassicalML
@@ -60,3 +61,23 @@ lasso_coefs = pd.DataFrame({
 
 coef_fn = m_fn.split('.')[0] + '_coefs.csv'
 lasso_coefs.to_csv(f'{dout}/{coef_fn}', index=False, header=True)
+
+## plot ROC 
+plt.figure()
+lw = 2
+plt.plot(
+    roc_curve(y_test, y_prob)[0],
+    roc_curve(y_test, y_prob)[1],
+    color="darkorange",
+    lw=lw,
+    label="ROC curve (area = %0.2f)" % roc_auc_score(y_test, y_prob),
+)
+plt.plot([0, 1], [0, 1], color="navy", lw=lw, linestyle="--")
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("Receiver operating characteristic example")
+plt.legend(loc="lower right")
+plt.savefig('ROC_20210910_saved_best_LASSO_cyto_copy_conf90_all.png')
+plt.close()
