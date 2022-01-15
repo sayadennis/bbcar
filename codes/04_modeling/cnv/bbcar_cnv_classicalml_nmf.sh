@@ -14,7 +14,7 @@ conda activate bbcarenv
 
 inputdir='/projects/b1122/saya/04_cleaned_cnv/all'
 labeldir='/projects/b1122/saya'
-outdir='/home/srd6051/bbcar/model_performance/results_classicalml_nmf/all'
+outdir='/home/srd6051/bbcar/model_performance/results_classicalml_nmf'
 ixdir='/projects/b1122/saya/indices'
 
 #############################
@@ -65,9 +65,9 @@ python classical_ml/ClassicalML/run_classical_ml.py \
     --nmf 500
 #
 
-# #################################
-# #### Cytoband-level features ####
-# #################################
+#################################
+#### Cytoband-level features ####
+#################################
 
 python classical_ml/ClassicalML/run_classical_ml.py \
     --input $inputdir/cyto_copy_conf90_all_plus2.csv \
@@ -77,3 +77,47 @@ python classical_ml/ClassicalML/run_classical_ml.py \
     --scoring roc_auc \
     --nmf 500
 #
+
+################################
+#### Pathway-level features ####
+################################
+
+inputdir='/projects/b1122/saya/08_pathway_aggregated_cnv'
+
+for fn in $(ls $inputdir/*.csv); do
+    pathlist=$(echo $fn | tr '/' '\n') # split by "/"
+    patharr=($pathlist)
+    shortfn=${patharr[4]} # get just the filename and not the whole path
+    fout=results_${shortfn}
+    python classical_ml/ClassicalML/run_classical_ml.py \
+        --input $fn \
+        --label $labeldir/bbcar_label_studyid.csv \
+        --outfn $outdir/$fout \
+        --indexdir $ixdir \
+        --scoring roc_auc \
+        --nmf 500
+done
+
+# #####################################
+# #### Heuristic-filtered features ####
+# #####################################
+
+## commented out for now because: 
+## need to convert to non-negative features to make this part work
+
+# inputdir='/projects/b1122/saya/07_selected_region_cnv'
+
+# for fn in $(ls $inputdir/*.csv); do
+#     colnum=$(head -n1 $fn | tr -cd , | wc -c)
+#     pathlist=$(echo $fn | tr '/' '\n') # split by "/"
+#     patharr=($pathlist)
+#     shortfn=${patharr[4]} # get just the filename and not the whole path
+#     fout=results_${shortfn}
+#     python classical_ml/ClassicalML/run_classical_ml.py \
+#         --input $fn \
+#         --label $labeldir/bbcar_label_studyid.csv \
+#         --outfn $outdir/$fout \
+#         --indexdir $ixdir \
+#         --scoring roc_auc \
+#         --nmf colnum
+# done
