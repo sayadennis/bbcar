@@ -1,3 +1,3 @@
-# BBCar Project
+# Breast Cancer Risk Stratification Using Somatic Genomic Aberrations of Benign Breast Biopsies
 
-The goal of this project is to analyze copy-number alterations (CNAs) in tissues from benign breast biopsies and train a machine learning model to predict whether an individual develops breast cancer in the future.
+The goal of this project is to use somatic mutations and copy-number alterations (CNAs) in benign breast biopsies to develop a machine learning model to predict the individual's risk for breast cancer.
