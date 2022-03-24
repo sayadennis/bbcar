@@ -11,19 +11,20 @@ cd /projects/p30791/bbcar_test
 
 set -uex
 
-FA=/projects/b1122/gannon/ref_seqs/ucsc_hg38/hg38.fa
-# Zex_germ=/projects/b1122/Zexian/Alignment/Germline_37/RAW_data
-# New_germ=/projects/b1122/Zexian/Alignment/BBCAR_GC
-# tissue_fq=/projects/b1122/Zexian/Alignment/BBCAR/RAW_data
-# idx=/projects/p30007/gannon/bbcar/bwa_algn/refs
+## Reference genome 
+FA='/projects/p30791/hg38_ref/hg38.fa'
+
+# index the reference genome
+# bwa index -p /projects/p30791/hg38_ref/hg38.fa $FA
+
+## Software and interval locations
 pic='java -jar /software/picard/2.6.0/picard-tools-2.6.0/picard.jar'
-metrics=/projects/b1122/saya/bbcar/dup_metrics
-# gold1000Indel=/projects/b1122/Zexian/reference/hg19/Mills_and_1000G_gold_standard.indels.hg19.sites.vcf 
-## ^FIGURE THIS OUT --DO WE HAVE HG38 VERSION AND/OR IS THIS SPECIFICATION OF KNOWN SITES NECESSARY?
-# dbsnp=/projects/b1122/Zexian/reference/hg19/dbsnp_138.hg19.vcf
-## ^same with this. Find a hg38 version. 
-rec_tables=/projects/b1122/saya/bbcar/recal_tables
 interval='/projects/b1122/Zexian/tools/DNAtools/S07604514_Padded.bed'
+dbsnp='/projects/b1131/saya/bbcar/dbsnp/Homo_sapiens_assembly38.dbsnp138.vcf' # is this file appropriate for this?
+gold1000Indel='/projects/b1131/saya/bbcar/dbsnp/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz' # is this file appropriate for this?
+
+## Output directories
+[set output directories]
 
 [bwa and picard]
 
