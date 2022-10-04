@@ -7,14 +7,14 @@ import pandas as pd
 #### Set input and output directories ####
 ##########################################
 
-din='/projects/b1131/saya/bbcar/04_ml_features'
-dout='/projects/b1131/saya/bbcar/04_ml_features'
+din = '/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/01_indivi_annovar_features'
+dout = '/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/02_concat_annovar_features'
 
 ############################################
 #### Set empty dataframe to concatenate ####
 ############################################
 
-variables=[
+variables = [
     'var_id',
     'source',
     'sample_id',
@@ -61,43 +61,40 @@ variables=[
 
 features = pd.DataFrame(columns=variables)
 
-##########################
-#### Collect features ####
-##########################
+##########################################
+#### Collect features for generic PON ####
+##########################################
 
 for fn in glob.glob(f'{din}/*_annovar_features.csv'):
     if 'bbcarpon' not in fn:
-        single_sample=pd.read_csv(fn)
-        features=pd.concat((features,single_sample), ignore_index=True)
+        single_sample = pd.read_csv(fn)
+        features = pd.concat((features,single_sample), ignore_index=True)
 
 # BELOW LINE MIGHT NOT BE NECESSARY if the weird '0.5,0.5' doesn't appear in AF column 
-features.AF=features.AF.replace({'0.5,0.5':0.5}).astype(float)
+features.AF = features.AF.map({'0.5,0.5':0.5}).astype(float)
 
 #### Change contents of the avsnp150 column to be binary ####
-
-nanix=features.iloc[pd.isnull(features.avsnp150).values,:].index
-
-features['avsnp150'].iloc[nanix]=0
-features['avsnp150'].iloc[features.avsnp150.values!=0]=1
+nanix = features.iloc[pd.isnull(features.avsnp150).values,:].index
+features['avsnp150'].iloc[nanix] = 0
+features['avsnp150'].iloc[features.avsnp150.values!=0] = 1
 
 ## Save ##
 features.to_csv(f'{dout}/annovar_features_all.csv', index=False)
 
-##########################
-#### Collect features ####
-##########################
+########################################
+#### Collect features for BBCAR PON ####
+########################################
 
 for fn in glob.glob(f'{din}/*_bbcarpon_annovar_features.csv'):
-    single_sample=pd.read_csv(fn)
-    features=pd.concat((features,single_sample), ignore_index=True)
+    single_sample = pd.read_csv(fn)
+    features = pd.concat((features,single_sample), ignore_index=True)
 
-# features.AF=features.AF.replace({'0.5,0.5':0.5}).astype(float)
+# features.AF=features.AF.map({'0.5,0.5':0.5}).astype(float)
 
 #### Change contents of the avsnp150 column to be binary ####
-nanix=features.iloc[pd.isnull(features.avsnp150).values,:].index
-
-features['avsnp150'].iloc[nanix]=0
-features['avsnp150'].iloc[features.avsnp150.values!=0]=1
+nanix = features.iloc[pd.isnull(features.avsnp150).values,:].index
+features['avsnp150'].iloc[nanix] = 0
+features['avsnp150'].iloc[features.avsnp150.values!=0] = 1
 
 ## Save ##
 features.to_csv(f'{dout}/annovar_features_all_bbcarpon.csv', index=False)

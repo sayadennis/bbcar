@@ -4,15 +4,17 @@
 #SBATCH --array=0-307
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH -t 24:00:00
+#SBATCH -t 2:00:00
 #SBATCH --mem=1G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name=avfts_%a
-#SBATCH --output=bbcar/out/generate_annovar_features_%a.out
+#SBATCH --output=/projects/b1131/saya/bbcar/out/generate_annovar_features_%a.out
 
 . ~/anaconda3/etc/profile.d/conda.sh
 conda activate bbcarenv
+
+cd ${HOME}/bbcar/repo/01_processing/input/mutation/06_generate_ml_features/
 
 # #### To generate input_args.txt file ####
 # touch /projects/b1131/saya/bbcar/sample_names_all_ml_feature_generation.txt # create file 
@@ -32,14 +34,14 @@ conda activate bbcarenv
 #### Generic PON ####
 #####################
 
-IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/bbcar/sample_names_all_ml_feature_generation.txt
+IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/bbcar/data/02a_mutation/sample_names_all_ml_feature_generation.txt
 
-python bbcar/codes/somatic_mutations/02_processing/05_generate_ml_features/generate_annovar_features.py ${input_args[$SLURM_ARRAY_TASK_ID]}
+python 01_generate_annovar_features.py ${input_args[$SLURM_ARRAY_TASK_ID]}
 
 ###################
 #### BBCAR PON ####
 ###################
 
-IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/bbcar/sample_names_all_ml_feature_generation_bbcarpon.txt
+IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/bbcar/data/02a_mutation/sample_names_all_ml_feature_generation_bbcarpon.txt
 
-python bbcar/codes/somatic_mutations/02_processing/05_generate_ml_features/generate_annovar_features.py ${input_args[$SLURM_ARRAY_TASK_ID]}
+python 01_generate_annovar_features.py ${input_args[$SLURM_ARRAY_TASK_ID]}

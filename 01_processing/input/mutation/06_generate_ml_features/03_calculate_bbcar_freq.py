@@ -7,14 +7,14 @@ import pandas as pd
 #### Set input and output directories ####
 ##########################################
 
-din='/projects/b1131/saya/bbcar/04_ml_features'
-dout='/projects/b1131/saya/bbcar/04_ml_features'
+din = '/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/02_concat_annovar_features'
+dout = '/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/03_freq_added'
 
 ############################################
 #### Set empty dataframe to concatenate ####
 ############################################
 
-variables=[
+variables = [
     'var_id',
     'source',
     'sample_id',
@@ -48,28 +48,28 @@ variables=[
     'SiPhy_29way_logOdds'
 ]
 
-# #### Generic PON ####
+#### Generic PON ####
 
-# features = pd.read_csv(f'{dout}/annovar_features_all.csv')
+features = pd.read_csv(f'{din}/annovar_features_all.csv')
 
-# bbcar_freq={}
-# for variant in features.var_id.unique():
-#     freq=len(features.iloc[features.var_id.values==variant,:]['sample_id'].unique())/len(features.sample_id.unique())
-#     bbcar_freq[variant]=freq
+bbcar_freq = {}
+for variant in features.var_id.unique():
+    freq = len(features.iloc[features.var_id.values==variant,:]['sample_id'].unique())/len(features.sample_id.unique())
+    bbcar_freq[variant] = freq
 
-# features['bbcar_freq']=[bbcar_freq[x] for x in features.var_id]
+features['bbcar_freq'] = [bbcar_freq[x] for x in features.var_id]
 
-# features.to_csv(f'{dout}/features_annovar_bbcarfreq.csv', index=False)
+features.to_csv(f'{dout}/features_annovar_bbcarfreq.csv', index=False)
 
 #### BBCAR PON ####
 
-features = pd.read_csv(f'{dout}/annovar_features_all_bbcarpon.csv')
+features = pd.read_csv(f'{din}/annovar_features_all_bbcarpon.csv')
 
-bbcar_freq={}
+bbcar_freq = {}
 for variant in features.var_id.unique():
-    freq=len(features.iloc[features.var_id.values==variant,:]['sample_id'].unique())/len(features.sample_id.unique())
-    bbcar_freq[variant]=freq
+    freq = len(features.iloc[features.var_id.values==variant,:]['sample_id'].unique())/len(features.sample_id.unique())
+    bbcar_freq[variant] = freq
 
-features['bbcar_freq']=[bbcar_freq[x] for x in features.var_id]
+features['bbcar_freq'] = [bbcar_freq[x] for x in features.var_id]
 
 features.to_csv(f'{dout}/features_annovar_bbcarfreq_bbcarpon.csv', index=False)

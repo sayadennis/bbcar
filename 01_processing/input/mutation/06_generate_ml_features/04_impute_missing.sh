@@ -8,9 +8,11 @@
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name=impute_miss
-#SBATCH --output=bbcar/out/04_impute_missing.out
+#SBATCH --output=/projects/b1131/saya/bbcar/out/04_impute_missing.out
 
 . ~/anaconda3/etc/profile.d/conda.sh
 conda activate bbcarenv
 
-python bbcar/codes/somatic_mutations/02_processing/05_generate_ml_features/04_impute_missing.py
+cd ${HOME}/bbcar/repo/01_processing/input/mutation/06_generate_ml_features/
+
+python 04_impute_missing.py

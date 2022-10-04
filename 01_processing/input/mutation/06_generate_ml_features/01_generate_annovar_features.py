@@ -8,19 +8,19 @@ import pandas as pd
 #### Get input arguments (sample info) ####
 ###########################################
 
-input_arg=sys.argv[1] # input_arg is something like "germline_only/1009.hg38_multianno.vcf" 
-source=input_arg.split('/')[0]
-sample_id=input_arg.split('/')[1].split('.')[0]
+input_arg = sys.argv[1] # input_arg is something like "germline_only/1009.hg38_multianno.vcf" 
+source = input_arg.split('/')[0]
+sample_id = input_arg.split('/')[1].split('.')[0]
 
 if sample_id[-1]=='t':
-    sample_id=sample_id[:-1] # remove the "t" at the end
+    sample_id = sample_id[:-1] # remove the "t" at the end
 
 ##########################################
 #### Set input and output directories ####
 ##########################################
 
-din='/projects/b1131/saya/bbcar/03_annotated_variants/annovar'
-dout='/projects/b1131/saya/bbcar/04_ml_features'
+din = '/projects/b1131/saya/bbcar/data/02a_mutation/03_annotated_variants/annovar'
+dout = '/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/01_indivi_annovar_features'
 
 #######################################
 #### Set variable names to collect ####
@@ -79,46 +79,42 @@ variables=[
 features = pd.DataFrame(columns=variables)
 
 ## Iterate through lines of VCF
-vcf=f'{din}/{input_arg}'
-# if source=='tumor_only':
-#     sample_id=vcf.split('/')[-1].split('.')[0][:-1] # it looks like 1009t.hg38_multianno.vcf so remove the "t"
-# else:
-#     sample_id=vcf.split('/')[-1].split('.')[0]
+vcf = f'{din}/{input_arg}'
 
 with open(vcf, 'r') as f:
-    lines=f.readlines()
+    lines = f.readlines()
 
 # loop through lines
 for line in lines:
     if not line.startswith('#'):
-        var_feature=pd.DataFrame(index=[0],columns=variables)
+        var_feature = pd.DataFrame(index=[0],columns=variables)
         # define elements of variants and their annotations 
         var_elements = line.split()
-        chrom=var_elements[0]
-        pos=var_elements[1]
-        ref=var_elements[3]
-        alt=var_elements[4]
-        info=var_elements[7]
+        chrom = var_elements[0]
+        pos = var_elements[1]
+        ref = var_elements[3]
+        alt = var_elements[4]
+        info = var_elements[7]
         # create variant ID 
-        var_feature.loc[0,'var_id']=f'{chrom}_{pos}_{ref}_{alt}'
-        var_feature.loc[0,'source']=source
-        var_feature.loc[0,'sample_id']=sample_id
+        var_feature.loc[0,'var_id'] = f'{chrom}_{pos}_{ref}_{alt}'
+        var_feature.loc[0,'source'] = source
+        var_feature.loc[0,'sample_id'] = sample_id
         # get necessary information
-        info=info.split(';')
+        info = info.split(';')
         try:
-            third_af_loc=np.where([x.startswith('AF=') for x in info])[0][2]
-            info=info[:third_af_loc]
+            third_af_loc = np.where([x.startswith('AF=') for x in info])[0][2]
+            info = info[:third_af_loc]
         except:
             print(f'{chrom}_{pos}_{ref}_{alt},{source},{sample_id}')
         for anno_item in info:
             for variable in variables:
                 if anno_item.startswith(variable):
-                    feature_value=anno_item.split('=')[1]
+                    feature_value = anno_item.split('=')[1]
                     try:
-                        var_feature.loc[0,variable]=float(feature_value)
+                        var_feature.loc[0,variable] = float(feature_value)
                     except:
-                        if feature_value!='.': # if it's not the regular "." (i.e. missing) - then enter so that we can evaluate
-                            var_feature.loc[0,variable]=feature_value
+                        if feature_value != '.': # if it's not the regular "." (i.e. missing) - then enter so that we can evaluate
+                            var_feature.loc[0,variable] = feature_value
         # record result in feature matrix 
         features = pd.concat((features,var_feature), ignore_index=True)
 
