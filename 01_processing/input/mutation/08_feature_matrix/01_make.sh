@@ -7,12 +7,12 @@
 #SBATCH --mem=5G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --job-name="pred_nonmatched"
-#SBATCH --output=/projects/b1131/saya/bbcar/out/03_predict_nonmatched.out
+#SBATCH --job-name="som_feature"
+#SBATCH --output=/projects/b1131/saya/bbcar/out/01_make_feature_matrix.out
 
 . ~/anaconda3/etc/profile.d/conda.sh
 conda activate bbcarenv
 
-cd /home/srd6051/bbcar/repo/01_processing/input/mutation/07_somatic_prediction/
+cd /home/srd6051/bbcar/repo/01_processing/input/mutation/08_feature_matrix/
 
-python 03_predict_nonmatched.py
+python 01_make.py
