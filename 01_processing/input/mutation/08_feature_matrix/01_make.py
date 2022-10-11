@@ -41,4 +41,5 @@ for sample_id in pred_soma.index.get_level_values('sample_id'):
 # Finally, fill NaN with 0 
 X = X.fillna(0)
 
-X.to_csv(f'{dout}/binary.csv')
+X.to_csv(f'{dout}/binary_samplerows.csv')
+X.transpose().to_csv(f'{dout}/binary_featurerows.csv')
