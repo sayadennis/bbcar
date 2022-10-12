@@ -6,23 +6,23 @@ import seaborn as sns; sns.set_theme(color_codes=True)
 din = '/projects/b1131/saya/bbcar/data/02a_mutation'
 dout = '/projects/b1131/saya/bbcar/plots'
 
-data = pd.read_csv(f'{din}/08_feature_matrix/binary_featurerows.csv', index_col=0)
-anno = pd.read_csv(f'{din}/04_ml_features/02_concat_annovar_features/annovar_features_all.csv') # annovar_features_all_bbcarpon.csv
+ct_each = pd.read_csv(f'{din}/08_feature_matrix/binary_featurerows.csv', index_col=0)
 ct_gene = pd.read_csv(f'{din}/08_feature_matrix/cts_per_gene.csv', index_col=0)
+anno = pd.read_csv(f'{din}/04_ml_features/02_concat_annovar_features/annovar_features_all.csv') # annovar_features_all_bbcarpon.csv
 
 #######################
 #### Distributions ####
 #######################
 
 fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(8,4))
-cts = data.sum(axis=1).values
+cts = ct_each.sum(axis=1).values
 cts = np.delete(cts, np.where(cts<=1))
 ax[0].hist(cts, bins=24)
 ax[0].set_xlabel('Number of samples')
 ax[0].set_ylabel('Mutation counts')
 ax[0].set_title('Mutation Frequency Distribution')
 
-ax[1].hist(data.sum(axis=0).values, bins=24)
+ax[1].hist(ct_each.sum(axis=0).values, bins=24)
 ax[1].set_xlabel('Number of mutations')
 ax[1].set_ylabel('Sample counts')
 ax[1].set_title('Number of somatic mutation per sample')
@@ -36,7 +36,7 @@ plt.close()
 #################################
 
 ## Remove mutations that appear in 0 or 1 samples
-subdata = data.iloc[data.sum(axis=1).values>20,:]
+subdata = ct_each.iloc[ct_each.sum(axis=1).values>20,:]
 
 ## Plot clustering heat map 
 g = sns.clustermap(subdata, xticklabels=False, yticklabels=False)
@@ -59,14 +59,14 @@ plt.close()
 #### Describe mutations through annotated functions ####
 ########################################################
 
-subdata = data.iloc[data.sum(axis=1).values>1,:]
+subdata = ct_each.iloc[ct_each.sum(axis=1).values>1,:]
 with open(f'{din}/08_feature_matrix/refGene_func_dictionary.p', 'rb') as f:
     num = pickle.load(f)
 
 # Plot bar graphs of exonic functions and general functions ### WORK ON THIS ### 
 
 # Re-plot heatmap with only non-intronic mutations 
-subdata = data.drop(num['Func.refGene']['intronic'], axis=0)
+subdata = ct_each.drop(num['Func.refGene']['intronic'], axis=0)
 
 g = sns.clustermap(subdata, xticklabels=False, yticklabels=False)
 g.savefig(f'{dout}/cluster_heatmap_binary_nonintronic.png')
@@ -76,7 +76,7 @@ plt.close()
 #### Ones with higher deleterious scores ####
 #############################################
 
-subdata = data.iloc[data.sum(axis=1).values>1,:]
+subdata = ct_each.iloc[ct_each.sum(axis=1).values>1,:]
 
 scores = [
     'SIFT_score',
