@@ -1,3 +1,4 @@
+import pickle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,6 +10,12 @@ dout = '/projects/b1131/saya/bbcar/plots'
 ct_each = pd.read_csv(f'{din}/08_feature_matrix/binary_featurerows.csv', index_col=0)
 ct_gene = pd.read_csv(f'{din}/08_feature_matrix/cts_per_gene.csv', index_col=0)
 anno = pd.read_csv(f'{din}/04_ml_features/02_concat_annovar_features/annovar_features_all.csv') # annovar_features_all_bbcarpon.csv
+
+with open(f'{din}/08_feature_matrix/refGene_func_dictionary.p', 'rb') as f:
+    func_dict = pickle.load(f)
+
+## Remove mutations that appear in 0 or 1 samples
+ct_each = ct_each.iloc[ct_each.sum(axis=1).values>1,:]
 
 #######################
 #### Distributions ####
@@ -35,12 +42,24 @@ plt.close()
 #### Overall cluster heatmap ####
 #################################
 
-## Remove mutations that appear in 0 or 1 samples
+## Plot clustering heat map 
 subdata = ct_each.iloc[ct_each.sum(axis=1).values>20,:]
 
-## Plot clustering heat map 
 g = sns.clustermap(subdata, xticklabels=False, yticklabels=False)
 g.savefig(f'{dout}/cluster_heatmap_binary.png')
+plt.close()
+
+#############################################################
+#### Overall cluster heatmap with non-intronic mutations ####
+#############################################################
+
+## Try removing mutations that are intronic 
+nonintronic = ct_each.drop(func_dict['Func.refGene']['intronic'], axis=0)
+
+subdata = nonintronic.iloc[nonintronic.sum(axis=1).values>20,:]
+
+g = sns.clustermap(subdata, xticklabels=False, yticklabels=False)
+g.savefig(f'{dout}/cluster_heatmap_binary_nonintronic.png')
 plt.close()
 
 #########################
@@ -48,10 +67,22 @@ plt.close()
 #########################
 
 ## Remove mutations that appear in 0 or 1 samples
-subdata = ct_gene.iloc[(ct_gene>0).sum(axis=1).values>=20,:]
+subdata = ct_gene.iloc[np.argsort(-1 * ct_gene.std(axis=1)).values[:2000],:]
 
 ## Plot clustering heat map 
-g = sns.clustermap(subdata, xticklabels=False, yticklabels=False)
+g = sns.clustermap(np.log(subdata+1), xticklabels=False, yticklabels=False)
+g.savefig(f'{dout}/cluster_heatmap_genewise.png')
+plt.close()
+
+#####################################################
+#### Counts per gene with non-intronic mutations ####
+#####################################################
+
+## Remove mutations that appear in 0 or 1 samples
+subdata = ct_gene.iloc[np.argsort(-1 * ct_gene.std(axis=1)).values[:2000],:]
+
+## Plot clustering heat map 
+g = sns.clustermap(np.log(subdata+1), xticklabels=False, yticklabels=False)
 g.savefig(f'{dout}/cluster_heatmap_genewise.png')
 plt.close()
 
