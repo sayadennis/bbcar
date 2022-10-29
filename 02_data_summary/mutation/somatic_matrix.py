@@ -1,3 +1,4 @@
+from os.path import exists
 import pickle
 import numpy as np
 import pandas as pd
@@ -14,22 +15,10 @@ ct_gene = pd.read_csv(f'{din}/08_feature_matrix/cts_per_gene.csv', index_col=0)
 ct_gene_nonintronic = pd.read_csv(f'{din}/08_feature_matrix/cts_per_gene_nonintronic.csv', index_col=0)
 anno = pd.read_csv(f'{din}/04_ml_features/02_concat_annovar_features/annovar_features_all.csv') # annovar_features_all_bbcarpon.csv
 target = pd.read_csv('/projects/b1131/saya/bbcar/data/02b_cnv/bbcar_label_studyid.csv', index_col=0)
-encode = pd.read_csv('/projects/b1131/saya/bbcar/genome_resources/encode_regulatory/truncated_GRCh38-cCREs.bed', sep='\t', header=None)
+encode = pd.read_csv('/projects/b1131/saya/bbcar/genome_resources/encode_regulatory/GRCh38-cCREs.bed', sep='\t', header=None)
 
 with open(f'{din}/08_feature_matrix/refGene_func_dictionary.p', 'rb') as f:
     func_dict = pickle.load(f)
-
-regulatory = []
-for var_id in anno.var_id.unique():
-    chrom = var_id.split('_')[0]
-    pos = int(var_id.split('_')[1])
-    overlap_regions = encode.iloc[(
-        (encode[0].values==chrom) 
-        & (encode[1].values<=pos) 
-        & (encode[2].values>=pos)
-    ),:]
-    if overlap_regions.shape[0]>0:
-        regulatory.append(var_id)
 
 ## Remove mutations that appear in 0 or 1 samples
 ct_each = ct_each.iloc[ct_each.sum(axis=1).values>1,:]
@@ -38,8 +27,34 @@ ct_each = ct_each.iloc[ct_each.sum(axis=1).values>1,:]
 #### Look at distributions of mutations that are in ENCODE's regulatory ####
 ############################################################################
 
-regulatory_anno = anno.iloc[[x in regulatory for x in anno.var_id],:]
-regulatory_anno.to_csv(f'{din}/08_feature_matrix/annovar_features_regulatory.csv', index=False)
+regulatory_anno_fn = f'{din}/08_feature_matrix/annovar_features_regulatory.csv'
+if exists(regulatory_anno_fn):
+    regulatory_anno = pd.read_csv(regulatory_anno_fn)
+else:
+    regulatory = []
+    for var_id in anno.var_id.unique():
+        chrom = var_id.split('_')[0]
+        pos = int(var_id.split('_')[1])
+        overlap_regions = encode.iloc[(
+            (encode[0].values==chrom) 
+            & (encode[1].values<=pos) 
+            & (encode[2].values>=pos)
+        ),:]
+        if overlap_regions.shape[0]>0:
+            regulatory.append(var_id)
+    # 
+    regulatory_anno = anno.iloc[[x in regulatory for x in anno.var_id],:]
+    regulatory_anno.to_csv(f'{din}/08_feature_matrix/annovar_features_regulatory.csv', index=False)
+
+uniq_reg_vars = regulatory_anno.drop(['source', 'sample_id'], axis=1).drop_duplicates(ignore_index=True)['Func.refGene']
+uniq_reg_vars.name = 'ENCODE cCRE'
+uniq_vars = anno.drop(['source', 'sample_id'], axis=1).drop_duplicates(ignore_index=True)['Func.refGene']
+uniq_vars.name = 'All'
+
+pd.concat((
+    uniq_reg_vars['Func.refGene'].value_counts(),
+    uniq_vars['Func.refGene'].value_counts()
+), axis=1)
 
 # #######################
 # #### Distributions ####
@@ -92,42 +107,85 @@ regulatory_anno.to_csv(f'{din}/08_feature_matrix/annovar_features_regulatory.csv
 # plt.savefig(f'{dout}/cluster_heatmap_binary.png')
 # plt.close()
 
-# #############################################################
-# #### Overall cluster heatmap with non-intronic mutations ####
-# #############################################################
+#############################################################
+#### Overall cluster heatmap with non-intronic mutations ####
+#############################################################
 
-# ## Try removing mutations that are intronic 
-# nonintronic = ct_each.drop(func_dict['Func.refGene']['intronic'], axis=0)
+## Try removing mutations that are intronic 
+nonintronic = ct_each.drop(func_dict['Func.refGene']['intronic'], axis=0)
 
-# subdata = nonintronic.iloc[nonintronic.sum(axis=1).values>20,:]
+subdata = nonintronic.iloc[nonintronic.sum(axis=1).values>20,:]
 
-# g = sns.clustermap(subdata, xticklabels=False, yticklabels=False)
-# g.savefig(f'{dout}/cluster_heatmap_binary_nonintronic.png')
-# plt.close()
+row_linkage = hierarchy.linkage(
+    distance.pdist(subdata.to_numpy()), method='average')
 
-# #########################
-# #### Counts per gene ####
-# #########################
+col_linkage = hierarchy.linkage(
+    distance.pdist(subdata.to_numpy().T), method='average')
 
-# ## Remove mutations that appear in 0 or 1 samples
-# subdata = ct_gene.iloc[np.argsort(-1 * ct_gene.std(axis=1)).values[:2000],:]
+temp_labels = [target.loc[int(x),'label'] if int(x) in target.index 
+               else 0 for x in subdata.columns]
+network_pal = sns.light_palette('orange', 2)
+network_lut = dict(zip([0,1], network_pal))
+network_colors = pd.Series(temp_labels).map(network_lut)
 
-# ## Plot clustering heat map 
-# g = sns.clustermap(np.log(subdata+1), xticklabels=False, yticklabels=False)
-# g.savefig(f'{dout}/cluster_heatmap_genewise.png')
-# plt.close()
+sns.clustermap(subdata, row_linkage=row_linkage, col_linkage=col_linkage, 
+               # row_colors=network_colors, method="average",
+               col_colors=network_colors.values, 
+               figsize=(13, 13), xticklabels=False, yticklabels=False)
+plt.savefig(f'{dout}/cluster_heatmap_binary_nonintronic.png')
+plt.close()
 
-# #####################################################
-# #### Counts per gene with non-intronic mutations ####
-# #####################################################
+#########################
+#### Counts per gene ####
+#########################
 
-# ## Remove mutations that appear in 0 or 1 samples
-# subdata = ct_gene_nonintronic.iloc[np.argsort(-1 * ct_gene_nonintronic.std(axis=1)).values[:2000],:]
+## Remove mutations that appear in 0 or 1 samples
+subdata = ct_gene.iloc[np.argsort(-1 * ct_gene.std(axis=1)).values[:2000],:]
 
-# ## Plot clustering heat map 
-# g = sns.clustermap(np.log(subdata+1), xticklabels=False, yticklabels=False)
-# g.savefig(f'{dout}/cluster_heatmap_genewise_nonintronic.png')
-# plt.close()
+row_linkage = hierarchy.linkage(
+    distance.pdist(subdata.to_numpy()), method='average')
+
+col_linkage = hierarchy.linkage(
+    distance.pdist(subdata.to_numpy().T), method='average')
+
+temp_labels = [target.loc[int(x),'label'] if int(x) in target.index 
+               else 0 for x in subdata.columns]
+network_pal = sns.light_palette('orange', 2)
+network_lut = dict(zip([0,1], network_pal))
+network_colors = pd.Series(temp_labels).map(network_lut)
+
+sns.clustermap(np.log(subdata+1), row_linkage=row_linkage, col_linkage=col_linkage, 
+               # row_colors=network_colors, method="average",
+               col_colors=network_colors.values, 
+               figsize=(13, 13), xticklabels=False, yticklabels=False)
+plt.savefig(f'{dout}/cluster_heatmap_genewise.png')
+plt.close()
+
+#####################################################
+#### Counts per gene with non-intronic mutations ####
+#####################################################
+
+## Remove mutations that appear in 0 or 1 samples
+subdata = ct_gene_nonintronic.iloc[np.argsort(-1 * ct_gene_nonintronic.std(axis=1)).values[:2000],:]
+
+row_linkage = hierarchy.linkage(
+    distance.pdist(subdata.to_numpy()), method='average')
+
+col_linkage = hierarchy.linkage(
+    distance.pdist(subdata.to_numpy().T), method='average')
+
+temp_labels = [target.loc[int(x),'label'] if int(x) in target.index 
+               else 0 for x in subdata.columns]
+network_pal = sns.light_palette('orange', 2)
+network_lut = dict(zip([0,1], network_pal))
+network_colors = pd.Series(temp_labels).map(network_lut)
+
+sns.clustermap(np.log(subdata+1), row_linkage=row_linkage, col_linkage=col_linkage, 
+               # row_colors=network_colors, method="average",
+               col_colors=network_colors.values, 
+               figsize=(13, 13), xticklabels=False, yticklabels=False)
+plt.savefig(f'{dout}/cluster_heatmap_genewise_nonintronic.png')
+plt.close()
 
 # ########################################################
 # #### Describe mutations through annotated functions ####

@@ -10,8 +10,9 @@
 #SBATCH --job-name="som_agg"
 #SBATCH --output=/projects/b1131/saya/bbcar/out/01_aggregate_feature_matrix.out
 
-. ~/anaconda3/etc/profile.d/conda.sh
-conda activate bbcarenv
+module purge all
+module load python-miniconda3/4.12.0
+source activate bbcarenv
 
 cd /home/srd6051/bbcar/repo/01_processing/input/mutation/08_feature_matrix/
 
