@@ -98,18 +98,45 @@ else:
 #         var_positive_samples = data.loc[var_id].iloc[data.loc[var_id,:].values==1].index
 #         ct_gene.loc[gene, var_positive_samples] += 1
 
+# ct_gene = ct_gene.iloc[(ct_gene!=0).sum(axis=1).values>1,:]
 # ct_gene.to_csv(f'{dn}/08_feature_matrix/cts_per_gene_nonintronic.csv')
 
 ###################################################################
 #### Counts per gene with high-deleteriousness-score mutations ####
 ###################################################################
 
+## SIFT pred = D 
 ct_gene = pd.DataFrame(0, index=anno['Gene.refGene'].unique(), columns=data.columns)
 
 for var_id in data.index:
-    if var_id in func_dict['SIFT_pref']['D']:
+    if var_id in del_dict['SIFT_pred']['D']:
         gene = anno.iloc[anno.var_id.values==var_id,:]['Gene.refGene'].iloc[0]
         var_positive_samples = data.loc[var_id].iloc[data.loc[var_id,:].values==1].index
         ct_gene.loc[gene, var_positive_samples] += 1
 
+ct_gene = ct_gene.iloc[(ct_gene!=0).sum(axis=1).values>1,:]
 ct_gene.to_csv(f'{dn}/08_feature_matrix/cts_per_gene_SIFT_D.csv')
+
+## Polyphen2 HDIV pred = D or P (damaging or possibly damaging)
+ct_gene = pd.DataFrame(0, index=anno['Gene.refGene'].unique(), columns=data.columns)
+
+for var_id in data.index:
+    if ((var_id in del_dict['Polyphen2_HDIV_pred']['D']) | (var_id in del_dict['Polyphen2_HDIV_pred']['P'])):
+        gene = anno.iloc[anno.var_id.values==var_id,:]['Gene.refGene'].iloc[0]
+        var_positive_samples = data.loc[var_id].iloc[data.loc[var_id,:].values==1].index
+        ct_gene.loc[gene, var_positive_samples] += 1
+
+ct_gene = ct_gene.iloc[(ct_gene!=0).sum(axis=1).values>1,:]
+ct_gene.to_csv(f'{dn}/08_feature_matrix/cts_per_gene_Polyphen2_DorP.csv')
+
+## Polyphen2 HDIV pred = D 
+ct_gene = pd.DataFrame(0, index=anno['Gene.refGene'].unique(), columns=data.columns)
+
+for var_id in data.index:
+    if var_id in del_dict['Polyphen2_HDIV_pred']['D']:
+        gene = anno.iloc[anno.var_id.values==var_id,:]['Gene.refGene'].iloc[0]
+        var_positive_samples = data.loc[var_id].iloc[data.loc[var_id,:].values==1].index
+        ct_gene.loc[gene, var_positive_samples] += 1
+
+ct_gene = ct_gene.iloc[(ct_gene!=0).sum(axis=1).values>1,:]
+ct_gene.to_csv(f'{dn}/08_feature_matrix/cts_per_gene_Polyphen2_D.csv')
