@@ -4,9 +4,9 @@ import pandas as pd
 import itertools
 import glob
 
-din='/projects/b1122/saya/01_gatk_analyzed_segments'
-dout='/projects/b1122/saya/02_gistic2_input'
-dix='/projects/b1122/saya/indices'
+din = '/projects/b1131/saya/bbcar/data/02b_cnv/01_gatk_analyzed_segments'
+dout = '/projects/b1131/saya/bbcar/data/02b_cnv/02_gistic2_input'
+dix = '/projects/b1131/saya/bbcar/data/02b_cnv/indices'
 
 ###############################
 #### All samplies combined ####

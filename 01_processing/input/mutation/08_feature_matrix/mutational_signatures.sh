@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH -A p30791
-#SBATCH -p long
-#SBATCH -t 168:00:00
+#SBATCH -p short
+#SBATCH -t 4:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --mem-per-cpu=24G
+#SBATCH --mem=4G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name="sub_mutsig"
