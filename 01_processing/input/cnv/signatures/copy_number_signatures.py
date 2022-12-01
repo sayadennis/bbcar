@@ -31,15 +31,15 @@ def seglen_bp(line: pd.Series):
 
 def seg_len_category(seglen_bp):
     if ((seglen_bp > 0) & (seglen_bp <= (100 * 1e+3))):
-        return '0 - 100 kb'
+        return '0-100kb'
     elif (seglen_bp <= 1e+6):
-        return '100 kb - 1 Mb'
+        return '100kb-1Mb'
     elif (seglen_bp <= 10 * 1e+6):
-        return '1 Mb - 10 Mb'
+        return '1Mb-10Mb'
     elif (seglen_bp <= 40 * 1e+6):
-        return '10 Mb - 40 Mb'
+        return '10Mb-40Mb'
     else:
-        return '> 40 Mb'
+        return '>40Mb'
 
 ampdel_bins = np.quantile(2**(data.MEAN_LOG2_COPY_RATIO), [.2,.4,.6,.8,.95])
 
@@ -47,16 +47,16 @@ def seg_ampdel_category(mean_log2_copy_ratio, ampdel_bins=ampdel_bins):
     larger_than = np.where([mean_log2_copy_ratio > val for val in ampdel_bins])[0]
     if len(larger_than)==len(ampdel_bins):
         lower = ampdel_bins[len(ampdel_bins)-1]
-        return f'> {lower:.2f}'
+        return f'>{lower:.2f}'
     elif len(larger_than)==0:
         upper = ampdel_bins[0]
-        return f'<= {upper:.2f}'
+        return f'<={upper:.2f}'
     else:
         lower_ix = np.max(larger_than)
         upper_ix = lower_ix + 1
         lower = ampdel_bins[lower_ix]
         upper = ampdel_bins[upper_ix]
-        return f'{lower:.2f} - {upper:.2f}'
+        return f'{lower:.2f}-{upper:.2f}'
 
 # Add segment category by length
 data['SEG CAT LENGTH'] = data.apply(seglen_bp, axis=1).apply(seg_len_category)
@@ -71,16 +71,17 @@ counts = pd.pivot(categories, index='name', columns=('SEG CAT LENGTH', 'CALL'))
 
 # clean up 
 counts.index.name = None
+counts.index = [x.split('_')[0] for x in counts.index] # from '1449_Tissue' to '1449' 
 
+counts = counts.iloc[:,counts.columns.get_level_values('CALL')!='0'] # Remove CALL = 0 (no amp/del)
 tuples = list(zip(
     counts.columns.get_level_values('SEG CAT LENGTH'),
     counts.columns.get_level_values('CALL')
 ))
-multcol = pd.MultiIndex.from_tuples(tuples, names=['SEG CAT LENGTH', 'CALL'])
-counts.columns = multcol
-counts = counts.iloc[:,counts.columns.get_level_values('CALL')!='0'] # Remove CALL = 0 (no amp/del)
-counts.columns.names = [None, None]
+colnames = [f'{call}:{seglen}' for seglen,call in tuples]
+counts.columns = colnames
 counts = counts.fillna(0)
+counts = counts[sorted(counts.columns)]
 
 # calculate ratios 
 ratios = counts.divide(counts.sum(axis=1), axis=0)
@@ -100,16 +101,16 @@ counts = pd.pivot(categories, index='name', columns=('SEG CAT LENGTH', 'SEG CAT 
 # clean up 
 counts.index.name = None
 
+counts = counts.iloc[:,counts.columns.get_level_values('CALL')!='0'] # Remove CALL = 0 (no amp/del)
 tuples = list(zip(
     counts.columns.get_level_values('SEG CAT LENGTH'),
     counts.columns.get_level_values('SEG CAT LEVELS'),
     counts.columns.get_level_values('CALL')
 ))
-multcol = pd.MultiIndex.from_tuples(tuples, names=['SEG CAT LENGTH', 'SEG CAT LEVELS', 'CALL'])
-counts.columns = multcol
-counts = counts.iloc[:,counts.columns.get_level_values('CALL')!='0'] # Remove CALL = 0 (no amp/del)
-counts.columns.names = [None, None, None]
+colnames = [f'{call}:{seglevel}:{seglen}' for seglen,seglevel,call in tuples]
+counts.columns = colnames
 counts = counts.fillna(0)
+counts = counts[sorted(counts.columns)]
 
 # calculate ratios 
 ratios = counts.divide(counts.sum(axis=1), axis=0)
