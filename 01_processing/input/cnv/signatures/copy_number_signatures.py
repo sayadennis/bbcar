@@ -100,6 +100,7 @@ counts = pd.pivot(categories, index='name', columns=('SEG CAT LENGTH', 'SEG CAT 
 
 # clean up 
 counts.index.name = None
+counts.index = [x.split('_')[0] for x in counts.index] # from '1449_Tissue' to '1449' 
 
 counts = counts.iloc[:,counts.columns.get_level_values('CALL')!='0'] # Remove CALL = 0 (no amp/del)
 tuples = list(zip(

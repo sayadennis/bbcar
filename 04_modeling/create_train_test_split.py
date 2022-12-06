@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 din = '/projects/b1131/saya/bbcar/data/clinical'
 dout = '/projects/b1131/saya/bbcar/train_test_splits'
 
-target = pd.read_csv(f'{din}/bbcar_redcap_label_studyid.csv', index_col=0)
+target = pd.read_csv(f'{din}/bbcar_label_studyid_from_gatk_filenames.csv', index_col=0)
 
 ###############################################################
 #### Create train-test indices for cross-validation tuning ####
@@ -16,11 +16,11 @@ seed = 21
 train, test = train_test_split(target, test_size=0.2, random_state=seed, shuffle=True, stratify=target.values)
 
 # save study IDs
-with open(f'{dout}/train_ix.csv', 'w') as fh:
+with open(f'{dout}/train_index.txt', 'w') as fh:
     for item in list(train.index):
         fh.write('%s\n' % item)
 
-with open(f'{dout}/test_ix.csv', 'w') as fh:
+with open(f'{dout}/test_index.txt', 'w') as fh:
     for item in list(test.index):
         fh.write('%s\n' % item)
 
