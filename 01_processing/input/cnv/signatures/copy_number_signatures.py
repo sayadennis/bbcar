@@ -22,6 +22,8 @@ for fn in glob.glob(din + '/*.csv'):
     sampledata['name'] = list(itertools.repeat(samplen, len(sampledata))) # add column indicating sample name
     data = pd.concat((data, sampledata)) # append this sample to data
 
+data = data.iloc[data.CALL.values!='0',:]
+
 ##########################
 #### Define functions ####
 ##########################
@@ -41,6 +43,9 @@ def seg_len_category(seglen_bp):
     else:
         return '>40Mb'
 
+# Add segment category by length and by copy ratio
+data['SEG LENGTH MB'] = data.apply(seglen_bp, axis=1)/10**6
+seglen_bins = np.quantile(data['SEG LENGTH MB'], [.2,.4,.6,.8,.95])
 ampdel_bins = np.quantile(2**(data.MEAN_LOG2_COPY_RATIO), [.2,.4,.6,.8,.95])
 
 def seg_ampdel_category(mean_log2_copy_ratio, ampdel_bins=ampdel_bins):
@@ -58,8 +63,32 @@ def seg_ampdel_category(mean_log2_copy_ratio, ampdel_bins=ampdel_bins):
         upper = ampdel_bins[upper_ix]
         return f'{lower:.2f}-{upper:.2f}'
 
-# Add segment category by length
-data['SEG CAT LENGTH'] = data.apply(seglen_bp, axis=1).apply(seg_len_category)
+def length_readable(mb):
+    if mb<1:
+        return f'{mb*(10**3):.1f}kb'
+    else:
+        return f'{mb:.1f}Mb'
+
+def seg_len_category(seglen_mb, seglen_bins=seglen_bins):
+    larger_than = np.where([seglen_mb > val for val in seglen_bins])[0]
+    if len(larger_than)==len(seglen_bins): # bigger than all 
+        lower = seglen_bins[len(seglen_bins)-1]
+        lower = length_readable(lower)
+        return f'>{lower}'
+    elif len(larger_than)==0: # smaller than all
+        upper = seglen_bins[0]
+        upper = length_readable(upper)
+        return f'<={upper}'
+    else:
+        lower_ix = np.max(larger_than)
+        upper_ix = lower_ix + 1
+        lower = seglen_bins[lower_ix]
+        upper = seglen_bins[upper_ix]
+        lower, upper = length_readable(lower), length_readable(upper)
+        return f'{lower}-{upper}'
+
+
+data['SEG CAT LENGTH'] = data['SEG LENGTH MB'].apply(seg_len_category)
 data['SEG CAT LEVELS'] = (2**(data.MEAN_LOG2_COPY_RATIO)).apply(seg_ampdel_category)
 
 #########################################

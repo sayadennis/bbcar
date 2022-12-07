@@ -27,13 +27,13 @@ data = {
 labels = pd.read_csv(f'/projects/b1131/saya/bbcar/data/clinical/bbcar_label_studyid_from_gatk_filenames.csv', index_col=0)
 labels = labels.loc[data['counts']['length'].index]
 
-segs = ['0-100kb', '100kb-1Mb', '1Mb-10Mb', '10Mb-40Mb', '>40Mb']
+# segs = ['0-100kb', '100kb-1Mb', '1Mb-10Mb', '10Mb-40Mb', '>40Mb']
 
 for valtype in ['counts', 'ratios']:
     for cattype in ['length', 'levels']:
         mx = data[valtype][cattype]
-        scaler = StandardScaler()
-        mx = pd.DataFrame(scaler.fit_transform(mx), index=mx.index, columns=mx.columns)
+        # scaler = StandardScaler()
+        # mx = pd.DataFrame(scaler.fit_transform(mx), index=mx.index, columns=mx.columns)
         # calc row linkage 
         row_linkage = hierarchy.linkage(
             distance.pdist(np.array(mx)), method='average')
@@ -41,7 +41,7 @@ for valtype in ['counts', 'ratios']:
         col_linkage = hierarchy.linkage(
             distance.pdist(np.array(mx).T), method='average')
         # create colors for case/control labels (rows)
-        rows_network_pal = sns.light_palette('orange', 2)
+        rows_network_pal = sns.light_palette('lightgreen', 2)
         rows_network_lut = dict(zip([0,1], rows_network_pal))
         rows_network_colors = labels['label'].map(rows_network_lut)
         # create colors for signature elements (columns) 
@@ -55,6 +55,6 @@ for valtype in ['counts', 'ratios']:
                     col_colors=cols_network_colors_pos.values, 
                     #  method="average",
                     figsize=(13, 13), xticklabels=False, yticklabels=False)
-        plt.savefig(f'{dout}/cluster_heatmap_{valtype}_{cattype}.png')
+        plt.savefig(f'{dout}/cluster_heatmap_{valtype}_{cattype}_notstandardscaled.png')
         plt.close()
 
