@@ -27,8 +27,6 @@ data = {
 labels = pd.read_csv(f'/projects/b1131/saya/bbcar/data/clinical/bbcar_label_studyid_from_gatk_filenames.csv', index_col=0)
 labels = labels.loc[data['counts']['length'].index]
 
-# segs = ['0-100kb', '100kb-1Mb', '1Mb-10Mb', '10Mb-40Mb', '>40Mb']
-
 for valtype in ['counts', 'ratios']:
     for cattype in ['length', 'levels']:
         mx = data[valtype][cattype]
@@ -58,3 +56,12 @@ for valtype in ['counts', 'ratios']:
         plt.savefig(f'{dout}/cluster_heatmap_{valtype}_{cattype}_notstandardscaled.png')
         plt.close()
 
+valtype = 'counts'
+cattype = 'levels'
+
+weird_samples = hierarchy.cut_tree(row_linkage, 2).ravel().astype(bool)
+weird_samples = list(mx.iloc[weird_samples,:].index)
+
+with open('/home/srd6051/bbcar_weird_samples.txt', 'w') as f:
+    for item in weird_samples:
+        f.write(f'{item}\n')

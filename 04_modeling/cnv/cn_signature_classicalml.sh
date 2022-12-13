@@ -4,7 +4,7 @@
 #SBATCH -t 1:00:00
 #SBATCH -N 1
 #SBATCH -n 8
-#SBATCH --mem=1G
+#SBATCH --mem=3G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name="cnsigml"
