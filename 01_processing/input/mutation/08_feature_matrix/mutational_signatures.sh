@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH -A b1042
 #SBATCH -p genomics
-#SBATCH -t 48:00:00
+#SBATCH -t 8:00:00
 #SBATCH -N 1
 #SBATCH -n 32
-#SBATCH --mem=24G
+#SBATCH --mem=16G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --job-name="sub_mutsig"
+#SBATCH --job-name="mutsig"
 #SBATCH --output=/projects/b1131/saya/bbcar/out/mutational_signature.out
 
 module purge all
