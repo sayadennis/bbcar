@@ -16,4 +16,4 @@ source activate bbcarenv
 
 cd /projects/b1131/saya/bbcar/data/02b_cnv/signatures
 
-python ~/bbcar/repo/01_processing/input/cnv/signatures/copy_number_signatures.py
+python ~/bbcar/repo/01_processing/input/cnv/signatures/gatk_copy_number_signatures.py
