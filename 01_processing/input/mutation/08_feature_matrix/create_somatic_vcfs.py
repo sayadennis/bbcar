@@ -7,7 +7,7 @@ dn = '/projects/b1131/saya/bbcar/data/02a_mutation'
 sompred = pd.read_csv(f'{dn}/07_predicted_somatic/nonmatched.csv')
 sompred = list(sompred.iloc[sompred.somatic.values==1,:].var_id.values)
 
-tissue_vcfs = glob.glob(f'{dn}/02_variant_calls/tumor_only/*_DPfiltered.vcf')
+tissue_vcfs = glob.glob(f'{dn}/02_variant_calls/tumor_only/*_DPfiltered_bbcarpon.vcf')
 tissue_sample_ids = [
     filename.split('/')[-1].split('_')[0][:-1] if filename.split('/')[-1].split('_')[0].endswith('t')
     else filename.split('/')[-1].split('_')[0] 
@@ -19,7 +19,7 @@ germline_sample_ids = [filename.split('/')[-1].split('_')[0] for filename in ger
 tissue_only_sample_ids = set(tissue_sample_ids) - set(germline_sample_ids)
 
 for sample_id in tissue_only_sample_ids:
-    fin = f'{dn}/02_variant_calls/tumor_only/{sample_id}t_DPfiltered.vcf'
+    fin = f'{dn}/02_variant_calls/tumor_only/{sample_id}t_DPfiltered_bbcarpon.vcf'
     fout = f'{dn}/07_predicted_somatic/vcfs/{sample_id}_somatic.vcf'
     # read the original calls 
     with open(fin, 'r') as f:
@@ -37,3 +37,4 @@ for sample_id in tissue_only_sample_ids:
             var_id = f'{chrom}_{pos}_{ref}_{alt}'
             if var_id in sompred:
                 f.write(line)
+    f.close()

@@ -21,7 +21,7 @@ cd /projects/b1131/saya/bbcar/
 din="/projects/b1131/saya/bbcar/data/02a_mutation/02_variant_calls"
 dout="/projects/b1131/saya/bbcar/data/02a_mutation/07_predicted_somatic/vcfs"
 
-cp ${din}/tumor_normal/*_DPfiltered.vcf ${dout}/
+cp ${din}/tumor_normal/*_DPfiltered_bbcarpon.vcf ${dout}/
 
 #### Filter the tissue-only calls and select predicted-somatic ####
 
