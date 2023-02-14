@@ -159,6 +159,7 @@ fig.savefig(f'{dout_plot}/violin_num_vars_compare_casecontrol_matched_somatic.pn
 plt.close()
 
 ## Test whether total counts differ significantly 
+print(f'\n#### CALLED VARIANTS')
 # all 
 fig, ax = plt.subplots(figsize=(3,3))
 for assignment in ['case', 'control']:
@@ -198,3 +199,43 @@ for matched_status in ['matched', 'non-matched']:
     plt.close()
 
 # exec(open('bbcar/repo/03_statistitcal_tests/mutation/compare_signature_case_vs_control.py').read())
+
+## Do the same but for variants predicted as somatic 
+print(f'\n#### SOMATIC VARIANTS')
+# all 
+fig, ax = plt.subplots(figsize=(3,3))
+for assignment in ['case', 'control']:
+    ax.hist(
+        data.iloc[data['case/control'].values==assignment,:]['predicted somatic'], 
+        alpha=0.5, bins=20, range=(0,18000), label=assignment
+    )
+
+ax.legend(loc='upper right')
+ax.set_title('Total somatic variants')
+fig.savefig(f'{dout_plot}/histogram_total_num_somatic_variants_all.png')
+plt.close()
+
+print(f'\n## Results for all samples combined')
+print(ttest_ind(
+    data.iloc[data['case/control'].values=='case',:]['predicted somatic'], 
+    data.iloc[data['case/control'].values=='control',:]['predicted somatic']
+))
+
+# matched samples 
+for matched_status in ['matched', 'non-matched']:
+    print(f'\n## Results for {matched_status}')
+    print(ttest_ind(
+        data.iloc[((data['case/control'].values=='case') & (data['matched germline'].values==matched_status)),:]['predicted somatic'], 
+        data.iloc[((data['case/control'].values=='control') & (data['matched germline'].values==matched_status)),:]['predicted somatic']
+    ))
+    fig, ax = plt.subplots(figsize=(3,3))
+    for assignment in ['case', 'control']:
+        ax.hist(
+            data.iloc[((data['case/control'].values==assignment) & (data['matched germline'].values==matched_status)),:]['predicted somatic'], 
+            alpha=0.5, bins=20, range=(0,18000), label=assignment
+        )
+
+    ax.legend(loc='upper right')
+    ax.set_title(f'Somatic variants for {matched_status}')
+    fig.savefig(f'{dout_plot}/histogram_total_num_somatic_variants_{matched_status}.png')
+    plt.close()

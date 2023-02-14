@@ -47,7 +47,7 @@ y_test_prob = m.predict_proba(X_test.to_numpy())[:,1]
 f_imp = pd.DataFrame(m.feature_importances_, index=X.columns, columns=['score']).sort_values('score', ascending=False)
 f_imp.to_csv(f'{dout}/feature_importance.csv', index=True)
 
-## Calculate stratified performance 
+## Calculate stratified performance by variant annotations 
 strat_dict = {}
 
 for anno_category in ['Func.refGene', 'ExonicFunc.refGene', 'Func.knownGene', 'ExonicFunc.knownGene', 'Func.ensGene', 'ExonicFunc.ensGene']:
@@ -94,3 +94,25 @@ for annofunc in meta[annotation_type].unique():
     somatic_rate.loc[annofunc,'somatic_rate'] = y.iloc[bool_in_meta,:].sum().values[0]/y.shape[0]
 
 somatic_rate.to_csv('somatic_rates_exonicfunc_refgene.csv')
+
+## Calculate stratified performance by source: tissue-only, tissue-normal, germline 
+strat_dict = {}
+
+for source in ['tissue_normal', 'tissue_only', 'germline']:
+    with open(f'{din}/{source}_var_id.txt', 'r') as f:
+        var_ids = [x.strip() for x in f.readlines()]
+    # 
+    ysub_true = y_test.to_numpy().ravel()[[var_id in var_ids for var_id in y_test.index]]
+    ysub_pred = y_test_pred[[var_id in var_ids for var_id in y_test.index]]
+    ysub_prob = y_test_prob[[var_id in var_ids for var_id in y_test.index]]
+    acc = metrics.balanced_accuracy_score(ysub_true, ysub_pred)
+    try: # ROC cannot be calculated if only one class in y_true 
+        roc = metrics.roc_auc_score(ysub_true, ysub_prob)
+    except:
+        roc = None
+    prec = metrics.precision_score(ysub_true, ysub_pred)
+    rec = metrics.recall_score(ysub_true, ysub_pred)
+    f1 = metrics.f1_score(ysub_true, ysub_pred)
+    strat_pf.loc[anno] = [acc, roc, prec, rec, f1]
+    with open(f'{dout}/{source}_stratified_pf_dict.p', 'wb') as f:
+        pickle.dump(strat_dict, f)

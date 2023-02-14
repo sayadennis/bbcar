@@ -10,8 +10,9 @@
 #SBATCH --job-name="eval_sompred"
 #SBATCH --output=/projects/b1131/saya/bbcar/out/02_evaluate_somatic_pred.out
 
-. ~/anaconda3/etc/profile.d/conda.sh
-conda activate bbcarenv
+module purge all
+module load python-miniconda3/4.12.0
+source activate bbcarenv
 
 cd ${HOME}/bbcar/repo/01_processing/input/mutation/07_somatic_prediction/
 
