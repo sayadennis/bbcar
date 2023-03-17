@@ -4,8 +4,8 @@
 #SBATCH -t 18:00:00
 #SBATCH -N 1
 #SBATCH -n 5
-#SBATCH --array=0-53
-#SBATCH --mem=50G
+#SBATCH --array=1,3,4,5,6,12,23,24,25,26,27,29,31,32,35,36,40,41,53
+#SBATCH --mem=30G
 #SBATCH --job-name=bwa_ger%a
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
@@ -44,11 +44,18 @@ aligned='/projects/b1131/saya/bbcar/data/01_alignment/germline/aligned'
 
 cd /projects/b1131/saya/bbcar/data/00_raw/germline/${sampleid}/
 
-for fpattern in $(awk -F'[_\.]' '{print $1"_"$2"_"$3"_"$4"_"$5"_"$6}' <(ls *.fastq.gz) 2>/dev/null | cut -d '_' -f 1-3 | sort -u); do 
+for fpattern in $(ls *.fastq.gz | awk -F'[_.]' '{print $1"_"$2"_"$3}' | sed 's/_R[12]$//' | sort -u); do 
     # echo $fpattern
 
-    R1=/projects/b1131/saya/bbcar/data/00_raw/germline/${sampleid}/${fpattern}_R1.fastq.gz
-    R2=/projects/b1131/saya/bbcar/data/00_raw/germline/${sampleid}/${fpattern}_R2.fastq.gz
+    readarray -t files_array <<< "$(ls /projects/b1131/saya/bbcar/data/00_raw/germline/${sampleid}/${fpattern}*)"
+
+    if [[ ${#files_array[@]} -gt 2 ]]; then
+        echo "Error: there are more than 2 files that match file pattern: /projects/b1131/saya/bbcar/data/00_raw/germline/${sampleid}/${fpattern}"
+        exit 1
+    fi
+    
+    R1=${files_array[0]}
+    R2=${files_array[1]}
 
     header=$(zcat $R1 | head -n 1)
     id=$(echo $header | head -n 1 | cut -f 3-4 -d':' | sed 's/@//' | sed 's/:/_/g')
