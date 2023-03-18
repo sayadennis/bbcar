@@ -7,12 +7,12 @@
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name="pon"
-#SBATCH --output=bbcar/out/generate_pon_bbcar.out
+#SBATCH --output=/projects/b1131/saya/bbcar/out/generate_pon_step2.out
 
 cd /projects/b1131/saya/bbcar/
 
-din=/projects/b1131/saya/bbcar/01_alignment/germline/aligned
-dout=/projects/b1131/saya/bbcar/02_variant_calls/germline_only
+din=/projects/b1131/saya/bbcar/data/01_alignment/germline/aligned
+dout=/projects/b1131/saya/bbcar/data/02a_mutation/02_variant_calls/germline_only
 
 interval='/projects/b1122/gannon/bbcar/RAW_data/int_lst/SureSelect_v6/hg38.preprocessed.interval_list'
 ref='/projects/p30791/hg38_ref/hg38.fa'
@@ -29,11 +29,11 @@ export PATH="/projects/b1131/saya/bbcar/tools/gatk-4.2.5.0:$PATH"
 # done
 # #
 
-# # Step 2: Create a GenomicsDB from the normal Mutect2 calls:
-# rm -r /projects/b1131/saya/bbcar/02_variant_calls/tmp_pon/*
-# rm -r /projects/b1042/lyglab/saya/bbcar/pon_tmp/*
-# rm -r /projects/b1131/saya/bbcar/pon_db
-# gatk GenomicsDBImport -R $ref -L $interval --tmp-dir /projects/b1042/lyglab/saya/bbcar/pon_tmp/ --genomicsdb-workspace-path /projects/b1042/lyglab/saya/bbcar/pon_db $(for x in $(ls -1 $dout/*_bqsr.vcf.gz); do echo -n "-V $x "; done)
+# Step 2: Create a GenomicsDB from the normal Mutect2 calls:
+rm -r /projects/b1042/lyglab/saya/bbcar/pon_tmp/*
+rm -rf /projects/b1042/lyglab/saya/bbcar/pon_db
+gatk GenomicsDBImport -R $ref -L $interval --tmp-dir /projects/b1042/lyglab/saya/bbcar/pon_tmp/ --genomicsdb-workspace-path /projects/b1042/lyglab/saya/bbcar/pon_db $(for x in $(ls -1 $dout/*_bqsr.vcf.gz); do echo -n "-V $x "; done)
+#
 
 # Step 3: Combine the normal calls using CreateSomaticPanelOfNormals:
 cd /projects/b1042/lyglab/saya/bbcar/
@@ -42,5 +42,7 @@ gatk CreateSomaticPanelOfNormals \
     -R $ref \
     --output $dout/bbcar_pon.vcf.gz
 #
+
+rm -rf /projects/b1042/lyglab/saya/bbcar/pon_db
 
 # --germline-resource /projects/b1131/saya/bbcar/genome_resources/GATK/af-only-gnomad.hg38.vcf.gz 
