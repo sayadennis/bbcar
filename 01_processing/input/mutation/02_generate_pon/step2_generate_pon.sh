@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -A b1042
-#SBATCH -p genomics-himem
+#SBATCH -p genomicslong
 #SBATCH -n 1
-#SBATCH -t 168:00:00
-#SBATCH --mem=500G
+#SBATCH -t 240:00:00
+#SBATCH --mem=240G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name="pon"
