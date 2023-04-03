@@ -8,7 +8,7 @@
 #SBATCH --mem=20G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --job-name=av_to_${SLURM_ARRAY_TASK_ID}
+#SBATCH --job-name=av_to%a
 #SBATCH --output=/projects/b1131/saya/bbcar/out/annovar_tumor_only_%a.out
 
 cd /projects/b1131/saya/bbcar/

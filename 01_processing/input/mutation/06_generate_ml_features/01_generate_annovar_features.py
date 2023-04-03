@@ -8,9 +8,9 @@ import pandas as pd
 #### Get input arguments (sample info) ####
 ###########################################
 
-input_arg = sys.argv[1] # input_arg is something like "germline_only/1009.hg38_multianno.vcf" 
-source = input_arg.split('/')[0]
-sample_id = input_arg.split('/')[1].split('.')[0]
+input_arg = sys.argv[1] # input_arg is the FULL path to VCF
+source = input_arg.split('/')[-2]
+sample_id = input_arg.split('/')[-1].split('.')[0]
 
 if sample_id[-1]=='t':
     sample_id = sample_id[:-1] # remove the "t" at the end
@@ -19,7 +19,7 @@ if sample_id[-1]=='t':
 #### Set input and output directories ####
 ##########################################
 
-din = '/projects/b1131/saya/bbcar/data/02a_mutation/03_annotated_variants/annovar'
+# din = '/projects/b1131/saya/bbcar/data/02a_mutation/03_annotated_variants/annovar' # included in input argument 
 dout = '/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/01_indivi_annovar_features'
 
 #######################################
@@ -79,7 +79,7 @@ variables=[
 features = pd.DataFrame(columns=variables)
 
 ## Iterate through lines of VCF
-vcf = f'{din}/{input_arg}'
+vcf = input_arg
 
 with open(vcf, 'r') as f:
     lines = f.readlines()

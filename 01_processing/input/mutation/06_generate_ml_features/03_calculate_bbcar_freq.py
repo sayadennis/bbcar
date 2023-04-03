@@ -48,28 +48,14 @@ variables = [
     'SiPhy_29way_logOdds'
 ]
 
-#### Generic PON ####
+for pon_source in ['1000g', 'bbcar']:
+    features = pd.read_csv(f'{din}/annovar_features_all_{pon_source}pon.csv')
 
-features = pd.read_csv(f'{din}/annovar_features_all.csv')
+    bbcar_freq = {}
+    for variant in features.var_id.unique():
+        freq = len(features.iloc[features.var_id.values==variant,:]['sample_id'].unique())/len(features.sample_id.unique())
+        bbcar_freq[variant] = freq
 
-bbcar_freq = {}
-for variant in features.var_id.unique():
-    freq = len(features.iloc[features.var_id.values==variant,:]['sample_id'].unique())/len(features.sample_id.unique())
-    bbcar_freq[variant] = freq
+    features['bbcar_freq'] = [bbcar_freq[x] for x in features.var_id]
 
-features['bbcar_freq'] = [bbcar_freq[x] for x in features.var_id]
-
-features.to_csv(f'{dout}/features_annovar_bbcarfreq.csv', index=False)
-
-#### BBCAR PON ####
-
-features = pd.read_csv(f'{din}/annovar_features_all_bbcarpon.csv')
-
-bbcar_freq = {}
-for variant in features.var_id.unique():
-    freq = len(features.iloc[features.var_id.values==variant,:]['sample_id'].unique())/len(features.sample_id.unique())
-    bbcar_freq[variant] = freq
-
-features['bbcar_freq'] = [bbcar_freq[x] for x in features.var_id]
-
-features.to_csv(f'{dout}/features_annovar_bbcarfreq_bbcarpon.csv', index=False)
+    features.to_csv(f'{dout}/features_annovar_bbcarfreq_{pon_source}pon.csv', index=False)

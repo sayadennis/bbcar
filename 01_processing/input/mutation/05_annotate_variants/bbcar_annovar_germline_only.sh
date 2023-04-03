@@ -8,8 +8,8 @@
 #SBATCH --mem=20G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --job-name=av_go_${SLURM_ARRAY_TASK_ID}
-#SBATCH --output=bbcar/out/annovar_germline_only_%a.out
+#SBATCH --job-name=av_go%a
+#SBATCH --output=/projects/b1131/saya/bbcar/out/annovar_germline_only_%a.out
 
 cd /projects/b1131/saya/bbcar/
 
@@ -18,11 +18,11 @@ module purge all
 module load perl/5.16
 
 ## Define input arguments for job array 
-IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/bbcar/sample_names_germline.txt
+IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/bbcar/data/02a_mutation/sample_names_germline.txt
 
 ## Set input and output directories 
-din='/projects/b1131/saya/bbcar/02_variant_calls/germline_only'
-dout='/projects/b1131/saya/bbcar/03_annotated_variants/annovar/germline_only'
+din='/projects/b1131/saya/bbcar/data/02a_mutation/02_variant_calls/germline_only'
+dout='/projects/b1131/saya/bbcar/data/02a_mutation/03_annotated_variants/annovar/germline_only'
 dav='/projects/b1131/saya/bbcar/tools/annovar'
 
 fin=${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered.vcf
