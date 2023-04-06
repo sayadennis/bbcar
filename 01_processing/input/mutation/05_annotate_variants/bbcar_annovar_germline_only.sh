@@ -34,7 +34,7 @@ perl ${dav}/table_annovar.pl \
     -buildver hg38 \
     -out $dout/$fout \
     -remove \
-    -protocol refGene,knownGene,ensGene,avsnp150,dbnsfp35a,dbnsfp31a_interpro,exac03,gnomad211_exome,gnomad211_genome \
-    -operation g,g,g,f,f,f,f,f,f \
+    -protocol refGene,knownGene,ensGene,avsnp150,dbnsfp35a,dbnsfp31a_interpro,exac03,gnomad211_exome \
+    -operation g,g,g,f,f,f,f,f \
     -nastring . -vcfinput
 #
