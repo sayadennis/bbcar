@@ -1,8 +1,8 @@
-from random import sample
 import sys
 import glob
 import numpy as np
 import pandas as pd
+from itertools import compress
 
 ###########################################
 #### Get input arguments (sample info) ####
@@ -10,7 +10,7 @@ import pandas as pd
 
 input_arg = sys.argv[1] # input_arg is the FULL path to VCF
 source = input_arg.split('/')[-2]
-sample_id = input_arg.split('/')[-1].split('.')[0]
+sample_id = input_arg.split('/')[-1].split('.')[0].split('_')[0]
 
 if sample_id[-1]=='t':
     sample_id = sample_id[:-1] # remove the "t" at the end
@@ -101,20 +101,24 @@ for line in lines:
         var_feature.loc[0,'sample_id'] = sample_id
         # get necessary information
         info = info.split(';')
-        try:
-            third_af_loc = np.where([x.startswith('AF=') for x in info])[0][2]
-            info = info[:third_af_loc]
-        except:
-            print(f'{chrom}_{pos}_{ref}_{alt},{source},{sample_id}')
-        for anno_item in info:
-            for variable in variables:
-                if anno_item.startswith(variable):
-                    feature_value = anno_item.split('=')[1]
-                    try:
-                        var_feature.loc[0,variable] = float(feature_value)
-                    except:
-                        if feature_value != '.': # if it's not the regular "." (i.e. missing) - then enter so that we can evaluate
-                            var_feature.loc[0,variable] = feature_value
+        for variable in variables:
+            if variable=='AF':
+                af_locs = np.where([anno_item.startswith('AF=') for anno_item in info])
+                afs = [x.split('=')[1] for x in np.array(info)[af_locs]]
+                afs = [item for item in afs if item != '.']
+                afs = [item.split(',')[0] if item=='0.5,0.5' else item for item in afs]
+                if len(afs)>0:
+                    af = np.mean([float(item) for item in afs])
+                    var_feature.loc[0,variable] = af
+            elif variable in ['var_id', 'source', 'sample_id']:
+                continue
+            else:
+                feature_value = [item for (item, filterval) in zip(info, [anno_item.startswith(f'{variable}=') for anno_item in info]) if filterval]
+                feature_value = feature_value[0].split('=')[-1]
+                if feature_value.replace('.', '').replace('-', '').isnumeric():
+                    var_feature.loc[0,variable] = float(feature_value)
+                else:
+                    var_feature.loc[0,variable] = feature_value if feature_value != '.' else None
         # record result in feature matrix 
         features = pd.concat((features,var_feature), ignore_index=True)
 

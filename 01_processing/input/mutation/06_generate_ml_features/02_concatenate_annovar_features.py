@@ -71,8 +71,8 @@ for pon_source in ['1000g', 'bbcar']:
         single_sample = pd.read_csv(fn)
         features = pd.concat((features,single_sample), ignore_index=True)
     
-    # BELOW LINE MIGHT NOT BE NECESSARY if the weird '0.5,0.5' doesn't appear in AF column 
-    features.AF = features.AF.map({'0.5,0.5':0.5}).astype(float)
+    # # BELOW LINE MIGHT NOT BE NECESSARY if the weird '0.5,0.5' doesn't appear in AF column 
+    # features.AF = features.AF.map({'0.5,0.5':0.5}).astype(float)
 
     #### Change contents of the avsnp150 column to be binary ####
     nanix = features.iloc[pd.isnull(features.avsnp150).values,:].index
