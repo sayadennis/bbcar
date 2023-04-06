@@ -1,16 +1,17 @@
 #!/bin/bash
 #SBATCH -A b1042
 #SBATCH -p genomics
-#SBATCH --array=0-53
+#SBATCH --array=34
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH -t 2:00:00
+#SBATCH -t 3:00:00
 #SBATCH --mem=1G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name=avfts_%a
 #SBATCH --output=/projects/b1131/saya/bbcar/out/generate_annovar_features_%a.out
 
+module purge all
 module load python-miniconda3/4.12.0
 source activate bbcarenv
 

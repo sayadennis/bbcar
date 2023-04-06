@@ -11,8 +11,12 @@ from itertools import compress
 input_arg = sys.argv[1] # input_arg is the FULL path to VCF
 source = input_arg.split('/')[-2]
 sample_id = input_arg.split('/')[-1].split('.')[0].split('_')[0]
+if source=='germline_only':
+    pon_source = 'no'
+else:
+    pon_source = input_arg.split('/')[-1].split('.')[0].split('_')[1][:-3]
 
-if sample_id[-1]=='t':
+if sample_id.endswith('t'):
     sample_id = sample_id[:-1] # remove the "t" at the end
 
 ##########################################
@@ -122,4 +126,4 @@ for line in lines:
         # record result in feature matrix 
         features = pd.concat((features,var_feature), ignore_index=True)
 
-features.to_csv(f'{dout}/{source}_{sample_id}_annovar_features.csv', index=False)
+features.to_csv(f'{dout}/{source}_{sample_id}_{pon_source}pon_annovar_features.csv', index=False)

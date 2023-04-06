@@ -59,9 +59,9 @@ variables = [
     'SiPhy_29way_logOdds'
 ]
 
-features = pd.DataFrame(columns=variables)
-
 for pon_source in ['1000g', 'bbcar']:
+    features = pd.DataFrame(columns=variables)
+
     for fn in glob.glob(f'{din}/*_{pon_source}pon_annovar_features.csv'):
         single_sample = pd.read_csv(fn)
         features = pd.concat((features,single_sample), ignore_index=True)
@@ -81,41 +81,3 @@ for pon_source in ['1000g', 'bbcar']:
 
     ## Save ##
     features.to_csv(f'{dout}/annovar_features_all_{pon_source}pon.csv', index=False)
-
-# ##########################################
-# #### Collect features for generic PON ####
-# ##########################################
-
-# for fn in glob.glob(f'{din}/*_1000gpon_annovar_features.csv'):
-#     if 'bbcarpon' not in fn:
-#         single_sample = pd.read_csv(fn)
-#         features = pd.concat((features,single_sample), ignore_index=True)
-
-# # BELOW LINE MIGHT NOT BE NECESSARY if the weird '0.5,0.5' doesn't appear in AF column 
-# features.AF = features.AF.map({'0.5,0.5':0.5}).astype(float)
-
-# #### Change contents of the avsnp150 column to be binary ####
-# nanix = features.iloc[pd.isnull(features.avsnp150).values,:].index
-# features['avsnp150'].iloc[nanix] = 0
-# features['avsnp150'].iloc[features.avsnp150.values!=0] = 1
-
-# ## Save ##
-# features.to_csv(f'{dout}/annovar_features_all.csv', index=False)
-
-# ########################################
-# #### Collect features for BBCAR PON ####
-# ########################################
-
-# for fn in glob.glob(f'{din}/*_bbcarpon_annovar_features.csv'):
-#     single_sample = pd.read_csv(fn)
-#     features = pd.concat((features,single_sample), ignore_index=True)
-
-# # features.AF=features.AF.map({'0.5,0.5':0.5}).astype(float)
-
-# #### Change contents of the avsnp150 column to be binary ####
-# nanix = features.iloc[pd.isnull(features.avsnp150).values,:].index
-# features['avsnp150'].iloc[nanix] = 0
-# features['avsnp150'].iloc[features.avsnp150.values!=0] = 1
-
-# ## Save ##
-# features.to_csv(f'{dout}/annovar_features_all_bbcarpon.csv', index=False)
