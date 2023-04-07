@@ -1,3 +1,4 @@
+import os
 import sys
 import numpy as np
 import pandas as pd
@@ -11,14 +12,13 @@ din = '/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/04_imputed'
 dout = '/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features'
 dix = '/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/somatic_pred_ix'
 
-for feature_type in ['bbcar', '1000g']:
-    filename = filename_dict[feature_type]
+for pon_source in ['bbcar', '1000g']:
 
     ###################
     #### Load data ####
     ###################
 
-    data = pd.read_csv(f'{din}/features_imputed_{feature_type}.csv')
+    data = pd.read_csv(f'{din}/features_imputed_{pon_source}.csv')
 
     #####################################
     #### Convert to input and target ####
@@ -41,7 +41,7 @@ for feature_type in ['bbcar', '1000g']:
 
     variables=[
         'var_id',
-        'AF',
+        # 'AF',
         'avsnp150',
         'ExAC_ALL',
         'SIFT_score',
@@ -83,19 +83,19 @@ for feature_type in ['bbcar', '1000g']:
     #### Create train and test indices ####
     #######################################
 
-    train_ix, test_ix = train_test_split(np.arange(X_matched.shape[0]), test_size=.2, random_state=43, shuffle=True)
+    train_ix, test_ix = train_test_split(X_matched.index, test_size=.2, random_state=43, shuffle=True)
 
     ##############
     #### Save ####
     ##############
 
-    X_matched.to_csv(f'{dout}/input_matched_{feature_type}.csv', index=True, header=True)
-    y_matched.to_csv(f'{dout}/target_matched_{feature_type}.csv', index=True, header=True)
+    X_matched.to_csv(f'{dout}/input_matched_{pon_source}.csv', index=True, header=True)
+    y_matched.to_csv(f'{dout}/target_matched_{pon_source}.csv', index=True, header=True)
 
-    X_nonmatched.to_csv(f'{dout}/input_nonmatched_{feature_type}.csv', index=True, header=True)
+    X_nonmatched.to_csv(f'{dout}/input_nonmatched_{pon_source}.csv', index=True, header=True)
 
-    if not os.path.isdir(f'{dix}/{feature_type}'):
-        os.makedirs(f'{dix}/{feature_type}')
+    if not os.path.isdir(f'{dix}/{pon_source}'):
+        os.makedirs(f'{dix}/{pon_source}')
     
-    pd.DataFrame(index=train_ix).to_csv(f'{dix}/{feature_type}/train_ix.csv', header=False)
-    pd.DataFrame(index=test_ix).to_csv(f'{dix}/{feature_type}/test_ix.csv', header=False)
+    pd.DataFrame(index=train_ix).to_csv(f'{dix}/{pon_source}/train_index.txt', header=False)
+    pd.DataFrame(index=test_ix).to_csv(f'{dix}/{pon_source}/test_index.txt', header=False)

@@ -49,13 +49,13 @@ variables = [
 ]
 
 for pon_source in ['1000g', 'bbcar']:
+    # load the concatenated annovar features 
     features = pd.read_csv(f'{din}/annovar_features_all_{pon_source}pon.csv')
-
-    bbcar_freq = {}
-    for variant in features.var_id.unique():
-        freq = len(features.iloc[features.var_id.values==variant,:]['sample_id'].unique())/len(features.sample_id.unique())
-        bbcar_freq[variant] = freq
-
-    features['bbcar_freq'] = [bbcar_freq[x] for x in features.var_id]
-
+    # create binary matrix where index is var_id and column is sample_id
+    matrix = features[['var_id', 'sample_id']].pivot_table(index='var_id', columns='sample_id', aggfunc=lambda x: 1, fill_value=0)
+    # calculate the frequency among bbcar samples and save it in a vector 
+    bbcar_freq = matrix.sum(axis=1)/matrix.shape[1]
+    # add this vector as a column to the existing features matrix 
+    features['bbcar_freq'] = bbcar_freq.loc[features.var_id.values].values
+    # save the matrix 
     features.to_csv(f'{dout}/features_annovar_bbcarfreq_{pon_source}pon.csv', index=False)

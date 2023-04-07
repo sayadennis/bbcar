@@ -3,8 +3,8 @@
 #SBATCH -p genomics
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH -t 16:00:00
-#SBATCH --mem=5G
+#SBATCH -t 1:00:00
+#SBATCH --mem=12G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name=bbcar_freq

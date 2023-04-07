@@ -2,6 +2,8 @@ import sys
 import glob
 import numpy as np
 import pandas as pd
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
 
 ##########################################
 #### Set input and output directories ####
@@ -10,19 +12,14 @@ import pandas as pd
 din = '/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/03_freq_added'
 dout = '/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/04_imputed'
 
-filename_dict = {
-    'bbcar' : 'features_annovar_bbcarfreq_bbcarpon.csv',
-    '1000g' : 'features_annovar_bbcarfreq.csv',
-}
-
-for feature_type in ['bbcar', '1000g']:
-    filename = filename_dict[feature_type]
+for pon_source in ['bbcar', '1000g']:
+    filename = f'features_annovar_bbcarfreq_{pon_source}pon.csv'
 
     ###################
     #### Load data ####
     ###################
 
-    features=pd.read_csv(f'{din}/{filename}')
+    features = pd.read_csv(f'{din}/{filename}')
 
     ############################
     #### Numerical encoding ####
@@ -42,9 +39,6 @@ for feature_type in ['bbcar', '1000g']:
     #### Imputation ####
     ####################
 
-    from sklearn.experimental import enable_iterative_imputer
-    from sklearn.impute import IterativeImputer
-
     features_to_impute = [
         'AF', 'ExAC_ALL', 'SIFT_score', 'SIFT_pred', 'Polyphen2_HDIV_score',
         'Polyphen2_HDIV_pred', 'Polyphen2_HVAR_score', 'Polyphen2_HVAR_pred',
@@ -56,10 +50,11 @@ for feature_type in ['bbcar', '1000g']:
         'SiPhy_29way_logOdds'
     ]
 
-    imp_median = IterativeImputer(random_state=0, initial_strategy='median')
+    imp_median = IterativeImputer(random_state=0, initial_strategy='median', max_iter=20)
     imp_features = imp_median.fit_transform(features[features_to_impute])
 
+    # pd.DataFrame(imp_features).to_csv(f'{dout}/test_imp_features_imputed_{pon_source}.csv', index=False, header=True)
     features[features_to_impute] = imp_features
 
     ## Save ##
-    features.to_csv(f'{dout}/features_imputed_{feature_type}.csv', index=False, header=True)
+    features.to_csv(f'{dout}/features_imputed_{pon_source}.csv', index=False, header=True)
