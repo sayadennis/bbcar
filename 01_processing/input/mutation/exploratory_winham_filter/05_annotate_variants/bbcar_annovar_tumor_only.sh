@@ -5,7 +5,7 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -t 4:00:00
-#SBATCH --mem=20G
+#SBATCH --mem=10G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name=av_to%a
@@ -25,7 +25,7 @@ din='/projects/b1131/saya/bbcar/data/02a_mutation/02_variant_calls/tumor_only'
 dav='/projects/b1131/saya/bbcar/tools/annovar'
 
 for filter_type in liberal classical strict; do
-    dout=/projects/b1131/saya/bbcar/exploratory_winham_filter/${filter_type}/03_annotated_variants/annovar/tumor_normal
+    dout=/projects/b1131/saya/bbcar/exploratory_winham_filter/${filter_type}/03_annotated_variants/annovar/tumor_only
     mkdir -p $dout
     pon_source='bbcar'
     fin=${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_${pon_source}pon.vcf
