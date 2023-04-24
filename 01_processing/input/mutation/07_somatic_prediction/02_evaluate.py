@@ -27,7 +27,7 @@ y = pd.read_csv(f'{din}/target_matched_{pon_source}.csv', index_col=0)
 meta = pd.read_csv(f'{din}/04_imputed/features_imputed_{pon_source}.csv') # this contains meta information about each variant (variant exonic function etc.) 
 
 ## Model 
-mfn = '/projects/b1131/saya/bbcar/model_interpretations/bbcar/20230419_saved_best_XGB_input_matched_bbcar.p'
+mfn = f'/projects/b1131/saya/bbcar/model_interpretations/{pon_source}/20230419_saved_best_XGB_input_matched_bbcar.p'
 with open(mfn, 'rb') as f:
     m = pickle.load(f)
 

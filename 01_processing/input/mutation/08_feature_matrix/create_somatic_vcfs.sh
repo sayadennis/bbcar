@@ -19,10 +19,11 @@ cd /projects/b1131/saya/bbcar/
 #### Copy the tissue-normal matched calls (100% somatic) ####
 
 din="/projects/b1131/saya/bbcar/data/02a_mutation/02_variant_calls"
-dout="/projects/b1131/saya/bbcar/data/02a_mutation/07_predicted_somatic/vcfs"
 
-cp ${din}/tumor_normal/*_DPfiltered_bbcarpon.vcf ${dout}/
-
-#### Filter the tissue-only calls and select predicted-somatic ####
-
-python ~/bbcar/repo/01_processing/input/mutation/08_feature_matrix/create_somatic_vcfs.py
+for pon_source in bbcar; do # 1000g
+    dout=/projects/b1131/saya/bbcar/data/02a_mutation/07_predicted_somatic/vcfs/${pon_source}
+    mkdir -p ${dout}
+    cp ${din}/tumor_normal/*_DPfiltered_${pon_source}pon.vcf ${dout}/
+    #### Filter the tissue-only calls and select predicted-somatic ####
+    python ~/bbcar/repo/01_processing/input/mutation/08_feature_matrix/create_somatic_vcfs.py $pon_source
+done

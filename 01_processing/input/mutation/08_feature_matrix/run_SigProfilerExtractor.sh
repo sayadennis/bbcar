@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH -A b1042
 #SBATCH -p genomics
-#SBATCH -t 7:00:00
+#SBATCH -t 12:00:00
 #SBATCH -N 1
 #SBATCH -n 32
 #SBATCH --mem=16G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --job-name="sigpro"
-#SBATCH --output=/projects/b1131/saya/bbcar/out/run_SigProfilerExtractor.out
+#SBATCH --job-name="sigpro_matched"
+#SBATCH --output=/projects/b1131/saya/bbcar/out/run_SigProfilerExtractor_matched.out
 
 module purge all
 module load python-miniconda3/4.12.0
