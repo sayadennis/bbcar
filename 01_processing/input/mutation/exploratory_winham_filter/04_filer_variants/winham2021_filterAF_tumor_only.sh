@@ -30,7 +30,7 @@ mkdir -p $dout
 #################
 
 mkdir -p ${dout}/liberal/02_variant_calls/tumor_only
-bcftools filter --include "FORMAT/AF>=0.05" --output-type v --output ${dout}/liberal/02_variant_calls/tumor_only/${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_liberalAF_bbcarpon.vcf $din/${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_bbcarpon.vcf
+bcftools filter --exclude "FORMAT/AF<0.05" --output-type v --output ${dout}/liberal/02_variant_calls/tumor_only/${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_liberalAF_bbcarpon.vcf $din/${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_bbcarpon.vcf
 
 ###################
 #### Classical ####
@@ -44,4 +44,4 @@ bcftools filter --exclude '(FORMAT/AF<0.05) | (FORMAT/AF<0.10 && REF="C" && ALT=
 ################
 
 mkdir -p ${dout}/strict/02_variant_calls/tumor_only
-bcftools filter --include "FORMAT/AF>=0.10" --output-type v --output ${dout}/strict/02_variant_calls/tumor_only/${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_strictAF_bbcarpon.vcf $din/${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_bbcarpon.vcf
+bcftools filter --exclude "FORMAT/AF<0.10" --output-type v --output ${dout}/strict/02_variant_calls/tumor_only/${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_strictAF_bbcarpon.vcf $din/${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_bbcarpon.vcf

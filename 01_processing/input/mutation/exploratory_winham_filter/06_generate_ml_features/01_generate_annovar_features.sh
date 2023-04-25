@@ -4,7 +4,7 @@
 #SBATCH --array=0-307
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH -t 3:00:00
+#SBATCH -t 4:00:00
 #SBATCH --mem=1G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
