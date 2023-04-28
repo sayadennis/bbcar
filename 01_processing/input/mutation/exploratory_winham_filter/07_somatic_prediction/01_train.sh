@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -A b1042
-#SBATCH -p genomicslong
-#SBATCH -t 240:00:00
+#SBATCH -p genomics
+#SBATCH -t 48:00:00
 #SBATCH -N 1
 #SBATCH -n 48
 #SBATCH --mem=96G
