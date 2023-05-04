@@ -41,9 +41,15 @@ mfn = f'{model_dir}/{model_filenames[-1]}' # LATEST model (gets sorted by date)
 with open(mfn, 'rb') as f:
     m = pickle.load(f)
 
+y_matched_pred = m.predict(X_matched.to_numpy())
 y_nonmatched = m.predict(X_nonmatched.to_numpy())
 
 pd.DataFrame(y_nonmatched, 
                 index=X_nonmatched.index, 
                 columns=['somatic']
 ).to_csv(f'{dout}/nonmatched_{pon_source}.csv')
+
+pd.DataFrame(y_matched_pred, 
+                index=X_matched.index, 
+                columns=['somatic']
+).to_csv(f'{dout}/matched_{pon_source}.csv')
