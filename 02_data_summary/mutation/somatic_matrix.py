@@ -232,3 +232,34 @@ plt.close()
 # print(f'{ct_none_avail}/{data.shape[0]} mutations have NONE of the below scores available:')
 # for score_name in scores:
 #     print(score_name)
+
+###############################
+#### Mutational signatures ####
+###############################
+
+din = '/projects/b1131/saya/bbcar/data/02a_mutation/08_feature_matrix'
+dout = '/projects/b1131/saya/bbcar/plots/mutation'
+
+denovo = pd.read_csv(f'{din}/signature_results/SBS96/Suggested_Solution/SBS96_De-Novo_Solution/Signatures/SBS96_De-Novo_Signatures.txt', sep='\t', index_col=0)
+cosmic = pd.read_csv(f'{din}/COSMIC_v3.3.1_SBS_GRCh38.txt', sep='\t', index_col=0)
+sbs96 = pd.read_csv(f'{din}/signature_results/SBS96/Samples.txt', sep='\t', index_col=0)
+
+sbs96.columns = [x.split('_')[0] for x in sbs96]
+
+subdata = np.log(sbs96+1)
+
+row_linkage = hierarchy.linkage(distance.pdist(subdata.to_numpy()), method='average')
+col_linkage = hierarchy.linkage(distance.pdist(subdata.to_numpy().T), method='average')
+
+temp_labels = [target.loc[int(x),'label'] if int(x) in target.index 
+               else 0 for x in subdata.columns]
+network_pal = sns.light_palette('cyan', 2)
+network_lut = dict(zip([0,1], network_pal))
+network_colors = pd.Series(temp_labels).map(network_lut)
+
+sns.clustermap(subdata, row_linkage=row_linkage, col_linkage=col_linkage, 
+               # row_colors=network_colors, method="average",
+               col_colors=network_colors.values, 
+               figsize=(13, 13), xticklabels=False, yticklabels=False)
+plt.savefig(f'{dout}/cluster_heatmap_sbs96.png')
+plt.close()

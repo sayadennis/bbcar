@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.spatial import distance
+from scipy.cluster import hierarchy
 
 din = '/projects/b1131/saya/bbcar/data/02a_mutation/08_feature_matrix'
 dout = '/projects/b1131/saya/bbcar/plots/mutation'
@@ -8,6 +10,7 @@ dout = '/projects/b1131/saya/bbcar/plots/mutation'
 zexian = pd.read_csv('/projects/b1122/Zexian/Alignment/BBCAR_NEW/administrative/Step30Signature/Hmatrix_All.csv', index_col=0)
 denovo = pd.read_csv(f'{din}/signature_results/SBS96/Suggested_Solution/SBS96_De-Novo_Solution/Signatures/SBS96_De-Novo_Signatures.txt', sep='\t', index_col=0)
 cosmic = pd.read_csv(f'{din}/COSMIC_v3.3.1_SBS_GRCh38.txt', sep='\t', index_col=0)
+sbs96 = pd.read_csv(f'{din}/signature_results/SBS96/Samples.txt', sep='\t', index_col=0)
 
 def cosine_sim(a: np.array, b: np.array): 
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
