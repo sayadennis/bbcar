@@ -27,5 +27,8 @@ din='/projects/b1131/saya/bbcar/data/02a_mutation/02_variant_calls/tumor_only'
 dout='/projects/b1131/saya/bbcar/data/02a_mutation/02_variant_calls/tumor_only'
 
 for pon_source in bbcar 1000g; do
+    ## Apply filter on DP (depth)
     bcftools filter --include "INFO/DP>=20" --output-type v --output $dout/${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_${pon_source}pon.vcf $din/${input_args[$SLURM_ARRAY_TASK_ID]}t_filtered_${pon_source}pon.vcf
+    ## Apply the classical filter from PMID 34261476
+    bcftools filter --exclude '(FORMAT/AF<0.05) | (FORMAT/AF<0.10 && REF="C" && ALT="T")' --output-type v --output $dout/${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_${pon_source}pon.vcf $din/${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_${pon_source}pon.vcf
 done
