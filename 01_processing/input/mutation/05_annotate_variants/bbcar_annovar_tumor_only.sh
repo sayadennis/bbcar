@@ -26,7 +26,7 @@ dout='/projects/b1131/saya/bbcar/data/02a_mutation/03_annotated_variants/annovar
 dav='/projects/b1131/saya/bbcar/tools/annovar'
 
 for pon_source in bbcar 1000g; do
-    fin=${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_${pon_source}pon.vcf
+    fin=${input_args[$SLURM_ARRAY_TASK_ID]}_DPfiltered_classicalAF_${pon_source}pon.vcf.vcf
     fout=${input_args[$SLURM_ARRAY_TASK_ID]}_${pon_source}pon
 
     perl ${dav}/table_annovar.pl \
