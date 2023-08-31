@@ -94,7 +94,7 @@ custom_getBAFsAndLogRs = function(
             stopifnot(file.exists(BED_file) && file.info(BED_file)$size>0)
             BED=read_BED_as_table(BED_file)[,1:3]
             colnames(BED)=c('chr','start','end')
-            BED$chr=gsub('^chr','',BED$chr)
+            # BED$chr=gsub('^chr','',BED$chr)
             BED$start=BED$start+1 # Start is 0-based in BED files
             BED=BED[BED$chr %in% chrom_names,]
             if (nrow(BED)==0) stop('Major issue with BED file, please double-check its content')
@@ -232,7 +232,7 @@ custom_getBAFsAndLogRs = function(
         # If a BED is provided, only look at SNPs within those intervals
         if (!is.na(BED_file)) {
             stopifnot(file.exists(BED_file) && file.info(BED_file)$size>0)
-            BED=read_BED_as_table(BED_file,sep='\t',header=F,stringsAsFactors=F)[,1:3]
+            BED=read_BED_as_table(BED_file)[,1:3]
             colnames(BED)=c('chr','start','end')
             BED$chr=gsub('^chr','',BED$chr)
             BED$start=BED$start+1 # Start is 0-based in BED files
@@ -337,7 +337,7 @@ custom_getBAFsAndLogRs = function(
         # If a BED is provided, only look at SNPs within those intervals
         if (!is.na(BED_file)) {
             stopifnot(file.exists(BED_file) && file.info(BED_file)$size>0)
-            BED=read_BED_as_table(BED_file,sep='\t',header=F,stringsAsFactors=F)[,1:3]
+            BED=read_BED_as_table(BED_file)[,1:3]
             colnames(BED)=c('chr','start','end')
             BED$chr=gsub('^chr','',BED$chr)
             BED$start=BED$start+1 # Start is 0-based in BED files
