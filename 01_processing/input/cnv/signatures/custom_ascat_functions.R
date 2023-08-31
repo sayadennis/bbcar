@@ -11,19 +11,19 @@ custom_readAlleleCountFiles = function(allelecounts_fn, minCounts) {
     return(data)
 }
 
-readAllelesFiles=function(prefix,suffix,chrom_names,add_chr_string=F) {
-  files=paste0(prefix,chrom_names,suffix)
-  files=files[sapply(files,function(x) file.exists(x) && file.info(x)$size>0)]
-  stopifnot(length(files)>0)
-  data=do.call(rbind,lapply(files,function(x) {
-    tmp=data.frame(data.table::fread(x,sep='\t',showProgress=F,header=T))
-    tmp=tmp[!is.na(tmp[,2] & !is.na(tmp[,3])),]
-    tmp=tmp[!duplicated(tmp[,1]),]
-    tmp$chromosome=gsub(paste0(prefix,'(',paste(chrom_names,collapse='|'),')',suffix),'\\1',x)
-    if (add_chr_string) tmp$chromosome=paste0('chr',tmp$chromosome)
-    tmp=tmp[,c(4,1:3)]
-    rownames(tmp)=paste0(tmp[,1],'_',tmp[,2])
-    return(tmp)
+readAllelesFiles = function(prefix,suffix,chrom_names,add_chr_string=F) {
+    files=paste0(prefix,chrom_names,suffix)
+    files=files[sapply(files,function(x) file.exists(x) && file.info(x)$size>0)]
+    stopifnot(length(files)>0)
+    data=do.call(rbind,lapply(files,function(x) {
+        tmp=data.frame(data.table::fread(x,sep='\t',showProgress=F,header=T))
+        tmp=tmp[!is.na(tmp[,2] & !is.na(tmp[,3])),]
+        tmp=tmp[!duplicated(tmp[,1]),]
+        tmp$chromosome=gsub(paste0(prefix,'(',paste(chrom_names,collapse='|'),')',suffix),'\\1',x)
+        if (add_chr_string) tmp$chromosome=paste0('chr',tmp$chromosome)
+        tmp=tmp[,c(4,1:3)]
+        rownames(tmp)=paste0(tmp[,1],'_',tmp[,2])
+        return(tmp)
   }))
   stopifnot(nrow(data)>0)
   return(data)
@@ -92,7 +92,7 @@ custom_getBAFsAndLogRs = function(
         # If a BED is provided, only look at SNPs within those intervals
         if (!is.na(BED_file)) {
             stopifnot(file.exists(BED_file) && file.info(BED_file)$size>0)
-            BED=read.table(BED_file,sep='\t',header=F,stringsAsFactors=F)[,1:3]
+            BED=read_BED_as_table(BED_file)[,1:3]
             colnames(BED)=c('chr','start','end')
             BED$chr=gsub('^chr','',BED$chr)
             BED$start=BED$start+1 # Start is 0-based in BED files
@@ -232,7 +232,7 @@ custom_getBAFsAndLogRs = function(
         # If a BED is provided, only look at SNPs within those intervals
         if (!is.na(BED_file)) {
             stopifnot(file.exists(BED_file) && file.info(BED_file)$size>0)
-            BED=read.table(BED_file,sep='\t',header=F,stringsAsFactors=F)[,1:3]
+            BED=read_BED_as_table(BED_file,sep='\t',header=F,stringsAsFactors=F)[,1:3]
             colnames(BED)=c('chr','start','end')
             BED$chr=gsub('^chr','',BED$chr)
             BED$start=BED$start+1 # Start is 0-based in BED files
@@ -337,7 +337,7 @@ custom_getBAFsAndLogRs = function(
         # If a BED is provided, only look at SNPs within those intervals
         if (!is.na(BED_file)) {
             stopifnot(file.exists(BED_file) && file.info(BED_file)$size>0)
-            BED=read.table(BED_file,sep='\t',header=F,stringsAsFactors=F)[,1:3]
+            BED=read_BED_as_table(BED_file,sep='\t',header=F,stringsAsFactors=F)[,1:3]
             colnames(BED)=c('chr','start','end')
             BED$chr=gsub('^chr','',BED$chr)
             BED$start=BED$start+1 # Start is 0-based in BED files
@@ -401,3 +401,23 @@ custom_getBAFsAndLogRs = function(
         write.table(tissue.BAF,file=tissueBAF_file, row.names=T, quote=F, sep="\t", col.names=NA)
     }
 }
+
+read_BED_as_table <- function(int_filename) {
+    # Step 1: Count the number of rows starting with "@"
+    num_skip <- 0
+    con <- file(int_filename, "r")
+    while (length(line <- readLines(con, n = 1)) > 0) {
+      if (substr(line, 1, 1) == "@") {
+        num_skip <- num_skip + 1
+      } else {
+        break
+      }
+    }
+    close(con)
+    
+    # Step 2: Read the file using read.table() and skip the top num_skip rows
+    data <- read.table(int_filename, sep = "\t", header = FALSE, skip = num_skip)
+
+    return(data)
+}
+

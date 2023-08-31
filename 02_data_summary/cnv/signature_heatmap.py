@@ -59,9 +59,13 @@ for valtype in ['counts', 'ratios']:
 valtype = 'counts'
 cattype = 'levels'
 
+mx = data[valtype][cattype]
+row_linkage = hierarchy.linkage(
+    distance.pdist(np.array(mx)), method='average')
+
 weird_samples = hierarchy.cut_tree(row_linkage, 2).ravel().astype(bool)
 weird_samples = list(mx.iloc[weird_samples,:].index)
 
-with open('/home/srd6051/bbcar_weird_samples.txt', 'w') as f:
+with open('/home/srd6051/bbcar_odd_samples.txt', 'w') as f:
     for item in weird_samples:
         f.write(f'{item}\n')

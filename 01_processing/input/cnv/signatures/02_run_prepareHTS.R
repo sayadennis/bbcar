@@ -17,6 +17,13 @@ if (!file.exists(paste0(dout, "/tissue_only"))){
     dir.create(paste0(dout, "/tissue_only"))
 }
 
+# Identify WES interval BED file
+uchicago_samples <- scan("/projects/b1131/saya/bbcar/data/sample_ids_uchicago.txt", what="", sep="\n")
+if (sampleid %in% uchicago_samples) {
+    int_file <- "/projects/b1122/gannon/bbcar/RAW_data/int_lst/SureSelect_v5/hg38/hg38.preprocessed.interval_list"
+} else {
+    int_file <- "/projects/b1122/gannon/bbcar/RAW_data/int_lst/SureSelect_v6/hg38.preprocessed.interval_list"
+}
 
 # Obtain BAF and LogR from the raw allele counts
 custom_getBAFsAndLogRs(tissue_name=tissue_name,
@@ -29,7 +36,7 @@ custom_getBAFsAndLogRs(tissue_name=tissue_name,
                     genomeVersion="hg38",
                     chrom_names=c(1:22,'X'),
                     minCounts=10,
-                    BED_file=NA,
+                    BED_file=int_file,
                     probloci_file="/projects/b1131/saya/bbcar/tools/Battenberg/probloci_270415.txt",
                     seed=as.integer(Sys.time())
 )
