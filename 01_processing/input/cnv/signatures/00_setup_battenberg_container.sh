@@ -1,3 +1,5 @@
+## This script only needs to be run once
+
 module purge all
 module load singularity
 

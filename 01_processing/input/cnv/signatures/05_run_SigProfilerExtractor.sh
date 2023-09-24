@@ -16,4 +16,4 @@ source activate SigProfilerExtractor
 
 cd /projects/b1131/saya/bbcar/data/02b_cnv/
 
-python ~/bbcar/repo/01_processing/input/cnv/signatures/run_SigProfilerExtractor.py
+python ~/bbcar/repo/01_processing/input/cnv/signatures/05_run_SigProfilerExtractor.py

@@ -4,16 +4,16 @@ import numpy as np
 import pandas as pd
 import glob
 
-sys.path.append('bbcar/src/processing')
+# sys.path.append('bbcar/src/processing')  # necessary? if not, remove 
 from process_functions import generate_gistic_features
 from process_functions import lesions_to_structured_regions
 from process_functions import generate_ovelap_mx
 from process_functions import transform_gatk_to_reg_matrix
 
-d01='/projects/b1122/saya/01_gatk_analyzed_segments'
-d03='/projects/b1122/saya/03_gistic2_out_conf90'
-d04='/projects/b1122/saya/04_cleaned_cnv'
-dix='/projects/b1122/saya/indices'
+d01='/projects/b1131/saya/bbcar/data/02b_cnv/01_gatk_analyzed_segments'
+d03='/projects/b1131/saya/bbcar/data/02b_cnv/03_gistic2_out_conf90'
+d04='/projects/b1131/saya/bbcar/data/02b_cnv/04_cleaned_cnv'
+dix='/projects/b1131/saya/bbcar/data/02b_cnv/indices'
 
 ###############################
 #### All samplies combined ####

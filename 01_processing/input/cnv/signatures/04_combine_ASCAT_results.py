@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
-din = '/projects/b1131/saya/bbcar/data/02b_cnv/signatures/03_ASCAT_obj'
+din = '/projects/b1131/saya/bbcar/data/02b_cnv/signatures/03_ASCAT_obj/tissue_normal'
 dout = din
 
 tissue_sampleid_fn = '/projects/b1131/saya/bbcar/data/sample_ids_all_tissue.txt'
