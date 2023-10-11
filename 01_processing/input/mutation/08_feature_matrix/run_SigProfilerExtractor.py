@@ -10,3 +10,9 @@ if __name__ == "__main__":
                             #  input_data="/projects/b1131/saya/bbcar/data/02a_mutation/07_predicted_somatic/vcfs_matched", 
                              reference_genome='GRCh38', minimum_signatures=1, 
                              maximum_signatures=10, nmf_replicates=100, cpu=32)
+
+data = pd.read_csv(f'{dout}/SBS96/Samples.txt', sep='\t', index_col=0).T
+data.index = [x.split('_')[0] for x in data.index]
+
+data.to_csv(f'{dout}/sbs_96_original_per_sample.csv')
+
