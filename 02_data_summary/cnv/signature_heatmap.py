@@ -14,8 +14,8 @@ din = '/projects/b1131/saya/bbcar/data/02b_cnv'
 dout = '/projects/b1131/saya/bbcar/plots/cnv'
 
 data = {
-    'counts' : pd.read_csv(f'{din}/signatures/seglen_ampdel_category_call_counts_per_sample.csv', index_col=0, header=0),
-    'ratios' : pd.read_csv(f'{din}/signatures/seglen_ampdel_category_call_ratios_per_sample.csv', index_col=0, header=0),
+    'counts' : pd.read_csv(f'{din}/inhouse_signatures/seglen_ampdel_category_call_counts_per_sample.csv', index_col=0, header=0),
+    'ratios' : pd.read_csv(f'{din}/inhouse_signatures/seglen_ampdel_category_call_ratios_per_sample.csv', index_col=0, header=0),
     'counts_pca' : pd.read_csv(f'{din}/inhouse_signatures/inhouse_sig_batcheffect_rm_pc1.csv', index_col=0, header=0),
     'counts_combat' : pd.read_csv(f'{din}/inhouse_signatures/inhouse_sig_batcheffect_rm_combat.csv', index_col=0, header=0),
 }
@@ -57,15 +57,15 @@ for valtype in data.keys():
     plt.savefig(f'{dout}/cluster_heatmap_{valtype}_notstandardscaled.png')
     plt.close()
 
-valtype = 'counts'
-
-mx = data[valtype]
-row_linkage = hierarchy.linkage(
-    distance.pdist(np.array(mx)), method='average')
-
-weird_samples = hierarchy.cut_tree(row_linkage, 2).ravel().astype(bool)
-weird_samples = list(mx.iloc[weird_samples,:].index)
-
-with open('/home/srd6051/bbcar_odd_samples.txt', 'w') as f:
-    for item in weird_samples:
-        f.write(f'{item}\n')
+#valtype = 'counts'
+#
+#mx = data[valtype]
+#row_linkage = hierarchy.linkage(
+#    distance.pdist(np.array(mx)), method='average')
+#
+#weird_samples = hierarchy.cut_tree(row_linkage, 2).ravel().astype(bool)
+#weird_samples = list(mx.iloc[weird_samples,:].index)
+#
+#with open('/home/srd6051/bbcar_odd_samples.txt', 'w') as f:
+#    for item in weird_samples:
+#        f.write(f'{item}\n')

@@ -35,7 +35,7 @@ data = data.iloc[data.CALL.values!='0',:]
 def seglen_bp(line: pd.Series):
     return line['END'] - line['START']
 
-def seg_len_category(seglen_bp):
+def seg_len_category_cosmic(seglen_bp):
     if ((seglen_bp > 0) & (seglen_bp <= (100 * 1e+3))):
         return '0-100kb'
     elif (seglen_bp <= 1e+6):
@@ -48,9 +48,12 @@ def seg_len_category(seglen_bp):
         return '>40Mb'
 
 # Add segment category by length and by copy ratio
+data['SEG LENGTH BP'] = data.apply(seglen_bp, axis=1)
 data['SEG LENGTH MB'] = data.apply(seglen_bp, axis=1)/10**6
+data['SEG CAT LENGTH COSMIC'] = data['SEG LENGTH BP'].apply(seg_len_category_cosmic)
 seglen_bins = np.quantile(data['SEG LENGTH MB'], [.2,.4,.6,.8,.95])
-ampdel_bins = np.quantile(2**(data.MEAN_LOG2_COPY_RATIO), [.2,.4,.6,.8,.95])
+# ampdel_bins = np.quantile(2**(data.MEAN_LOG2_COPY_RATIO), [.2,.4,.6,.8,.95])
+ampdel_bins = np.array([0.5, 1., 2., 3., 4.])
 
 def seg_ampdel_category(mean_log2_copy_ratio, ampdel_bins=ampdel_bins):
     larger_than = np.where([mean_log2_copy_ratio > val for val in ampdel_bins])[0]
@@ -92,15 +95,17 @@ def seg_len_category(seglen_mb, seglen_bins=seglen_bins):
         return f'{lower}-{upper}'
 
 
-data['SEG CAT LENGTH'] = data['SEG LENGTH MB'].apply(seg_len_category)
+data['SEG CAT LENGTH ORIG'] = data['SEG LENGTH MB'].apply(seg_len_category)
 data['SEG CAT LEVELS'] = (2**(data.MEAN_LOG2_COPY_RATIO)).apply(seg_ampdel_category)
+
+seg_cat_name = 'SEG CAT LENGTH COSMIC'
 
 #########################################
 #### Sample x length category matrix ####
 #########################################
 
-categories = data.groupby(['name', 'SEG CAT LENGTH', 'CALL']).size().reset_index()
-counts = pd.pivot(categories, index='name', columns=('SEG CAT LENGTH', 'CALL'))
+categories = data.groupby(['name', seg_cat_name, 'CALL']).size().reset_index()
+counts = pd.pivot(categories, index='name', columns=(seg_cat_name, 'CALL'))
 
 # clean up 
 counts.index.name = None
@@ -108,7 +113,7 @@ counts.index = [x.split('_')[0] for x in counts.index] # from '1449_Tissue' to '
 
 counts = counts.iloc[:,counts.columns.get_level_values('CALL')!='0'] # Remove CALL = 0 (no amp/del)
 tuples = list(zip(
-    counts.columns.get_level_values('SEG CAT LENGTH'),
+    counts.columns.get_level_values(seg_cat_name),
     counts.columns.get_level_values('CALL')
 ))
 colnames = [f'{call}:{seglen}' for seglen,call in tuples]
@@ -128,8 +133,8 @@ ratios.to_csv(f'{dout}/seglen_category_call_ratios_per_sample.csv')
 #### Sample x length category x amp/del levels matrix ####
 ##########################################################
 
-categories = data.groupby(['name', 'SEG CAT LENGTH', 'SEG CAT LEVELS', 'CALL']).size().reset_index()
-counts = pd.pivot(categories, index='name', columns=('SEG CAT LENGTH', 'SEG CAT LEVELS', 'CALL'))
+categories = data.groupby(['name', seg_cat_name, 'SEG CAT LEVELS', 'CALL']).size().reset_index()
+counts = pd.pivot(categories, index='name', columns=(seg_cat_name, 'SEG CAT LEVELS', 'CALL'))
 
 # clean up 
 counts.index.name = None
@@ -137,7 +142,7 @@ counts.index = [x.split('_')[0] for x in counts.index] # from '1449_Tissue' to '
 
 counts = counts.iloc[:,counts.columns.get_level_values('CALL')!='0'] # Remove CALL = 0 (no amp/del)
 tuples = list(zip(
-    counts.columns.get_level_values('SEG CAT LENGTH'),
+    counts.columns.get_level_values(seg_cat_name),
     counts.columns.get_level_values('SEG CAT LEVELS'),
     counts.columns.get_level_values('CALL')
 ))
