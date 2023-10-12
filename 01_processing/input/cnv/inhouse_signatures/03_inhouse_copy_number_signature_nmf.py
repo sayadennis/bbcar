@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 dn = '/projects/b1131/saya/bbcar/data/02b_cnv/inhouse_signatures'
 plot_dn = '/projects/b1131/saya/bbcar/plots/cnv'
-fn = 'inhouse_sig_batcheffect_rm_combat.csv'
+fn = 'inhouse_cn_features_batcheffect_rm_combat.csv'
 
 X = pd.read_csv(f'{dn}/{fn}', index_col=0)
 
@@ -73,4 +73,4 @@ W = nmf.fit_transform(X)
 H = nmf.components_
 
 pd.DataFrame(W, index=X.index, columns=np.arange(W.shape[1])).to_csv(f'{dn}/inhouse_cnv_sig_per_sample.csv', header=True, index=True)
-pd.DataFrame(H, index=np.arange(H.shape[0]), columns=X.columns).to_csv(f'{dn}/inhouse_cnv_signature_features.csv', header=True, index=True)
+pd.DataFrame(H, index=np.arange(H.shape[0]), columns=X.columns).T.to_csv(f'{dn}/inhouse_cnv_signature_features.csv', header=True, index=True)

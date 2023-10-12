@@ -15,5 +15,5 @@ batches = [1 if x in uchicago else 0 for x in data.index]
 
 data_corrected = pycombat_norm(data.values.T, batches)
 
-pd.DataFrame(data_corrected.T, index=data.index, columns=data.columns).to_csv(f'{dout}/inhouse_sig_batcheffect_rm_combat.csv')
+pd.DataFrame(data_corrected.T, index=data.index, columns=data.columns).to_csv(f'{dout}/inhouse_cn_features_batcheffect_rm_combat.csv')
 
