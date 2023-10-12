@@ -8,7 +8,7 @@
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name="cnsig"
-#SBATCH --output=/projects/b1131/saya/bbcar/out/inhouse_copy_number_signature.out
+#SBATCH --output=/projects/b1131/saya/bbcar/out/01_gatk_copy_number_inhouse_features.out
 
 module purge all
 module load python-miniconda3/4.12.0
@@ -16,4 +16,4 @@ source activate bbcarenv
 
 cd /projects/b1131/saya/bbcar/data/02b_cnv/
 
-python ~/bbcar/repo/01_processing/input/cnv/inhouse_signatures/gatk_copy_number_signatures.py
+python ~/bbcar/repo/01_processing/input/cnv/inhouse_signatures/01_gatk_copy_number_inhouse_features.py

@@ -158,3 +158,4 @@ ratios['sumcounts'] = counts.sum(axis=1)
 # Save 
 counts.to_csv(f'{dout}/seglen_ampdel_category_call_counts_per_sample.csv')
 ratios.to_csv(f'{dout}/seglen_ampdel_category_call_ratios_per_sample.csv')
+
