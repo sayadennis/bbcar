@@ -39,7 +39,7 @@ y_test_prob = m.predict_proba(X_test)[:,1]
 # Define simple evaluation function
 def evaluate_model(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray, model: sklearn.pipeline.Pipeline = None):
     performance = pd.DataFrame(
-        index=['Test set overall'],
+        index=['Overall'],
         columns=['Bal Acc', 'ROC AUC', 'Precision', 'Recall', 'F1'],    
     )
     stratification = 'overall'
