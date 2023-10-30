@@ -5,14 +5,14 @@ We have two categories of predictor features (mutations and CNVs from benign bre
 ## No fusion models
 
 No fusion models are ones where we use only mutation data or only CNV data to predict the outcome. There are four early fusion models from the two categories of input:
-* Mutational data ([scripts](https://github.com/sayadennis/bbcar/blob/master/04_modeling/mutation/bbcar_mutsig_classicalml.sh))
+* Mutational data ([script](https://github.com/sayadennis/bbcar/blob/master/04_modeling/mutation/bbcar_mutsig_classicalml.sh))
   * 96-element feature vector indicating the accumulated mutational context
   * COSMIC Mutational Signatures derived from the above feature matrix
-* CNV data ([scripts](https://github.com/sayadennis/bbcar/blob/master/04_modeling/cnv/cn_signature_classicalml.sh))
+* CNV data ([script](https://github.com/sayadennis/bbcar/blob/master/04_modeling/cnv/cn_signature_classicalml.sh))
   * 26-element feature vector indicating the accumulated CNV context
   * In-house CNV Signatures derived from the above feature matrix
 
-Note: COSMIC CN Signatures could not be derived for this dataset since matched germline was available for only a subset of samples, and one of the processing software tools (ASCAT) requires matched germline for WXS data. (See: [here](https://github.com/VanLoo-lab/ascat/blob/fd697b443d5063225ee52a8739bf02ae53d3d1a6/README.md) - "_Please note that `ascat.prepareHTS` does require tumour/normal pairs and is unable to process unmatched tumours for now_") 
+Note: COSMIC CN Signatures could not be derived for this dataset since matched germline was available for only a subset of samples, and one of the processing software tools (ASCAT) requires matched germline for WXS data. (See: [here](https://github.com/VanLoo-lab/ascat/blob/fd697b443d5063225ee52a8739bf02ae53d3d1a6/README.md#new-features-in-v3) - "_Please note that `ascat.prepareHTS` does require tumour/normal pairs and is unable to process unmatched tumours for now_") 
 
 ## Early fusion models
 
