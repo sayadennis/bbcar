@@ -23,17 +23,42 @@ y_train, y_test = y.loc[train_ix,:], y.loc[test_ix,:]
 
 loss_type = ['l2', 'kl'][0]
 
-test = suphNMF(X_mut_train, X_cnv_train, y_train, n_iter=500, lr=1e-3)
+test = suphNMF(X_mut_train, X_cnv_train, y_train, n_iter=10000, lr=1e-3, clf_weight=1.)
 test.fit()
 
-fig, axs = plt.subplots(1,2, figsize=(10,5))
+fig, axs = plt.subplots(2, 3, figsize=(12, 8))
 
-axs[0].plot(test.clf_record)
-axs[0].set_ylabel('Classification performance')
-axs[0].set_xlabel('Epochs')
+axs[0,0].plot(test.loss_record)
+axs[0,0].set_ylabel('Loss')
+axs[0,0].set_xlabel('Epochs')
+axs[0,0].set_title('Overall Loss')
 
-axs[1].plot(test.loss_record)
-axs[1].set_ylabel('Loss')
-axs[1].set_xlabel('Epoch')
+axs[0,1].plot(test.reconloss1_record)
+axs[0,1].set_xlabel('Epochs')
+axs[0,1].set_ylabel('Loss')
+axs[0,1].set_title('Reconstruction Loss (Mutation)')
+
+axs[0,2].plot(test.reconloss2_record)
+axs[0,2].set_xlabel('Epochs')
+axs[0,2].set_ylabel('Loss')
+axs[0,2].set_title('Reconstruction Loss (CNV)')
+
+axs[1,0].plot(test.ortholoss_record)
+axs[1,0].set_xlabel('Epochs')
+axs[1,0].set_ylabel('Loss')
+axs[1,0].set_title('Orthogonality loss')
+
+axs[1,1].plot(test.clf_roc_record)
+axs[1,1].set_xlabel('Epochs')
+axs[1,1].set_ylabel('Classification performance')
+axs[1,1].set_title('Classification ROC-AUC')
+
+axs[1,2].plot(test.clf_loss_record)
+axs[1,2].set_xlabel('Epochs')
+axs[1,2].set_ylabel('Loss')
+axs[1,2].set_title('Classification Loss')
+
+plt.tight_layout()
 
 fig.savefig('/projects/b1131/saya/bbcar/plots/test_suphNMF_learning_curves.png')
+plt.close()
