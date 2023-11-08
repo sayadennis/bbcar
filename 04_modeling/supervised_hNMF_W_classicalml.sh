@@ -7,8 +7,8 @@
 #SBATCH --mem=3G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --job-name="bothml"
-#SBATCH --output=/projects/b1131/saya/bbcar/out/mutation_cnv_features_classicalml.out
+#SBATCH --job-name="suphNMFml"
+#SBATCH --output=/projects/b1131/saya/bbcar/out/supervised_hNMF_W_classicalml.out
 
 module purge all
 module load python-miniconda3/4.12.0
@@ -21,7 +21,7 @@ labeldir='/projects/b1131/saya/bbcar/data/clinical'
 outdir='/projects/b1131/saya/bbcar/model_interpretations'
 ixdir='/projects/b1131/saya/bbcar/train_test_splits'
 
-fn='combined_mutation_cnv_orig_features.csv'
+fn='test_learned_W.csv'
 shortfn=$(echo $fn | cut -d. -f1)
 mkdir -p ${outdir}/${shortfn}
 python ~/classical-ml/ClassicalML/run_classical_ml.py \
@@ -31,17 +31,4 @@ python ~/classical-ml/ClassicalML/run_classical_ml.py \
     --indexdir $ixdir \
     --scoring roc_auc \
     --n_cpu ${SLURM_NTASKS};
-#
-
-fn='combined_mutation_cnv_signature_features.csv'
-shortfn=$(echo $fn | cut -d. -f1)
-mkdir -p ${outdir}/${shortfn}
-python ~/classical-ml/ClassicalML/run_classical_ml.py \
-    --input ${inputdir}/${fn} \
-    --label ${labeldir}/bbcar_label_studyid_from_gatk_filenames.csv \
-    --outdir ${outdir}/${shortfn}/ \
-    --indexdir $ixdir \
-    --scoring roc_auc \
-    --n_cpu ${SLURM_NTASKS};
-#
 

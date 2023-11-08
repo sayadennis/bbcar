@@ -32,5 +32,7 @@ Training script can be found [here](https://github.com/sayadennis/bbcar/blob/mas
 
 ### Supervised hybrid non-negative matrix factorization (Supervised hNMF)
 
+This is a method in which NMF is jointly optimized for both the mutation and CNV matrices to find a shared factorized representation. We also jointly optimize the factorization for the supervised classification task for better representation learning.
 
+Training script can be found [here](https://github.com/sayadennis/bbcar/blob/master/04_modeling/supervised_hNMF_mutation_cnv.py)
 
