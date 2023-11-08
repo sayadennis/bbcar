@@ -6,11 +6,13 @@ import torch
 from torch import nn
 from torch import optim
 from sklearn import metrics
+from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
 from suphNMF import suphNMF
 
 datadir = '/projects/b1131/saya/bbcar/data'
+plotdir = '/projects/b1131/saya/bbcar/plots/suphNMF_learning_curves'
 
 X_mut = pd.read_csv(
     f'{datadir}/02a_mutation/08_feature_matrix/20230423_signature_results/sbs_96_original_per_sample.csv', 
@@ -34,7 +36,7 @@ X_mut_train, X_mut_test = X_mut.loc[train_ix,:], X_mut.loc[test_ix,:]
 X_cnv_train, X_cnv_test = X_cnv.loc[train_ix,:], X_cnv.loc[test_ix,:]
 y_train, y_test = y.loc[train_ix,:], y.loc[test_ix,:]
 
-loss_type = ['l2', 'kl'][0]
+loss_type = ['l2', 'kl'][i]
 
 def plot_learning(weight_decay, clf_weight, ortho_weight):
     test = suphNMF(X_mut_train, X_cnv_train, y_train, n_iter=10000, lr=1e-3, weight_decay=weight_decay, clf_weight=clf_weight, ortho_weight=ortho_weight)
@@ -69,7 +71,7 @@ def plot_learning(weight_decay, clf_weight, ortho_weight):
 
     fig.suptitle(f'Learning curves - weight decay {weight_decay}; classification weight {clf_weight}; orthogonality weight {ortho_weight}')
     plt.tight_layout()
-    fig.savefig(f'/projects/b1131/saya/bbcar/plots/suphNMF_learning_curves/test_suphNMF_learning_curves_decay{weight_decay}_clf{clf_weight}_ortho{ortho_weight}.png')
+    fig.savefig(f'{plotdir}/test_suphNMF_learning_curves_decay{weight_decay}_clf{clf_weight}_ortho{ortho_weight}.png')
     plt.close()
 
 #for weight_decay in [1e-3, 1e-1, 1e+1]:
@@ -77,11 +79,73 @@ def plot_learning(weight_decay, clf_weight, ortho_weight):
 #        for ortho_weight in [1e+0, 1e+2, 1e+3, 1e+4]:
 #            plot_learning(weight_decay, clf_weight, ortho_weight)
 
-test = suphNMF(X_mut_train, X_cnv_train, y_train, n_iter=int(1e+4), lr=1e-3, weight_decay=.1, clf_weight=1e+3, ortho_weight=1e+3)
-test.fit()
+k_list = np.arange(2,25)
+nmf_scores = pd.DataFrame(index=k_list, columns=['recon_error1', 'recon_error2', 'stability1', 'stability2'])
+for k in k_list:
+    nmf = suphNMF(
+        X_mut_train, X_cnv_train, y_train, 
+        n_components=k, n_iter=int(1e+4), lr=1e-3, weight_decay=.1, 
+        clf_weight=1e+3, ortho_weight=1e+3
+    )
+    nmf.fit()
+    W_train = nmf.W.detach()
+    X1_train_recon = torch.mm(W_train, nmf.H1.detach())
+    X2_train_recon = torch.mm(W_train, nmf.H2.detach())
+    recon_error1 = np.linalg.norm(np.array(nmf.X1 - X1_train_recon), ord='fro') # Frobenious norm or Cosine?!
+    recon_error2 = np.linalg.norm(np.array(nmf.X2 - X2_train_recon), ord='fro') # Frobenious norm or Cosine?!
+    stability1 = metrics.silhouette_score(nmf.X1, np.argmax(W_train, axis=1)) # stability is measured by silhouette score - cluster assignment determined by W matrix
+    stability2 = metrics.silhouette_score(nmf.X2, np.argmax(W_train, axis=1))
+    nmf_scores.loc[k,'recon_error1'] = recon_error1
+    nmf_scores.loc[k,'recon_error2'] = recon_error2
+    nmf_scores.loc[k,'stability1'] = stability1
+    nmf_scores.loc[k,'stability2'] = stability2
 
-W_test = test.transform(X_mut_test, X_cnv_test, y_test).detach().numpy()
-W_train = test.W.detach().numpy()
+###############################
+#### Determine the best K  ####
+###############################
+
+scaler = MinMaxScaler()
+scaler.fit(nmf_scores)
+scaled_scores = pd.DataFrame(scaler.transform(nmf_scores), index=nmf_scores.index, columns=nmf_scores.columns)
+
+best_k_1 = (scaled_scores['stability1'] - scaled_scores['recon_error1']).idxmax() # index that gives the max difference
+best_k_2 = (scaled_scores['stability2'] - scaled_scores['recon_error2']).idxmax() # index that gives the max difference
+
+ix_to_name = {1: 'Mutation', 2: 'CNV'}
+ix_to_bestk = {1: best_k_1, 2: best_k_2}
+
+fig, axs1 = plt.subplots(1, 2, figsize=(10,5))
+
+for i in range(2):
+    color = 'tab:red'
+    axs1[i].set_xlabel('Number of components')
+    axs1[i].set_ylabel('Stability', color=color)
+    axs1[i].plot(k_list, nmf_scores[f'stability{i+1}'], color=color, marker='s')
+    axs1[i].tick_params(axis='y', labelcolor=color)
+    # instantiate second axes that shares the same x-axis
+    ax2 = axs1[i].twinx()
+    # plot on the second axes
+    color = 'tab:blue'
+    ax2.set_ylabel('Reconstruction error', color=color)
+    ax2.plot(k_list, nmf_scores[f'recon_error{i+1}'], color=color, marker='s')
+    ax2.tick_params(axis='y', labelcolor=color)
+    # add vertical line on the best K
+    ax2.axvline(ix_to_bestk[i+1], linestyle='--', color='orange')
+    # set title
+    axs1[i].set_title(f'{ix_to_name[i+1]}')
+
+fig.suptitle('Stability and Reconstruction Error of hybrid NMF')
+
+fig.tight_layout()  # otherwise the right y-label is slightly clipped
+fig.savefig(f'{plotdir}/suphNMF_stability_recon_plot.png')
+plt.close()
+
+###############################
+#### Save best model and W #### # TODO: Needs re-writing!! 
+###############################
+
+W_test = nmf.transform(X_mut_test, X_cnv_test, y_test).detach().numpy()
+W_train = nmf.W.detach().numpy()
 
 W = pd.concat(
     (pd.DataFrame(W_train, index=X_mut_train.index),
@@ -89,11 +153,11 @@ W = pd.concat(
     axis=0
 )
 
-W.to_csv(f'{datadir}/combined_mutation_cnv/test_learned_W.csv', index=True, header=True)
+W.to_csv(f'{datadir}/combined_mutation_cnv/learned_W.csv', index=True, header=True)
 
 with open(f'/projects/b1131/saya/bbcar/model_interpretations/suphNMF/suphNMF.p', 'wb') as f:
-    pickle.dump(test, f)
+    pickle.dump(nmf, f)
 
 # Calculate ROC-AUC
-#y_test_pred = torch.sigmoid(test.predict(test.transform(X_mut_test, X_cnv_test, y_test)))
+#y_test_pred = torch.sigmoid(nmf.predict(nmf.transform(X_mut_test, X_cnv_test, y_test)))
 #print(f'ROC-AUC: ', metrics.roc_auc_score(y_test, y_test_pred.detach().numpy()))
