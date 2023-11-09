@@ -36,7 +36,7 @@ X_mut_train, X_mut_test = X_mut.loc[train_ix,:], X_mut.loc[test_ix,:]
 X_cnv_train, X_cnv_test = X_cnv.loc[train_ix,:], X_cnv.loc[test_ix,:]
 y_train, y_test = y.loc[train_ix,:], y.loc[test_ix,:]
 
-loss_type = ['l2', 'kl'][i]
+#loss_type = ['l2', 'kl'][i]
 
 def plot_learning(weight_decay, clf_weight, ortho_weight):
     test = suphNMF(X_mut_train, X_cnv_train, y_train, n_iter=10000, lr=1e-3, weight_decay=weight_decay, clf_weight=clf_weight, ortho_weight=ortho_weight)
@@ -63,8 +63,8 @@ def plot_learning(weight_decay, clf_weight, ortho_weight):
     axs[1,2].plot(test.clf_loss_record)
     axs[1,2].set_title('Classification Loss')
     
-    for i in range(3):
-        for j in range(2):
+    for i in range(2):
+        for j in range(3):
             axs[i,j].set_xlabel('Epochs')
             if not (i==1) & (j==1):
                 axs[i,j].set_ylabel('Loss')
@@ -74,10 +74,10 @@ def plot_learning(weight_decay, clf_weight, ortho_weight):
     fig.savefig(f'{plotdir}/test_suphNMF_learning_curves_decay{weight_decay}_clf{clf_weight}_ortho{ortho_weight}.png')
     plt.close()
 
-#for weight_decay in [1e-3, 1e-1, 1e+1]:
-#    for clf_weight in [1e+0, 1e+2, 1e+3, 1e+4]:
-#        for ortho_weight in [1e+0, 1e+2, 1e+3, 1e+4]:
-#            plot_learning(weight_decay, clf_weight, ortho_weight)
+for weight_decay in [1e-3, 1e-2, 1e-1, 1e-0]:
+    for clf_weight in [1e-1, 1e+0, 1e+1, 1e+2]:
+        for ortho_weight in [1e-1, 1e+0, 1e+1, 1e+2]:
+            plot_learning(weight_decay, clf_weight, ortho_weight)
 
 k_list = np.arange(2,25)
 nmf_scores = pd.DataFrame(index=k_list, columns=['recon_error1', 'recon_error2', 'stability1', 'stability2'])
@@ -114,7 +114,7 @@ best_k_2 = (scaled_scores['stability2'] - scaled_scores['recon_error2']).idxmax(
 ix_to_name = {1: 'Mutation', 2: 'CNV'}
 ix_to_bestk = {1: best_k_1, 2: best_k_2}
 
-fig, axs1 = plt.subplots(1, 2, figsize=(10,5))
+fig, axs1 = plt.subplots(1, 2, figsize=(15,5))
 
 for i in range(2):
     color = 'tab:red'

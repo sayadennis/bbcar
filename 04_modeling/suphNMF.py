@@ -61,19 +61,19 @@ class suphNMF(nn.Module):
             # Zero out gradient
             self.optimizer.zero_grad()
             # Calculate factorization (reconstruction) loss (W * H - X)
-            self.loss_recon1 = self.recon_loss_func(torch.mm(self.W, self.H1), self.X1)
-            self.loss_recon2 = self.recon_loss_func(torch.mm(self.W, self.H2), self.X2)
+            self.loss_recon1 = self.recon_loss_func(torch.mm(self.W, self.H1), self.X1) / self.X1.shape[1]  # divide by number of original feature space (align scale between mutation and CNV) 
+            self.loss_recon2 = self.recon_loss_func(torch.mm(self.W, self.H2), self.X2) / self.X2.shape[1]
             # Add L2 (or KL) regularization for orthogonality between components
             WtW = torch.mm(torch.t(self.W), self.W)
             if torch.mean(WtW) > 1e-7: # self.eps 
                 WtW = WtW / torch.mean(WtW)
-            self.loss_W_ortho = self.recon_loss_func(WtW/self.n_components, torch.eye(self.n_components)) * self.ortho_weight * self.n_components
+            self.loss_W_ortho = self.recon_loss_func(WtW/self.n_components, torch.eye(self.n_components)) * self.n_components
             # Add classification loss
             y_pred = self.predict(self.W)
             self.loss_clf = self.clf_loss_func(y_pred, self.y)
             # No need to add L2 regularization to the clf params since added weight decay
             ## Backprop & step
-            loss = self.loss_recon1 + self.loss_recon2 + self.clf_weight * self.loss_clf + self.loss_W_ortho
+            loss = self.loss_recon1 + self.loss_recon2 + self.clf_weight * self.loss_clf + self.ortho_weight * self.loss_W_ortho
             loss.backward()
             self.optimizer.step()
             self.loss_record.append(loss.item())
