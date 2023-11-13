@@ -109,10 +109,12 @@ for i in labels_all.index:
         labels_all.loc[i,'HER2'] = 'Control'
 
 label_ix_map = {
-    'ER' : {'Control': 3, '0% Negative': 0, '1-9% Low Positive': 1, '10% Positive': 2},
-    'PR' : {'Control': 3, '0% Negative': 0, '1-9% Low Positive': 2, '10% Positive': 2},
-    'HER2' : {'Control': 4, '0 Negative': 0, '1+ Negative': 1, '2+ Equivocal': 2, '3+ Positive' : 3},
+    'ER' : {'Control': 0, '0% Negative': 1, '1-9% Low Positive': 2, '10% Positive': 3},
+    'PR' : {'Control': 0, '0% Negative': 1, '1-9% Low Positive': 2, '10% Positive': 3},
+    'HER2' : {'Control': 0, '0 Negative': 1, '1+ Negative': 2, '2+ Equivocal': 3, '3+ Positive' : 4},
 }
+
+colors = ['mediumseagreen', 'cornflowerblue', 'darkviolet', 'fuchsia', 'red']
 
 fig, ax = plt.subplots(3, 4, figsize=(12,9))
 
@@ -127,7 +129,7 @@ for j, key in enumerate(data.keys()):
             ax[i,j].scatter(
                 X_tf[:,0][labels_all[coloring].map(label_ix_map[coloring]).values==v], 
                 X_tf[:,1][labels_all[coloring].map(label_ix_map[coloring]).values==v], 
-                label=k, alpha=0.5, s=10)
+                label=k, alpha=0.5, s=10, c=colors[v])
             ax[i,j].set_xticklabels([])
             ax[i,j].set_yticklabels([])
         if i==0:
