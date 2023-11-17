@@ -15,12 +15,15 @@ data = {
     'COSMIC' : {},
 }
 
+artifact_sigs = [f'SBS{i}' for i in [27,43,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,95]] + [f'DBS{i}' for i in [14]]
+
 for sigcat in ['SBS96', 'DBS78', 'ID83']:
     samples = pd.read_csv(f'{din}/{sigcat}/Samples.txt', sep='\t', index_col=0).T
     denovo = pd.read_csv(f'{din}/{sigcat}/Suggested_Solution/{sigcat}_De-Novo_Solution/Signatures/{sigcat}_De-Novo_Signatures.txt', sep='\t', index_col=0)
     denovo_exposure = pd.DataFrame(np.dot(samples.values, denovo.values), index=[int(x.split('_')[0]) for x in samples.index], columns=denovo.columns)
     data['De Novo'][sigcat] = denovo_exposure
     data['COSMIC'][sigcat] = pd.read_csv(f'/projects/b1131/saya/bbcar/data/02a_mutation/08_feature_matrix/cosmic_signature_per_sample_{sigcat}.csv', index_col=0)
+    data['COSMIC'][sigcat] = data['COSMIC'][sigcat].drop(artifact_sigs, axis=1, errors='ignore')
 
 ## Load clinical features
 label = pd.read_csv('/projects/b1131/saya/bbcar/data/clinical/bbcar_label_studyid_from_gatk_filenames.csv', index_col=0)
