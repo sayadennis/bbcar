@@ -18,6 +18,16 @@ X = pd.read_csv(f'{dn}/{fn}', index_col=0)
 # EXPERIMENTAL - make all non-negative (since matrix contains negative values following batch effect removal)
 X -= np.min(X.values)
 
+# Reorder the columns so that they make more sense 
+X = X[[
+    '-:<=0.50:0-100kb', '-:<=0.50:100kb-1Mb', '-:<=0.50:1Mb-10Mb', '-:<=0.50:10Mb-40Mb', # '-:<=0.50:>40Mb',
+    '-:0.50-1.00:0-100kb', '-:0.50-1.00:100kb-1Mb', '-:0.50-1.00:1Mb-10Mb', '-:0.50-1.00:10Mb-40Mb', # '+:0.50-1.00:>40Mb',
+    '+:1.00-2.00:0-100kb', '+:1.00-2.00:100kb-1Mb', '+:1.00-2.00:1Mb-10Mb', '+:1.00-2.00:10Mb-40Mb', '+:1.00-2.00:>40Mb',
+    '+:2.00-3.00:0-100kb', '+:2.00-3.00:100kb-1Mb', '+:2.00-3.00:1Mb-10Mb', '+:2.00-3.00:10Mb-40Mb', # '+:2.00-3.00:>40Mb',
+    '+:3.00-4.00:0-100kb', '+:3.00-4.00:100kb-1Mb', '+:3.00-4.00:1Mb-10Mb', '+:3.00-4.00:10Mb-40Mb', # '+:3.00-4.00:>40Mb', 
+    '+:>4.00:0-100kb', '+:>4.00:100kb-1Mb', '+:>4.00:1Mb-10Mb', '+:>4.00:10Mb-40Mb', # '+:>4.00:>40Mb', 
+]]
+
 #############################################################
 #### Perform NMF and determine best number of components ####
 #############################################################
@@ -26,7 +36,7 @@ k_list = np.arange(2,16)
 nmf_scores = pd.DataFrame(index=k_list, columns=['recon_error', 'stability'])
 
 for k in k_list:
-    nmf = NMF(n_components=k, init='random', random_state=0, max_iter=2000)
+    nmf = NMF(n_components=k, init='random', random_state=0, max_iter=4000)
     W = nmf.fit_transform(X)
     H = nmf.components_
     X_recon = np.dot(W, H)
@@ -74,3 +84,59 @@ H = nmf.components_
 
 pd.DataFrame(W, index=X.index, columns=np.arange(W.shape[1])).to_csv(f'{dn}/inhouse_cnv_sig_per_sample.csv', header=True, index=True)
 pd.DataFrame(H, index=np.arange(H.shape[0]), columns=X.columns).T.to_csv(f'{dn}/inhouse_cnv_signature_features.csv', header=True, index=True)
+
+#####################################
+#### Plot the derived signatures ####
+#####################################
+
+H = pd.DataFrame(H, index=[f'Signature {i+1}' for i in np.arange(H.shape[0])], columns=X.columns)
+for feature_name in ['-:<=0.50:>40Mb', '+:0.50-1.00:>40Mb', '+:2.00-3.00:>40Mb', '+:3.00-4.00:>40Mb', '+:>4.00:>40Mb']:
+    if feature_name in H.columns:
+        print(f'ERROR: Feature {feature_name} is already in the H matrix. The hard-coded part of the code might be breaking.')
+    else:
+        H[feature_name] = 0.
+
+H = H[[
+    '-:<=0.50:0-100kb', '-:<=0.50:100kb-1Mb', '-:<=0.50:1Mb-10Mb', '-:<=0.50:10Mb-40Mb', '-:<=0.50:>40Mb',
+    '-:0.50-1.00:0-100kb', '-:0.50-1.00:100kb-1Mb', '-:0.50-1.00:1Mb-10Mb', '-:0.50-1.00:10Mb-40Mb', '+:0.50-1.00:>40Mb',
+    '+:1.00-2.00:0-100kb', '+:1.00-2.00:100kb-1Mb', '+:1.00-2.00:1Mb-10Mb', '+:1.00-2.00:10Mb-40Mb', '+:1.00-2.00:>40Mb',
+    '+:2.00-3.00:0-100kb', '+:2.00-3.00:100kb-1Mb', '+:2.00-3.00:1Mb-10Mb', '+:2.00-3.00:10Mb-40Mb', '+:2.00-3.00:>40Mb',
+    '+:3.00-4.00:0-100kb', '+:3.00-4.00:100kb-1Mb', '+:3.00-4.00:1Mb-10Mb', '+:3.00-4.00:10Mb-40Mb', '+:3.00-4.00:>40Mb', 
+    '+:>4.00:0-100kb', '+:>4.00:100kb-1Mb', '+:>4.00:1Mb-10Mb', '+:>4.00:10Mb-40Mb', '+:>4.00:>40Mb', 
+]]
+
+fig, ax = plt.subplots(H.shape[0], 1, figsize=(6, 1.5 * H.shape[0]))
+
+colors = []
+for colname in H.columns:
+    if '<=0.50' in colname:
+        colors.append('darkslateblue')
+    elif '0.50-1.00' in colname:
+        colors.append('slategray')
+    elif '1.00-2.00' in colname:
+        colors.append('darkseagreen')
+    elif '2.00-3.00' in colname:
+        colors.append('mediumorchid')
+    elif '3.00-4.00' in colname:
+        colors.append('gold')
+    elif '>4.00' in colname:
+        colors.append('crimson')
+
+for i in range(H.shape[0]):
+    ax[i].bar(np.arange(H.shape[1]), H.iloc[i,:].values.ravel(), color=colors)
+    ax[i].set_yticks([0,5,10,15])
+    ax[i].set_ylabel(f'Sig-{i+1}')
+    ax[i].set_ylim([0,20])
+    if i==(H.shape[0]-1):
+        ax[i].set_xticks(np.arange(H.shape[1]))
+        ax[i].set_xticklabels(['0-100kb', '100kb-1Mb', '1Mb-10Mb', '10Mb-40Mb', '>40Mb'] * 6, rotation=90, ha='center', fontsize=10)
+    else:
+        ax[i].set_xticks([])
+        ax[i].set_xticklabels([])
+
+
+fig.suptitle('In-house CN Signatures', fontsize=14)
+plt.subplots_adjust(hspace=0.05)
+plt.tight_layout()
+fig.savefig(f'{plot_dn}/inhouse_signature.png')
+plt.close()
