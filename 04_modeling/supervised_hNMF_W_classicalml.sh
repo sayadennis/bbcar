@@ -21,7 +21,7 @@ labeldir='/projects/b1131/saya/bbcar/data/clinical'
 outdir='/projects/b1131/saya/bbcar/model_interpretations'
 ixdir='/projects/b1131/saya/bbcar/train_test_splits'
 
-fn='test_learned_W.csv'
+fn='learned_W.csv'
 shortfn=$(echo $fn | cut -d. -f1)
 mkdir -p ${outdir}/${shortfn}
 python ~/classical-ml/ClassicalML/run_classical_ml.py \
@@ -32,3 +32,13 @@ python ~/classical-ml/ClassicalML/run_classical_ml.py \
     --scoring roc_auc \
     --n_cpu ${SLURM_NTASKS};
 
+fn='hNMF_learned_W.csv'
+shortfn=$(echo $fn | cut -d. -f1)
+mkdir -p ${outdir}/${shortfn}
+python ~/classical-ml/ClassicalML/run_classical_ml.py \
+    --input ${inputdir}/${fn} \
+    --label ${labeldir}/bbcar_label_studyid_from_gatk_filenames.csv \
+    --outdir ${outdir}/${shortfn}/ \
+    --indexdir $ixdir \
+    --scoring roc_auc \
+    --n_cpu ${SLURM_NTASKS};

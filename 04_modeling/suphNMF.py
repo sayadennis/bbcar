@@ -15,7 +15,7 @@ C = 1. # regularization weight for the classification fully connected layers
 
 class suphNMF(nn.Module):
     def __init__(
-            self, X1, X2, y, n_components=k, lr=1e-3, n_iter=2000, 
+            self, X1, X2, y=None, n_components=k, lr=1e-3, n_iter=2000, 
             weight_decay=1e-4, clf_weight=0.1, ortho_weight=1., seed=42):
         super(suphNMF, self).__init__()
         torch.manual_seed(seed)
@@ -24,7 +24,11 @@ class suphNMF(nn.Module):
         # Data
         self.X1 = torch.tensor(X1.values, dtype=torch.float32)
         self.X2 = torch.tensor(X2.values, dtype=torch.float32)
-        self.y = torch.tensor(y.values, dtype=torch.float32)
+        if y is not None:
+            self.y = torch.tensor(y.values, dtype=torch.float32)
+            self.supervised = True
+        else:
+            self.supervised = False
         # Parameters and number of components
         self.n_components = n_components
         self.W = torch.normal(mean=3., std=1.5, size=(self.X1.shape[0], self.n_components)).clamp(min=1e-5)
@@ -69,8 +73,11 @@ class suphNMF(nn.Module):
                 WtW = WtW / torch.mean(WtW)
             self.loss_W_ortho = self.recon_loss_func(WtW/self.n_components, torch.eye(self.n_components)) * self.n_components
             # Add classification loss
-            y_pred = self.predict(self.W)
-            self.loss_clf = self.clf_loss_func(y_pred, self.y)
+            if self.supervised:
+                y_pred = self.predict(self.W)
+                self.loss_clf = self.clf_loss_func(y_pred, self.y)
+            else:
+                self.loss_clf = 0.
             # No need to add L2 regularization to the clf params since added weight decay
             ## Backprop & step
             loss = self.loss_recon1 + self.loss_recon2 + self.clf_weight * self.loss_clf + self.ortho_weight * self.loss_W_ortho
@@ -80,11 +87,12 @@ class suphNMF(nn.Module):
             ## Set factorized matrix values to positive
             self.plus()
             ## Record performance
-            self.clf_roc_record.append(metrics.roc_auc_score(self.y.detach().numpy(), y_pred.detach().numpy()))
-            self.clf_loss_record.append(self.loss_clf.item())
             self.reconloss1_record.append(self.loss_recon1.item())
             self.reconloss2_record.append(self.loss_recon2.item())
             self.ortholoss_record.append(self.loss_W_ortho.item())
+            if self.supervised:
+                self.clf_roc_record.append(metrics.roc_auc_score(self.y.detach().numpy(), y_pred.detach().numpy()))
+                self.clf_loss_record.append(self.loss_clf.item())
         ## Save: model object? - W, H, classifier, performances, loss curves etc.
         self.factorized = True
    

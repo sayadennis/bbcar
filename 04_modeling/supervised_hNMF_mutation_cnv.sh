@@ -16,3 +16,5 @@ source activate bbcarenv
 cd ${HOME}/bbcar/repo/04_modeling/
 
 python supervised_hNMF_mutation_cnv.py
+
+python unsupervised_hNMF_mutation_cnv.py

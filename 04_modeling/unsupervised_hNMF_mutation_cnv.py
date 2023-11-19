@@ -40,7 +40,7 @@ y_train, y_test = y.loc[train_ix,:], y.loc[test_ix,:]
 #loss_type = ['l2', 'kl'][i]
 
 def plot_learning(weight_decay, clf_weight, ortho_weight):
-    test = suphNMF(X_mut_train, X_cnv_train, y_train, n_iter=10000, lr=1e-3, weight_decay=weight_decay, clf_weight=clf_weight, ortho_weight=ortho_weight)
+    test = suphNMF(X_mut_train, X_cnv_train, n_iter=10000, lr=1e-3, weight_decay=weight_decay, clf_weight=clf_weight, ortho_weight=ortho_weight)
     test.fit()
     
     fig, axs = plt.subplots(2, 3, figsize=(12, 8))
@@ -72,19 +72,20 @@ def plot_learning(weight_decay, clf_weight, ortho_weight):
 
     fig.suptitle(f'Learning curves - weight decay {weight_decay}; classification weight {clf_weight}; orthogonality weight {ortho_weight}')
     plt.tight_layout()
-    fig.savefig(f'{plotdir}/test_suphNMF_learning_curves_decay{weight_decay}_clf{clf_weight}_ortho{ortho_weight}.png')
+    fig.savefig(f'{plotdir}/test_hNMF_learning_curves_decay{weight_decay}_clf{clf_weight}_ortho{ortho_weight}.png')
     plt.close()
 
-#for weight_decay in [1e-4, 1e-3, 1e-2, 1e-1]:
-#    for clf_weight in [1e-1, 1e+0, 1e+1, 1e+2]:
-#        for ortho_weight in [1e-1, 1e+0, 1e+1, 1e+2]:
-#            plot_learning(weight_decay, clf_weight, ortho_weight)
+clf_weight = 1.
+
+for weight_decay in [1e-4, 1e-3, 1e-2]:
+    for ortho_weight in [1e-1, 1e+0, 1e+1, 1e+2]:
+        plot_learning(weight_decay, clf_weight, ortho_weight)
 
 k_list = np.arange(2,25)
 nmf_scores = pd.DataFrame(index=k_list, columns=['recon_error1', 'recon_error2', 'stability1', 'stability2'])
 for k in k_list:
     nmf = suphNMF(
-        X_mut_train, X_cnv_train, y_train, 
+        X_mut_train, X_cnv_train, # y_train, 
         n_components=k, n_iter=int(1e+4), weight_decay=1e-3, 
         clf_weight=1e+0, ortho_weight=1e+0
     )
@@ -143,17 +144,17 @@ for i in range(2):
 fig.suptitle('Stability and Reconstruction Error of hybrid NMF')
 
 fig.tight_layout()  # otherwise the right y-label is slightly clipped
-fig.savefig(f'{plotdir}/suphNMF_stability_recon_plot.png')
+fig.savefig(f'{plotdir}/hNMF_stability_recon_plot.png')
 plt.close()
 
 ###############################
 #### Save best model and W #### # TODO: Needs re-writing!! 
 ###############################
 
-best_k = 6 # visually determined from mutation and CNV plot (better ways?)
+best_k = 4 # visually determined from mutation and CNV plot (better ways?)
 
 nmf = suphNMF(
-    X_mut_train, X_cnv_train, y_train, 
+    X_mut_train, X_cnv_train, # y_train, 
     n_components=best_k, n_iter=int(1e+4), weight_decay=1e-3, 
     clf_weight=1e+0, ortho_weight=1e+0
 )   
@@ -169,9 +170,9 @@ W = pd.concat(
     axis=0
 )
 
-W.to_csv(f'{datadir}/combined_mutation_cnv/learned_W.csv', index=True, header=True)
+W.to_csv(f'{datadir}/combined_mutation_cnv/hNMF_learned_W.csv', index=True, header=True)
 
-with open(f'/projects/b1131/saya/bbcar/model_interpretations/suphNMF/suphNMF.p', 'wb') as f:
+with open(f'/projects/b1131/saya/bbcar/model_interpretations/suphNMF/hNMF.p', 'wb') as f:
     pickle.dump(nmf, f)
 
 # Calculate ROC-AUC
