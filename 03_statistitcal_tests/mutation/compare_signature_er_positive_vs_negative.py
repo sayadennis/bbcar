@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.stats import ttest_ind
 import seaborn as sns
 
 ###################
@@ -90,6 +91,23 @@ ax.legend(['Controls', 'ER Positive', 'ER Negative'], loc='upper right')
 plt.tight_layout()
 fig.savefig(f'/projects/b1131/saya/bbcar/plots/mutation/violin_sbs_exposure_by_er_status.png')
 plt.close()
+
+# Quick statistical test to see if ER+ seems to be more similar to controls (preliminary)
+
+results = {}
+for i, colname in enumerate(sbs.columns):
+    results[colname] = {}
+    t, p = ttest_ind(plot_data[i*3], plot_data[i*3+1]) # controls vs. ER+
+    results[colname]['Control vs. ER+'] = {'t': t, 'p' : p}
+    t, p = ttest_ind(plot_data[i*3+1], plot_data[i*3+2]) # ER+ vs. ER-
+    results[colname]['ER+ vs. ER-'] = {'t' : t, 'p' : p}
+    t, p = ttest_ind(plot_data[i*3], plot_data[i*3+2]) # Controls vs. ER-
+    results[colname]['Control vs. ER-'] = {'t' : t, 'p' : p}
+
+for signame in results.keys():
+    print(f'#### {signame} ####')
+    for comparison in results[signame].keys():
+            print([f'{stat}={results[signame][comparison][stat]:.2f}' for stat in ['t', 'p']])
 
 ## DBS
 
