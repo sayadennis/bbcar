@@ -38,7 +38,27 @@ X_cnv_train, X_cnv_test = X_cnv.loc[train_ix,:], X_cnv.loc[test_ix,:]
 y_train, y_test = y.loc[train_ix,:], y.loc[test_ix,:]
 
 nmf = suphNMF(X_mut_train, X_cnv_train, y_train, n_components=7)
-cv_results, best_params = nmf.fit_cv()
+cv_results, best_params = nmf.crossval_fit(
+    n_iters=[1000,2000], lrs=[1e-2], clf_weights=[1e-1,1e+0,1e+1,1e+2],
+    #weight_decays=[1e-3], 
+    #ortho_weights=[1.],
+)
+
+eval_metrics = nmf.evaluate(
+    torch.tensor(X_mut_test.values, dtype=torch.float32),
+    torch.tensor(X_cnv_test.values, dtype=torch.float32),
+    torch.tensor(y_test.values, dtype=torch.float32),
+)
+
+y_pred = eval_metrics['y_pred'].detach().numpy()
+y_score = eval_metrics['y_score'].detach().numpy()
+
+print(f'Training ROC-AUC: {nmf.train_roc}')
+print(f'Cross-validation ROC-AUC: {nmf.cv_mean_roc}')
+print(f'Test ROC-AUC: {metrics.roc_auc_score(y_test, y_score)}')
+print(f'Test precision: {metrics.precision_score(y_test, y_pred)}')
+print(f'Test recall: {metrics.recall_score(y_test, y_pred)}')
+print(f'Test F1: {metrics.f1_score(y_test, y_pred)}')
 
 with open('/projects/b1131/saya/bbcar/model_interpretations/test_cv_results.p', 'wb') as f:
     pickle.dump(cv_results, f)
@@ -48,4 +68,7 @@ with open('/projects/b1131/saya/bbcar/model_interpretations/test_best_params.p',
 
 with open('/projects/b1131/saya/bbcar/model_interpretations/test_hNMF.p', 'wb') as f:
     pickle.dump(nmf, f)
+
+with open('/projects/b1131/saya/bbcar/model_interpretations/test_eval_metrics.p', 'wb') as f:
+    pickle.dump(eval_metrics, f)
 

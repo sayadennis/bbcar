@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -A b1042
 #SBATCH -p genomics
-#SBATCH -t 48:00:00
+#SBATCH -t 12:00:00
 #SBATCH -n 1
-#SBATCH --mem=12G
+#SBATCH --mem=3G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name="explore_suphNMF"
