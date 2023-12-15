@@ -14,6 +14,7 @@ with open('/projects/b1131/saya/bbcar/data/sample_ids_uchicago.txt', 'r') as f:
 batches = [1 if x in uchicago else 0 for x in data.index]
 
 data_corrected = pycombat_norm(data.values.T, batches)
+data_corrected = data_corrected + (-1) * np.min(data_corrected)
 
 pd.DataFrame(data_corrected.T, index=data.index, columns=data.columns).to_csv(f'{dout}/inhouse_cn_features_batcheffect_rm_combat.csv')
 
