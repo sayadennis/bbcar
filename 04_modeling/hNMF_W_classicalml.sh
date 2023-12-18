@@ -8,7 +8,7 @@
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name="suphNMFml"
-#SBATCH --output=/projects/b1131/saya/bbcar/out/supervised_hNMF_W_classicalml.out
+#SBATCH --output=/projects/b1131/saya/bbcar/out/hNMF_W_classicalml.out
 
 module purge all
 module load python-miniconda3/4.12.0
@@ -21,24 +21,25 @@ labeldir='/projects/b1131/saya/bbcar/data/clinical'
 outdir='/projects/b1131/saya/bbcar/model_interpretations'
 ixdir='/projects/b1131/saya/bbcar/train_test_splits'
 
-fn='learned_W.csv'
-shortfn=$(echo $fn | cut -d. -f1)
-mkdir -p ${outdir}/${shortfn}
+## Unsupervised hNMF
+input_fn='/projects/b1131/saya/bbcar/model_interpretations/unsupervised_hNMF/learned_W.csv'
+outdir='/projects/b1131/saya/bbcar/model_interpretations/unsupervised_hNMF/'
 python ~/classical-ml/ClassicalML/run_classical_ml.py \
-    --input ${inputdir}/${fn} \
+    --input ${input_fn} \
     --label ${labeldir}/bbcar_label_studyid_from_gatk_filenames.csv \
-    --outdir ${outdir}/${shortfn}/ \
+    --outdir ${outdir} \
     --indexdir $ixdir \
     --scoring roc_auc \
     --n_cpu ${SLURM_NTASKS};
 
-fn='hNMF_learned_W.csv'
-shortfn=$(echo $fn | cut -d. -f1)
-mkdir -p ${outdir}/${shortfn}
+## Supervised hNMF
+input_fn='/projects/b1131/saya/bbcar/model_interpretations/supervised_hNMF/learned_W.csv'
+outdir='/projects/b1131/saya/bbcar/model_interpretations/supervised_hNMF/'
 python ~/classical-ml/ClassicalML/run_classical_ml.py \
-    --input ${inputdir}/${fn} \
+    --input ${input_fn} \
     --label ${labeldir}/bbcar_label_studyid_from_gatk_filenames.csv \
-    --outdir ${outdir}/${shortfn}/ \
+    --outdir ${outdir} \
     --indexdir $ixdir \
     --scoring roc_auc \
     --n_cpu ${SLURM_NTASKS};
+
