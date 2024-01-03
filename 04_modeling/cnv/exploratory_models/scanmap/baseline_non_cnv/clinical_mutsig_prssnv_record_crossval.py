@@ -6,7 +6,6 @@ from sklearn.model_selection import train_test_split
 
 sys.path.append("bbcar_project/src")
 import BBCarModelTraining
-import AlignInputTarget
 
 seed = 0
 
@@ -17,9 +16,6 @@ target = pd.read_csv(os.path.join(dn, "bbcar_label_studyidindex.csv"), header=0,
 ## Clinical features
 clin = pd.read_csv(os.path.join(dn, "additional_features/bbcar_clinical_info.csv"), header=0, index_col=0)
 clin = clin.fillna(0)
-# aligner = AlignInputTarget.AlignInputTarget(clin, target)
-# aligned_input = aligner.align_input()
-# aligned_target = aligner.align_target()
 aligned_input = clin.iloc[[x in target.index for x in clin.index],:]
 aligned_target = target.iloc[[x in clin.index for x in target.index],:]
 aligned_input.sort_index(inplace=True)
@@ -28,9 +24,6 @@ BBCarModelTraining.record_tuning(X_train, y_train, X_test, y_test, "/home/srd605
 
 # Mutational signature features (3 signatures)
 mutsig = pd.read_csv(os.path.join(dn, "additional_features/bbcar_mutational_signature.tsv"), header=0, index_col=0, sep="\t")
-# aligner = AlignInputTarget.AlignInputTarget(mutsig, target)
-# aligned_input = aligner.align_input()
-# aligned_target = aligner.align_target()
 aligned_input = mutsig.iloc[[x in target.index for x in mutsig.index],:]
 aligned_target = target.iloc[[x in mutsig.index for x in target.index],:]
 aligned_input.sort_index(inplace=True)
@@ -39,9 +32,6 @@ BBCarModelTraining.record_tuning(X_train, y_train, X_test, y_test, "/home/srd605
 
 # 313 SNVs published based on PRS
 snv = pd.read_csv(os.path.join(dn, "additional_features/bbcar_prs_snp.csv"), header=0, index_col=0)
-# aligner = AlignInputTarget.AlignInputTarget(snv, target)
-# aligned_input = aligner.align_input()
-# aligned_target = aligner.align_target()
 aligned_input = snv.iloc[[x in target.index for x in snv.index],:]
 aligned_input = snv.iloc[np.unique(snv.index),:]
 #### find non-unique index values ####
