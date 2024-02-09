@@ -18,7 +18,7 @@ cd /projects/b1131/saya/bbcar/
 
 inputdir='/projects/b1131/saya/bbcar/data/02b_cnv/inhouse_signatures'
 labeldir='/projects/b1131/saya/bbcar/data/clinical'
-outdir='/projects/b1131/saya/bbcar/model_interpretations'
+outdir='/projects/b1131/saya/bbcar/model_interpretations/breast_cancer_prediction'
 ixdir='/projects/b1131/saya/bbcar/train_test_splits'
 
 ## ML modeling on original CN features

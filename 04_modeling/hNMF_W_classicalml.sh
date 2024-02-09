@@ -18,12 +18,12 @@ cd /projects/b1131/saya/bbcar/
 
 inputdir='/projects/b1131/saya/bbcar/data/combined_mutation_cnv'
 labeldir='/projects/b1131/saya/bbcar/data/clinical'
-outdir='/projects/b1131/saya/bbcar/model_interpretations'
+outdir='/projects/b1131/saya/bbcar/model_interpretations/breast_cancer_prediction'
 ixdir='/projects/b1131/saya/bbcar/train_test_splits'
 
 ## Unsupervised hNMF
-input_fn='/projects/b1131/saya/bbcar/model_interpretations/unsupervised_hNMF/learned_W.csv'
-outdir='/projects/b1131/saya/bbcar/model_interpretations/unsupervised_hNMF/'
+input_fn='/projects/b1131/saya/bbcar/model_interpretations/breast_cancer_prediction/unsupervised_hNMF/learned_W.csv'
+outdir='/projects/b1131/saya/bbcar/model_interpretations/breast_cancer_prediction/unsupervised_hNMF/'
 python ~/classical-ml/ClassicalML/run_classical_ml.py \
     --input ${input_fn} \
     --label ${labeldir}/bbcar_label_studyid_from_gatk_filenames.csv \
@@ -33,8 +33,8 @@ python ~/classical-ml/ClassicalML/run_classical_ml.py \
     --n_cpu ${SLURM_NTASKS};
 
 ## Supervised hNMF
-input_fn='/projects/b1131/saya/bbcar/model_interpretations/supervised_hNMF/learned_W.csv'
-outdir='/projects/b1131/saya/bbcar/model_interpretations/supervised_hNMF/'
+input_fn='/projects/b1131/saya/bbcar/model_interpretations/breast_cancer_prediction/supervised_hNMF/learned_W.csv'
+outdir='/projects/b1131/saya/bbcar/model_interpretations/breast_cancer_prediction/supervised_hNMF/'
 python ~/classical-ml/ClassicalML/run_classical_ml.py \
     --input ${input_fn} \
     --label ${labeldir}/bbcar_label_studyid_from_gatk_filenames.csv \

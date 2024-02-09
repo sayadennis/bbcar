@@ -24,7 +24,7 @@ ixdir="${proj_dn}/train_test_splits"
 #### Original 96-element features ####
 ######################################
 
-outdir="${proj_dn}/model_interpretations/202310_original_96"
+outdir="${proj_dn}/model_interpretations/breast_cancer_prediction/202310_original_96"
 mkdir -p $outdir
 
 python ${HOME}/classical-ml/ClassicalML/run_classical_ml.py \
@@ -41,7 +41,7 @@ echo "Modeling done for original 96-element features."
 #### Signature features ####
 ############################
 
-outdir="${proj_dn}/model_interpretations/202310_signature"
+outdir="${proj_dn}/model_interpretations/breast_cancer_prediction/202310_signature"
 mkdir -p $outdir
 
 python ${HOME}/classical-ml/ClassicalML/run_classical_ml.py \

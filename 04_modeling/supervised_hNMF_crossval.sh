@@ -3,7 +3,7 @@
 #SBATCH -p genomics
 #SBATCH -t 48:00:00
 #SBATCH -n 1
-#SBATCH --mem=3G
+#SBATCH --mem=5G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name="suphNMF"

@@ -17,7 +17,7 @@ proj_dn="/projects/b1131/saya/bbcar"
 
 inputdir="${proj_dn}/data/02a_mutation/08_feature_matrix/"
 labeldir="${proj_dn}/data/clinical/"
-outdir="${proj_dn}/model_interpretations"
+outdir="${proj_dn}/model_interpretations/breast_cancer_prediction"
 ixdir="${proj_dn}/train_test_splits"
 
 #############################
