@@ -24,7 +24,7 @@ sampleid=${input_args[$SLURM_ARRAY_TASK_ID]}
 ## Obtain IDs of samples processed at U Chicago (need to use different interval file) 
 IFS=$'\n' read -d '' -r -a uchicago < /projects/b1131/saya/bbcar/data/sample_ids_uchicago.txt
 
-set -uex
+set -u -e -x
 
 ## Reference genome
 FA='/projects/p30791/hg38_ref/hg38.fa'
@@ -70,8 +70,8 @@ done
 
 $pic MergeSamFiles CREATE_INDEX=true $(for x in $(ls -1 ${interim}/${sampleid}_*_sorted.bam); do echo -n "I=$x "; done) O=${interim}/${sampleid}_final_sorted.bam USE_THREADING=true
 
-rm -f ${interim}/${sampleid}_*_*_.sam
-rm -f ${interim}/${sampleid}_*_*_*_sorted.bam
+rm -f ${interim}/${sampleid}_*_*.sam
+rm -f ${interim}/${sampleid}_*_*_sorted.bam
 
 $pic MarkDuplicates I=${interim}/${sampleid}_final_sorted.bam O=${interim}/${sampleid}_dup.bam M=${metrics}/${sampleid}_tissue_reads.mdup.metrics.txt
 
