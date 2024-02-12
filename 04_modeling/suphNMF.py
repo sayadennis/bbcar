@@ -24,7 +24,7 @@ loss_type = ["l2", "kl"][0]
 eps = 1e-7
 
 
-class suphNMF:
+class suphNMF(nn.Module):
     """
     Optionally supervised hybrid non-negative matrix factorization class.
     """
@@ -37,6 +37,7 @@ class suphNMF:
         n_components: int = 5,
         seed: int = 42,
     ):
+        super().__init__()
         self.seed = seed
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
@@ -61,6 +62,16 @@ class suphNMF:
         self.clf_loss_func = nn.BCEWithLogitsLoss(
             reduction="mean", pos_weight=pos_weight
         )
+
+    def forward(self, x):
+        """
+        Dummy implementation of forwrad.
+        This method is not needed for this class since
+        the objective is complex and I have implemented my own fit method.
+        Since pylint throws a warning for abstract methods that are not
+        overridden, so placing this dummy function here.
+        """
+        return x
 
     def plus(self):
         """
@@ -276,7 +287,7 @@ class suphNMF:
         eval_metrics = {}
 
         # Transform input
-        W = self.transform(X1, X2, y)
+        W = self.transform(X1, X2)
 
         # Record losses
         loss_recon1 = self.recon_loss_func(torch.mm(W, self.H1), X1) / X1.shape[1]
