@@ -10,6 +10,10 @@ import torch
 from sklearn import metrics
 from suphNMF import suphNMF
 
+###################
+#### Load data ####
+###################
+
 datadir = "/projects/b1131/saya/bbcar/data"
 plotdir = "/projects/b1131/saya/bbcar/plots/suphNMF_learning_curves"
 
@@ -31,6 +35,10 @@ X_cnv = (
 y = pd.read_csv(
     f"{datadir}/clinical/bbcar_label_studyid_from_gatk_filenames.csv", index_col=0
 )
+
+#####################################
+#### Split out held-out test set ####
+#####################################
 
 indexdir = "/projects/b1131/saya/bbcar/train_test_splits"
 
@@ -57,9 +65,9 @@ for k in range(4, 12):
     )
 
     eval_metrics = nmf.evaluate(
-        torch.Tensor(X_mut_test.values, dtype=torch.float32),
-        torch.Tensor(X_cnv_test.values, dtype=torch.float32),
-        torch.Tensor(y_test.values, dtype=torch.float32),
+        torch.tensor(X_mut_test.values, dtype=torch.float32),
+        torch.tensor(X_cnv_test.values, dtype=torch.float32),
+        torch.tensor(y_test.values, dtype=torch.float32),
     )
 
     nmf_record[k] = {
@@ -81,25 +89,25 @@ nmf_record["best_k"] = best_k
 
 nmf = suphNMF(X_mut_train, X_cnv_train, y_train, n_components=best_k)
 nmf.fit(
-    torch.Tensor(X_mut_train.values, dtype=torch.float32),
-    torch.Tensor(X_cnv_train.values, dtype=torch.float32),
-    torch.Tensor(y_train.values, dtype=torch.float32),
+    torch.tensor(X_mut_train.values, dtype=torch.float32),
+    torch.tensor(X_cnv_train.values, dtype=torch.float32),
+    torch.tensor(y_train.values, dtype=torch.float32),
     **best_params,
 )
 
 eval_metrics = nmf.evaluate(
-    torch.Tensor(X_mut_test.values, dtype=torch.float32),
-    torch.Tensor(X_cnv_test.values, dtype=torch.float32),
-    torch.Tensor(y_test.values, dtype=torch.float32),
+    torch.tensor(X_mut_test.values, dtype=torch.float32),
+    torch.tensor(X_cnv_test.values, dtype=torch.float32),
+    torch.tensor(y_test.values, dtype=torch.float32),
 )
 
 y_pred = eval_metrics["y_pred"].detach().numpy()
 y_score = eval_metrics["y_score"].detach().numpy()
 
 train_roc = nmf.evaluate(
-    torch.Tensor(X_mut_train.values, dtype=torch.float32),
-    torch.Tensor(X_cnv_train.values, dtype=torch.float32),
-    torch.Tensor(y_train.values, dtype=torch.float32),
+    torch.tensor(X_mut_train.values, dtype=torch.float32),
+    torch.tensor(X_cnv_train.values, dtype=torch.float32),
+    torch.tensor(y_train.values, dtype=torch.float32),
 )["roc_auc"]
 cv_mean_roc = nmf_record[best_k]["cv_mean_roc"]
 
@@ -115,8 +123,8 @@ if not os.path.exists(dout):
     os.makedirs(dout)
 
 # Get and save W and other objects
-W_test = nmf.transform(X_mut_test, X_cnv_test, y_test).detach().numpy()
-W_train = nmf.transform(X_mut_train, X_cnv_train, y_train).detach().numpy()
+W_test = nmf.transform(X_mut_test, X_cnv_test).detach().numpy()
+W_train = nmf.transform(X_mut_train, X_cnv_train).detach().numpy()
 
 W = pd.concat(
     (
@@ -157,9 +165,9 @@ for k in range(4, 12):
     )
 
     eval_metrics = nmf.evaluate(
-        torch.Tensor(X_mut_test.values, dtype=torch.float32),
-        torch.Tensor(X_cnv_test.values, dtype=torch.float32),
-        torch.Tensor(y_test.values, dtype=torch.float32),
+        torch.tensor(X_mut_test.values, dtype=torch.float32),
+        torch.tensor(X_cnv_test.values, dtype=torch.float32),
+        torch.tensor(y_test.values, dtype=torch.float32),
     )
 
     nmf_record[k] = {
@@ -181,25 +189,25 @@ nmf_record["best_k"] = best_k
 
 nmf = suphNMF(X_mut_train, X_cnv_train, y_train, n_components=best_k)
 nmf.fit(
-    torch.Tensor(X_mut_train.values, dtype=torch.float32),
-    torch.Tensor(X_cnv_train.values, dtype=torch.float32),
-    torch.Tensor(y_train.values, dtype=torch.float32),
+    torch.tensor(X_mut_train.values, dtype=torch.float32),
+    torch.tensor(X_cnv_train.values, dtype=torch.float32),
+    torch.tensor(y_train.values, dtype=torch.float32),
     **best_params,
 )
 
 eval_metrics = nmf.evaluate(
-    torch.Tensor(X_mut_test.values, dtype=torch.float32),
-    torch.Tensor(X_cnv_test.values, dtype=torch.float32),
-    torch.Tensor(y_test.values, dtype=torch.float32),
+    torch.tensor(X_mut_test.values, dtype=torch.float32),
+    torch.tensor(X_cnv_test.values, dtype=torch.float32),
+    torch.tensor(y_test.values, dtype=torch.float32),
 )
 
 y_pred = eval_metrics["y_pred"].detach().numpy()
 y_score = eval_metrics["y_score"].detach().numpy()
 
 train_roc = nmf.evaluate(
-    torch.Tensor(X_mut_train.values, dtype=torch.float32),
-    torch.Tensor(X_cnv_train.values, dtype=torch.float32),
-    torch.Tensor(y_train.values, dtype=torch.float32),
+    torch.tensor(X_mut_train.values, dtype=torch.float32),
+    torch.tensor(X_cnv_train.values, dtype=torch.float32),
+    torch.tensor(y_train.values, dtype=torch.float32),
 )["roc_auc"]
 cv_mean_roc = nmf_record[best_k]["cv_mean_roc"]
 
@@ -215,8 +223,8 @@ if not os.path.exists(dout):
     os.makedirs(dout)
 
 # Get and save W and other objects
-W_test = nmf.transform(X_mut_test, X_cnv_test, y_test).detach().numpy()
-W_train = nmf.transform(X_mut_train, X_cnv_train, y_train).detach().numpy()
+W_test = nmf.transform(X_mut_test, X_cnv_test).detach().numpy()
+W_train = nmf.transform(X_mut_train, X_cnv_train).detach().numpy()
 
 W = pd.concat(
     (
