@@ -51,12 +51,12 @@ gatk CollectReadCounts \
     --interval-merging-rule OVERLAPPING_ONLY \
     -O ${COLLECTED_CTS_DIR}/tissue/${sampleid}.counts.hdf5;
 
-#### Run for germline if present ####
+#### Run for germline if present #### # note: germline is ALWAYS v6 interval!!
 mkdir -p ${COLLECTED_CTS_DIR}/germline/
 if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
 gatk CollectReadCounts \
     -I ${GERMLINE_BAM_DIR}/${sampleid}_bqsr.bam \
-    -L ${INTERVAL} \
+    -L "${INT_DIR}/SureSelect_v6/hg38.v6.preprocessed.interval_list" \
     --interval-merging-rule OVERLAPPING_ONLY \
     -O ${COLLECTED_CTS_DIR}/germline/${sampleid}.counts.hdf5;
 fi
