@@ -35,7 +35,7 @@ IFS=$'\n' read -d '' -r -a uchicago < /projects/b1131/saya/bbcar/data/sample_ids
 
 ## Define interval based on sample ID
 if [[ " ${uchicago[*]} " =~ " ${sampleid} " ]]; then
-    INTERVAL="${INT_DIR}/SureSelect_v5/hg38.v5.preprocessed.interval_list"
+    INTERVAL="${INT_DIR}/SureSelect_v6/hg38.v6.preprocessed.interval_list" # TODO: explore v5 later
 else
     INTERVAL="${INT_DIR}/SureSelect_v6/hg38.v6.preprocessed.interval_list"
 fi
