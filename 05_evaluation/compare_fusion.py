@@ -8,20 +8,25 @@ from scipy.stats import ttest_ind
 
 din = "/projects/b1131/saya/bbcar/model_interpretations/breast_cancer_prediction"
 
-############################
+#####################################
 #### Load performance dataframes ####
+#####################################
+
 performances = {
     "No fusion mutation": pd.read_csv(
         f"{din}/no_fusion_mutation_orig.csv", index_col=0
     ),
-    "No fusion cnv": pd.read_csv(f"{din}/no_fusion_cnv_orig.csv", index_col=0),
-    "Early fusion": pd.read_csv(f"{din}/early_fusion_orig.csv", index_col=0),
+    "No fusion cnv": pd.read_csv(f"{din}/no_fusion_cnv_gistic.csv", index_col=0),
+    "Early fusion": pd.read_csv(
+        f"{din}/early_fusion_orig_with_gisticcyto.csv", index_col=0
+    ),
+    "Late fusion": pd.read_csv(f"{din}/late_fusion/late_fusion.csv", index_col=0),
     "Mid fusion supervised": pd.read_csv(
-        f"{din}/mid_fusion_supervised.csv", index_col=0
+        f"{din}/mid_fusion_supervised/mid_fusion_supervised.csv", index_col=0
     ),
-    "Mid fusion unsupervised": pd.read_csv(
-        f"{din}/mid_fusion_unsupervised.csv", index_col=0
-    ),
+    # "Mid fusion unsupervised": pd.read_csv(
+    #    f"{din}/mid_fusion_unsupervised.csv", index_col=0
+    # ),
 }
 
 ## Create and print the performance comparison table for slides

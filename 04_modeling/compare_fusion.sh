@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH -A b1042
 #SBATCH -p genomics
-#SBATCH -t 8:00:00
+#SBATCH -t 48:00:00
 #SBATCH -N 1
 #SBATCH -n 8
-#SBATCH --mem=3G
+#SBATCH --mem=4G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name="compfusion"
@@ -71,8 +71,8 @@ python ~/classical-ml/ClassicalML/nested.py \
 
 input1dir=$datadir/02a_mutation/08_feature_matrix/20230423_signature_results
 input1fn='sbs_96_original_per_sample.csv'
-input2dir=$datadir/02b_cnv/inhouse_signatures
-input2fn='inhouse_cn_features_batcheffect_rm_combat.csv'
+input2dir=$datadir/02b_cnv/04_cleaned_cnv/all
+input2fn='cyto_copy_conf90_all.csv'
 shortfn='late_fusion'
 outfn='late_fusion.csv'
 mkdir -p ${outdir}/${shortfn}
