@@ -4,7 +4,7 @@
 #SBATCH -t 1:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --array=19-24,60-66,77-95,127-133,144-151,177-179
+#SBATCH --array=0-201
 #SBATCH --mem=3G
 #SBATCH --job-name=plotdenoise%a
 #SBATCH --mail-user=sayarenedennis@northwestern.edu

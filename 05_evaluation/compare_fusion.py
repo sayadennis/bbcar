@@ -7,6 +7,7 @@ import pandas as pd
 from scipy.stats import ttest_ind
 
 din = "/projects/b1131/saya/bbcar/model_interpretations/breast_cancer_prediction"
+pf_table_fn = f"{din}/fusion_comparison.csv"
 
 #####################################
 #### Load performance dataframes ####
@@ -53,6 +54,8 @@ for key, df in performances.items():
         compare_fusion.loc[
             key, f"Test {metric}"
         ] = f"{mean_score:.3f} (±{std_score:.3f})"
+
+compare_fusion.to_csv(pf_table_fn, index=True, header=True)
 
 ## Perform statistical comparisons
 
