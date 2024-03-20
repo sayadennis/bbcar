@@ -44,6 +44,5 @@ refgenefile="./refgenefiles/hg38.UCSC.add_miR.160920.refgene.mat"
 #### Process GATK Segments ####
 ###############################
 
-# python 09_gistic_to_model_features.py
-
+python ~/bbcar/repo/01_processing/input/cnv/09_gistic_to_model_features.py
 
