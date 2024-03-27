@@ -4,7 +4,7 @@
 #SBATCH -t 1:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --array=139
+#SBATCH --array=0-201
 #SBATCH --mem=2G
 #SBATCH --job-name=plotseg%a
 #SBATCH --mail-user=sayarenedennis@northwestern.edu

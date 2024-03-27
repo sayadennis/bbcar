@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -A b1042
 #SBATCH -p genomics
-#SBATCH -t 2:00:00
+#SBATCH -t 4:00:00
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH --array=0-201
@@ -43,7 +43,13 @@ gatk --java-options "-Xmx72g" ModelSegments \
     --denoised-copy-ratios ${DENOISED_CN_DIR}/${sampleid}.denoisedCR.tsv \
     --allelic-counts ${ALLELIC_CTS_DIR}/tissue/${sampleid}.allelicCounts.tsv \
     --output ${CONTIGUOUS_CN_DIR}/tissue_only \
-    --output-prefix ${sampleid}
+    --output-prefix ${sampleid} \
+    --number-of-changepoints-penalty-factor 3.0 \
+    --kernel-variance-allele-fraction 0.2 \
+    --kernel-variance-copy-ratio 0.2 \
+    --kernel-scaling-allele-fraction 0.5 \
+    --smoothing-credible-interval-threshold-allele-fraction 5.0 \
+    --smoothing-credible-interval-threshold-copy-ratio 5.0
 
 #### Run for tissue-germline pairs if germline is present ####
 mkdir -p ${ALLELIC_CTS_DIR}/germline/
@@ -53,6 +59,12 @@ if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
         --allelic-counts ${ALLELIC_CTS_DIR}/tissue/${sampleid}.allelicCounts.tsv \
         --normal-allelic-counts ${ALLELIC_CTS_DIR}/germline/${sampleid}.allelicCounts.tsv \
         --output ${CONTIGUOUS_CN_DIR}/tissue_normal \
-        --output-prefix ${sampleid}
+        --output-prefix ${sampleid} \
+        --number-of-changepoints-penalty-factor 3.0 \
+        --kernel-variance-allele-fraction 0.2 \
+        --kernel-variance-copy-ratio 0.2 \
+        --kernel-scaling-allele-fraction 0.5 \
+        --smoothing-credible-interval-threshold-allele-fraction 5.0 \
+        --smoothing-credible-interval-threshold-copy-ratio 5.0
 fi
 
