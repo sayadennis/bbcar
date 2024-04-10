@@ -13,7 +13,7 @@ tissue_types = ["Normal", "CUB", "OQ", "AN", "TU"]
 
 for tissue_type in tissue_types:
     segs[f"methyl - {tissue_type}"] = pd.read_csv(
-        f"/projects/p30791/methylation/sesame_out/copy_number/segs_{tissue_type}.tsv",
+        f"/projects/p30791/methylation/copy_number/segs_{tissue_type}.tsv",
         sep="\t",
         header=None,
     )
