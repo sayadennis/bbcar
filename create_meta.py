@@ -36,29 +36,29 @@ new_labels.set_index("patient ID", drop=True, inplace=True)
 new_labels.index.name = None
 new_labels.columns = ["label"]
 
-# Remove sequencing controls (check what to do with these)
-seq_controls = list(
+# Get patient IDs of ones labeled as sequencing control
+seq_controls = set(
     new_labels.iloc[new_labels.label.values == "sequencing ctrl", :].index
 )
-new_labels = new_labels.iloc[new_labels.label.values != "sequencing ctrl", :]
 
-# Encode as integer
-new_labels.label = new_labels.label.map({"Control": 0, "case": 1})
-
+# Assess overlap
 print(f"Number of sequencing controls: {len(seq_controls)}")
 overlap = set(seq_controls).intersection(set(old_labels.index))
 print(f"Overlap between sequencing controls and old samples: {len(overlap)}")
 overlap = set(new_labels.index).intersection(set(old_labels.index))
-print(
-    f"Overlap between old and new samples (ones NOT labeled as seq controls): {len(overlap)}"
-)
+print(f"Total overlap between old and new samples: {len(overlap)}")
+
+# Label all samples overlapping between batch 2 and 3 as sequencing controls
+for patient_id in overlap:
+    new_labels.loc[patient_id, "label"] = "sequencing ctrl"
+
+# Encode as integer
+new_labels.label = new_labels.label.map({"Control": 0, "case": 1, "sequencing ctrl": 2})
 
 # Create a label df of unique sample IDs
 new_only = set(new_labels.index) - set(old_labels.index)
 
-new_labels = new_labels.loc[list(new_only), :]
-
-labels_all = pd.concat((old_labels, new_labels), axis=0)
+labels_all = pd.concat((old_labels, new_labels.loc[list(new_only), :]), axis=0)
 
 labels_all.to_csv(f"{dout}/label_all.csv", index=True, header=True)
 
@@ -81,7 +81,15 @@ with open(
     uchicago_ids = [int(x.strip()) for x in f.readlines()]
 
 meta = pd.DataFrame(
-    columns=["sample_id", "patient_id", "tissue", "germline", "label", "batch"],
+    columns=[
+        "sample_id",
+        "patient_id",
+        "tissue",
+        "germline",
+        "label",
+        "batch",
+        "seq_ctrl",
+    ],
 )
 
 ## First iterate over all old samples
@@ -102,6 +110,7 @@ for patient_id in old_labels.index:
                         "germline": 0,
                         "label": label,
                         "batch": batch,
+                        "seq_ctrl": 0,  # all sequencing controls are batch 3
                     },
                     index=[0],
                 ),
@@ -119,6 +128,7 @@ for patient_id in old_labels.index:
                         "germline": 1,
                         "label": label,
                         "batch": 2,  # NO GERMLINE ARE BATCH 1
+                        "seq_ctrl": 0,  # all sequencing controls are batch 3
                     },
                     index=[0],
                 ),
@@ -141,6 +151,15 @@ for patient_id in new_labels.index:
         ].values
     )
     label = new_labels.loc[patient_id, "label"]
+    # Record whether this is a sequencing control
+    if label == 2:  # if sequencing control
+        seq_ctrl_status = 1
+        id_append = "_seqctrl"
+        label = old_labels.loc[patient_id, "label"]
+    else:
+        seq_ctrl_status = 0
+        id_append = ""
+    # Record batch info (all new samples are batch 3)
     batch = 3
     if tissue:
         meta = pd.concat(
@@ -148,12 +167,13 @@ for patient_id in new_labels.index:
                 meta,
                 pd.DataFrame(
                     {
-                        "sample_id": f"{patient_id}_tissue",
+                        "sample_id": f"{patient_id}_tissue{id_append}",
                         "patient_id": patient_id,
                         "tissue": 1,
                         "germline": 0,
                         "label": label,
                         "batch": 3,
+                        "seq_ctrl": seq_ctrl_status,
                     },
                     index=[0],
                 ),
@@ -165,12 +185,13 @@ for patient_id in new_labels.index:
                 meta,
                 pd.DataFrame(
                     {
-                        "sample_id": f"{patient_id}_germline",
+                        "sample_id": f"{patient_id}_germline{id_append}",
                         "patient_id": patient_id,
                         "tissue": 0,
                         "germline": 1,
                         "label": label,
                         "batch": 3,
+                        "seq_ctrl": seq_ctrl_status,
                     },
                     index=[0],
                 ),
