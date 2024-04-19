@@ -10,7 +10,7 @@ import pandas as pd
 dout = "/projects/b1131/saya/new_bbcar"
 
 new_meta = pd.read_excel(
-    "/projects/b1131/saya/new_bbcar/data/unformatted/BBCaR_2024_sequenced_samples.xlsx"
+    "/projects/b1131/saya/new_bbcar/data/unformatted/BBCaR_2024_sequenced_samples_correct.xlsx"
 )
 old_labels = pd.read_csv(
     "/projects/b1131/saya/bbcar/data/clinical/bbcar_label_studyid_from_gatk_filenames.csv",

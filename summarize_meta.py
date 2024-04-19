@@ -43,6 +43,8 @@ patient_dict["seq_ctrl"] = list(
     meta.iloc[meta.seq_ctrl.values == 1, :].patient_id.unique()
 )
 
+patient_dict["all"] = list(meta.patient_id.unique())
+
 for groupname, patient_ids in patient_dict.items():
     print(f"{groupname}: {len(patient_ids)}")
     with open(
