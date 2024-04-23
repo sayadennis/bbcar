@@ -8,11 +8,15 @@
 #SBATCH --job-name=procint
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --output=/projects/b1131/saya/bbcar/out/preprocess_intervals.out
+#SBATCH --output=/projects/b1131/saya/new_bbcar/out/preprocess_intervals.out
 
 ## Load GATK 
 module purge all 
-export PATH="/projects/b1131/saya/bbcar/tools/gatk-4.2.5.0:$PATH"
+module load singularity
+
+gatk() {
+    singularity exec -B /projects:/projects /projects/p30791/gatk_4.5.0.sif gatk "$@"
+}
 
 ## Reference genome
 REF="/projects/p30791/hg38_ref/hg38.fa"

@@ -8,17 +8,21 @@
 #SBATCH --job-name=cnvpon
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --output=/projects/b1131/saya/bbcar/out/generate_cnv_pon.out
+#SBATCH --output=/projects/b1131/saya/new_bbcar/out/generate_cnv_pon.out
 
-cd /projects/b1131/saya/bbcar/
+cd /projects/b1131/saya/new_bbcar/
 
 ## Load GATK 
 module purge all 
-export PATH="/projects/b1131/saya/bbcar/tools/gatk-4.2.5.0:$PATH"
+module load singularity
+
+gatk() {
+    singularity exec -B /projects:/projects /projects/p30791/gatk_4.5.0.sif gatk "$@"
+}
 
 ## Directories
-GERMLINE_HDF_DIR="/projects/b1131/saya/bbcar/data/02b_cnv/01_collected_counts/germline"
-PON_DIR="/projects/b1131/saya/bbcar/data/02b_cnv/02_pon"
+GERMLINE_HDF_DIR="/projects/b1131/saya/new_bbcar/data/02b_cnv/01_collected_counts/germline"
+PON_DIR="/projects/b1131/saya/new_bbcar/data/02b_cnv/02_pon"
 
 mkdir -p $PON_DIR
 

@@ -8,7 +8,7 @@ import pandas as pd
 
 din = sys.argv[
     1
-]  # "/projects/b1131/saya/bbcar/data/02b_cnv/07_called_cn_segs/tissue_only"
+]  # "/projects/b1131/saya/new_bbcar/data/02b_cnv/07_called_cn_segs/tissue_only"
 
 allmx = pd.DataFrame(
     None,
