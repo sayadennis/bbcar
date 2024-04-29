@@ -46,12 +46,12 @@ gatk --java-options "-Xmx72g" ModelSegments \
     --allelic-counts ${ALLELIC_CTS_DIR}/tissue/${sampleid}.allelicCounts.tsv \
     --output ${CONTIGUOUS_CN_DIR}/tissue_only \
     --output-prefix ${sampleid} \
-    --number-of-changepoints-penalty-factor 2.0 \
-    --kernel-variance-allele-fraction 0.1 \
-    --kernel-variance-copy-ratio 0.1 \
-    --kernel-scaling-allele-fraction 0.8 \
-    --smoothing-credible-interval-threshold-allele-fraction 4.0 \
-    --smoothing-credible-interval-threshold-copy-ratio 4.0
+    --number-of-changepoints-penalty-factor 3.0 \
+    --kernel-variance-allele-fraction 0.2 \
+    --kernel-variance-copy-ratio 0.2 \
+    --kernel-scaling-allele-fraction 0.75 \
+    --smoothing-credible-interval-threshold-allele-fraction 4.5 \
+    --smoothing-credible-interval-threshold-copy-ratio 4.5
 
 #### Run for tissue-germline pairs if germline is present ####
 mkdir -p ${ALLELIC_CTS_DIR}/germline/
@@ -62,11 +62,11 @@ if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
         --normal-allelic-counts ${ALLELIC_CTS_DIR}/germline/${sampleid}.allelicCounts.tsv \
         --output ${CONTIGUOUS_CN_DIR}/tissue_normal \
         --output-prefix ${sampleid} \
-        --number-of-changepoints-penalty-factor 2.0 \
-        --kernel-variance-allele-fraction 0.1 \
-        --kernel-variance-copy-ratio 0.1 \
-        --kernel-scaling-allele-fraction 0.8 \
-        --smoothing-credible-interval-threshold-allele-fraction 4.0 \
-        --smoothing-credible-interval-threshold-copy-ratio 4.0
+        --number-of-changepoints-penalty-factor 3.0 \
+        --kernel-variance-allele-fraction 0.2 \
+        --kernel-variance-copy-ratio 0.2 \
+        --kernel-scaling-allele-fraction 0.75 \
+        --smoothing-credible-interval-threshold-allele-fraction 4.5 \
+        --smoothing-credible-interval-threshold-copy-ratio 4.5
 fi
 
