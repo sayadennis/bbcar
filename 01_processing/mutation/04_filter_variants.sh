@@ -52,7 +52,7 @@ function dp_filter() {
             --exclude '(FORMAT/AF<0.05) | (FORMAT/AF<0.10 && REF="C" && ALT="T")' \
             --output-type v \
             --output $dout/${sampleid}_DPfiltered_classicalAF.vcf \
-            $din/${sampleid}_${ext}.vcf
+            $din/${sampleid}_DP${ext}.vcf
     fi
 }
 
