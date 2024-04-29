@@ -5,6 +5,7 @@ for all the BBCAR samples, including the new ones from April 2024.
 
 from glob import glob
 
+import numpy as np
 import pandas as pd
 
 dout = "/projects/b1131/saya/new_bbcar"
@@ -197,5 +198,25 @@ for patient_id in new_labels.index:
                 ),
             )
         )
+
+meta["pon"] = 0
+meta.set_index("sample_id", drop=False, inplace=True)
+# Sample 40 germline samples of roughly equal size of case/control and batch 2/3
+for label in [0, 1]:
+    for batch in [2, 3]:
+        # randomly sample 10 patients that meet condition
+        pool = meta.iloc[
+            (meta.seq_ctrl.values == 0)
+            & (meta.germline.values == 1)
+            & (meta.label.values == label)
+            & (meta.batch.values == batch),
+            :,
+        ].patient_id.values
+        np.random.seed(seed=32)
+        selected = np.random.choice(pool, size=10, replace=False)
+        # mark PON column
+        for patient_id in selected:
+            meta.loc[f"{patient_id}_germline", "pon"] = 1
+
 
 meta.to_csv(f"{dout}/meta.csv", index=False, header=True)
