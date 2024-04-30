@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH -A b1042
 #SBATCH -p genomics
-#SBATCH --array=9
+#SBATCH --array=0-239
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -t 24:00:00
-#SBATCH --mem=20G
+#SBATCH --mem=8G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name=annotate
@@ -102,6 +102,7 @@ function run_vep() {
     ${dvep}/vep \
         -i ${din}/${sampleid}_${ext}.vcf \
         -o ${dout}/${sampleid}_vep.vcf \
+        --force_overwrite \
         -offline --cache --dir /projects/b1131/saya/bbcar/tools/.vep
 }
 

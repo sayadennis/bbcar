@@ -3,7 +3,7 @@
 #SBATCH -p normal
 #SBATCH --array=0-239
 #SBATCH -n 1
-#SBATCH -t 8:00:00
+#SBATCH -t 24:00:00
 #SBATCH --mem=3G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
