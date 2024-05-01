@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH -A b1042
-#SBATCH -p genomics
-#SBATCH --array=34
+#SBATCH -A p30791
+#SBATCH -p short
+#SBATCH --array=0-239
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -t 3:00:00
@@ -9,36 +9,34 @@
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name=avfts_%a
-#SBATCH --output=/projects/b1131/saya/bbcar/out/generate_annovar_features_%a.out
+#SBATCH --output=/projects/b1131/saya/new_bbcar/out/generate_annovar_features_%a.out
 
 module purge all
 module load python-miniconda3/4.12.0
 source activate bbcarenv
 
-cd ${HOME}/bbcar/repo/01_processing/input/mutation/06_generate_ml_features/
+cd ${HOME}/bbcar/repo/01_processing/mutation/06_generate_ml_features/
 
-# #### To generate 1000g PON input_args.txt file ####
-# cd /projects/b1131/saya/bbcar/data/02a_mutation/
-# touch sample_names_all_ml_feature_generation_1000gpon.txt # create file 
-# > sample_names_all_ml_feature_generation_1000gpon.txt # clear content of file (in case of re-running)
-# avdir="/projects/b1131/saya/bbcar/data/02a_mutation/03_annotated_variants/annovar"
-# ls ${avdir}/germline_only/*.hg38_multianno.vcf | grep [0-9].hg38_multianno.vcf >> sample_names_all_ml_feature_generation_1000gpon.txt # germline doesn't have PON info in filename
-# for category in tumor_normal tumor_only; do 
-#     ls ${avdir}/${category}/*_1000gpon.hg38_multianno.vcf >> sample_names_all_ml_feature_generation_1000gpon.txt
-# done
-# #########################################
-# #### To generate BBCAR PON input_args.txt file ####
-# cd /projects/b1131/saya/bbcar/data/02a_mutation/
-# touch sample_names_all_ml_feature_generation_bbcarpon.txt # create file 
-# > sample_names_all_ml_feature_generation_bbcarpon.txt # clear content of file (in case of re-running)
-# avdir="/projects/b1131/saya/bbcar/data/02a_mutation/03_annotated_variants/annovar"
-# ls ${avdir}/germline_only/*.hg38_multianno.vcf | grep [0-9].hg38_multianno.vcf >> sample_names_all_ml_feature_generation_bbcarpon.txt # germline doesn't have PON info in filename
-# for category in tumor_normal tumor_only; do 
-#     ls ${avdir}/${category}/*_bbcarpon.hg38_multianno.vcf >> sample_names_all_ml_feature_generation_bbcarpon.txt
-# done
-# #########################################
+## Define input arguments for job array 
+IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+sampleid=${input_args[$SLURM_ARRAY_TASK_ID]}
 
-for pon_source in bbcar 1000g; do
-    IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/bbcar/data/02a_mutation/sample_names_all_ml_feature_generation_${pon_source}pon.txt
-    python 01_generate_annovar_features.py ${input_args[$SLURM_ARRAY_TASK_ID]}
-done
+## Obtain IDs of samples that have germline
+IFS=$'\n' read -d '' -r -a tissue < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_germline.txt
+
+## Tissue only
+if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
+    python 01_generate_annovar_features.py $sampleid "tissue_only"
+else
+    echo '########## Patient ID ${sampleid} is not in the tissue sample list ##########'
+fi
+
+## Tissue-normal and germline-only
+if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
+    python 01_generate_annovar_features.py $sampleid "tissue_normal"
+    python 01_generate_annovar_features.py $sampleid "germline_only"
+else
+    echo '########## Patient ID ${sampleid} is not in the germline sample list ##########'
+fi
+

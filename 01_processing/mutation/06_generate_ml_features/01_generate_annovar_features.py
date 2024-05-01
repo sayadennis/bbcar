@@ -1,5 +1,6 @@
 # pylint: disable=duplicate-code
 
+import os
 import sys
 
 import numpy as np
@@ -9,22 +10,20 @@ import pandas as pd
 #### Get input arguments (sample info) ####
 ###########################################
 
-input_arg = sys.argv[1]  # input_arg is the FULL path to VCF
-source = input_arg.split("/")[-2]
-sample_id = input_arg.rsplit("/", maxsplit=1)[-1].split(".")[0].split("_")[0]
-if source == "germline_only":
-    pon_source = "no"
-else:
-    pon_source = input_arg.rsplit("/", maxsplit=1)[-1].split(".")[0].split("_")[1][:-3]
-
-if sample_id.endswith("t"):
-    sample_id = sample_id[:-1]  # remove the "t" at the end
+patient_id = sys.argv[1]
+print(patient_id)
+source = sys.argv[2]
+print(source)
 
 ##########################################
 #### Set input and output directories ####
 ##########################################
 
-dout = "/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/01_indivi_annovar_features"
+din = f"/projects/b1131/saya/new_bbcar/data/02a_mutation/03_annotated_variants/annovar/{source}"
+dout = "/projects/b1131/saya/new_bbcar/data/02a_mutation/04_ml_features/individual_annovar_features"
+
+if not os.path.exists(dout):
+    os.makedirs(dout, exist_ok=True)
 
 #######################################
 #### Set variable names to collect ####
@@ -58,7 +57,7 @@ variables = [
 features = pd.DataFrame(columns=variables)
 
 ## Iterate through lines of VCF
-vcf = input_arg
+vcf = f"{din}/{patient_id}.hg38_multianno.vcf"
 
 with open(vcf, "r") as f:
     lines = f.readlines()
@@ -77,7 +76,7 @@ for line in lines:
         # create variant ID
         var_feature.loc[0, "var_id"] = f"{chrom}_{pos}_{ref}_{alt}"
         var_feature.loc[0, "source"] = source
-        var_feature.loc[0, "sample_id"] = sample_id
+        var_feature.loc[0, "sample_id"] = patient_id
         # get necessary information
         info = info.split(";")
         for variable in variables:
@@ -112,6 +111,4 @@ for line in lines:
         # record result in feature matrix
         features = pd.concat((features, var_feature), ignore_index=True)
 
-features.to_csv(
-    f"{dout}/{source}_{sample_id}_{pon_source}pon_annovar_features.csv", index=False
-)
+features.to_csv(f"{dout}/{source}_{patient_id}_annovar_features.csv", index=False)
