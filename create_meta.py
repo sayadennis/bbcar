@@ -213,7 +213,7 @@ for label in [0, 1]:
             :,
         ].patient_id.values
         np.random.seed(seed=32)
-        selected = np.random.choice(pool, size=10, replace=False)
+        selected = np.random.choice(pool, size=min(len(pool), 20), replace=False)
         # mark PON column
         for patient_id in selected:
             meta.loc[f"{patient_id}_germline", "pon"] = 1

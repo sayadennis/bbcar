@@ -10,7 +10,7 @@ import pandas as pd
 
 meta_fn = "/projects/b1131/saya/new_bbcar/meta.csv"
 argfiles_dir = "/projects/b1131/saya/new_bbcar/jobarray_args"
-summary_dir = "/projects/b1131/saya/new_bbcar/data_summary"
+summary_dir = "/projects/b1131/saya/new_bbcar/summary"
 
 # If directories do not exist, create
 for dirname in [argfiles_dir, summary_dir]:

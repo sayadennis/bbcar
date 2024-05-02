@@ -6,8 +6,8 @@
 #SBATCH --mem=240G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --job-name="ponsub"
-#SBATCH --output=/projects/b1131/saya/new_bbcar/out/generate_pon_sub_step2.out
+#SBATCH --job-name="pon"
+#SBATCH --output=/projects/b1131/saya/new_bbcar/out/generate_pon_sub58_step2.out
 
 cd /projects/b1042/lyglab/saya/
 
@@ -18,6 +18,7 @@ interval='/projects/b1122/gannon/bbcar/RAW_data/int_lst/SureSelect_v6/hg38.prepr
 ref='/projects/p30791/hg38_ref/hg38.fa'
 
 IFS=$'\n' read -d '' -r -a pon < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_pon.txt
+num_samples=$(wc -l < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_pon.txt)
 
 module purge all
 module load singularity
@@ -29,8 +30,8 @@ gatk() {
 # Instructions taken from https://gatk.broadinstitute.org/hc/en-us/articles/360035531132
 
 # Step 2: Create a GenomicsDB from the normal Mutect2 calls:
-PON_TMP='/projects/b1042/lyglab/saya/new_bbcar/pon_sub_tmp'
-PON_DB='/projects/b1042/lyglab/saya/new_bbcar/pon_sub_db'
+PON_TMP="/projects/b1042/lyglab/saya/new_bbcar/pon_tmp${num_samples}"
+PON_DB="/projects/b1042/lyglab/saya/new_bbcar/pon_db${num_samples}"
 
 mkdir -p ${PON_TMP}
 mkdir -p ${PON_DB}
@@ -49,9 +50,9 @@ gatk GenomicsDBImport \
 # Step 3: Combine the normal calls using CreateSomaticPanelOfNormals:
 cd /projects/b1042/lyglab/saya/new_bbcar/
 gatk CreateSomaticPanelOfNormals \
-    -V gendb://pon_sub_db \
+    -V gendb://pon_db${num_samples} \
     -R $ref \
-    --output $dout/bbcar_pon_sub.vcf.gz
+    --output $dout/bbcar_pon${num_samples}.vcf.gz
 
 rm -rf ${PON_DB}
 
