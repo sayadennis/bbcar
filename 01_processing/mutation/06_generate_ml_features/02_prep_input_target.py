@@ -1,7 +1,10 @@
+# pylint: disable=unused-import
+
 import glob
 import os
 
 import pandas as pd
+from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.model_selection import train_test_split
 
@@ -9,9 +12,9 @@ from sklearn.model_selection import train_test_split
 #### Set input and output directories ####
 ##########################################
 
-din = "/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/individual_annovar_features"
-dout = "/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features"
-dix = "/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features/somatic_pred_ix"
+din = "/projects/b1131/saya/new_bbcar/data/02a_mutation/04_ml_features/individual_annovar_features"
+dout = "/projects/b1131/saya/new_bbcar/data/02a_mutation/04_ml_features"
+dix = "/projects/b1131/saya/new_bbcar/data/02a_mutation/04_ml_features/somatic_pred_ix"
 
 if not os.path.exists(dix):
     os.makedirs(dix, exist_ok=True)
@@ -71,17 +74,11 @@ for fn in glob.glob(f"{din}/*_annovar_features.csv"):
     single_sample = pd.read_csv(fn)
     features = pd.concat((features, single_sample), ignore_index=True)
 
-# iterate over germline files too since these have different filename patterns
-for fn in glob.glob(f"{din}/germline_only_*_annovar_features.csv"):
-    single_sample = pd.read_csv(fn)
-    features = pd.concat((features, single_sample), ignore_index=True)
-
 # # BELOW LINE MIGHT NOT BE NECESSARY if the weird '0.5,0.5' doesn't appear in AF column
 # features.AF = features.AF.map({'0.5,0.5':0.5}).astype(float)
 
 #### Change contents of the avsnp150 column to be binary ####
-nanix = features.iloc[pd.isnull(features.avsnp150).values, :].index
-features["avsnp150"].iloc[nanix] = 0
+features["avsnp150"].fillna(0, inplace=True)
 features["avsnp150"].iloc[features.avsnp150.values != 0] = 1
 
 ###########################################################
@@ -163,14 +160,14 @@ features[features_to_impute] = imp_features
 ##########################
 
 data = features
-data["somatic"] = (data.source == "tumor_normal").astype(int)
+data["somatic"] = (data.source == "tissue_normal").astype(int)
 
 with open(f"{dout}/tissue_normal_var_id.txt", "w") as f:
-    for var_id in list(data.iloc[data.source.values == "tumor_normal", :].var_id):
+    for var_id in list(data.iloc[data.source.values == "tissue_normal", :].var_id):
         f.write(f"{var_id}\n")
 
 with open(f"{dout}/tissue_only_var_id.txt", "w") as f:
-    for var_id in list(data.iloc[data.source.values == "tumor_only", :].var_id):
+    for var_id in list(data.iloc[data.source.values == "tissue_only", :].var_id):
         f.write(f"{var_id}\n")
 
 with open(f"{dout}/germline_var_id.txt", "w") as f:
@@ -211,14 +208,14 @@ variables = [
 ]
 
 Xy_nonmatched = (
-    data.iloc[data.source.values == "tumor_only", :][variables]
+    data.iloc[data.source.values == "tissue_only", :][variables]
     .drop_duplicates(ignore_index=True)
     .set_index("var_id", drop=True)
 )
 X_nonmatched = Xy_nonmatched.iloc[:, :-1]
 
 Xy_matched = (
-    data.iloc[data.source.values != "tumor_only", :][variables]
+    data.iloc[data.source.values != "tissue_only", :][variables]
     .drop_duplicates(ignore_index=True)
     .set_index("var_id", drop=True)
 )
