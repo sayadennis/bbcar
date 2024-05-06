@@ -1,8 +1,17 @@
+import os
+
 import pandas as pd
 
+dout = "/projects/b1131/saya/new_bbcar/metrics"
 meta = pd.read_csv("/projects/b1131/saya/new_bbcar/meta.csv")
 
-## Collect alignment metrics
+if not os.path.exists(dout):
+    os.makedirs(dout)
+
+###################################
+#### Collect alignment metrics ####
+###################################
+
 metrics_df = pd.DataFrame(
     index=meta.index,
     columns=[
@@ -57,4 +66,4 @@ for i in meta.index:
         ],
     ] = metrics
 
-metrics_df.to_csv("/home/srd6051/alignment_metrics.csv", index=False)
+metrics_df.to_csv(f"{dout}/alignment_metrics.csv", index=False)
