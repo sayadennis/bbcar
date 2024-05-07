@@ -17,14 +17,11 @@ X = pd.read_csv(f"{din}/input_matched.csv", index_col=0)
 y = pd.read_csv(f"{din}/target_matched.csv", index_col=0)
 
 meta = pd.read_csv(
-    f"{din}/04_imputed/features_imputed.csv"
+    f"{din}/features_imputed.csv"
 )  # this contains meta information about each variant (variant exonic function etc.)
 
 ## Model
-mfn = (
-    "/projects/b1131/saya/new_bbcar/model_interpretations"
-    "/20240503_saved_best_XGB_input_matched.p"
-)
+mfn = "/projects/b1131/saya/bbcar/models/20221005_saved_best_XGB_input_matched.p"
 with open(mfn, "rb") as f:
     m = pickle.load(f)
 
@@ -160,15 +157,6 @@ X_nonmatched = pd.read_csv(f"{din}/input_nonmatched.csv", index_col=0)
 
 print("Matrix column size matches:", str(X_matched.shape[1] == X_nonmatched.shape[1]))
 print("Matrix columns matche:", str(np.all(X_matched.columns == X_nonmatched.columns)))
-
-## Model
-mfn = (
-    "/projects/b1131/saya/bbcar/model_interpretations"
-    "/20240503_saved_best_XGB_input_matched_bbcar.p"
-)
-
-with open(mfn, "rb") as f:
-    m = pickle.load(f)
 
 y_nonmatched = m.predict(X_nonmatched.to_numpy())
 

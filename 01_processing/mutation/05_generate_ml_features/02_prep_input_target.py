@@ -155,6 +155,9 @@ imp_features = imp_median.fit_transform(features[features_to_impute])
 
 features[features_to_impute] = imp_features
 
+## Save ##
+features.to_csv(f"{dout}/features_imputed.csv", index=False, header=True)
+
 ##########################
 #### Train test split ####
 ##########################
