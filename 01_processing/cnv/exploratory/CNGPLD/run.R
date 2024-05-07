@@ -9,9 +9,13 @@ load_all()
 # Configurations #############################################################
 
 genome <- "hg38"
-datadir <- "/projects/b1131/saya/bbcar/data"
-dout <- "/projects/b1131/saya/bbcar/data/02b_cnv/CNGPLD"
+datadir <- "/projects/b1131/saya/new_bbcar/data"
+dout <- "/projects/b1131/saya/new_bbcar/data/02b_cnv/CNGPLD"
 fits.fn <- paste0(dout, "/cngpld_bbcar.rds")
+
+if (!file.exists(dout)) {
+  dir.create(dout)
+}
 
 # Run analysis ###############################################################
 
@@ -28,10 +32,7 @@ if (file.exists(fits.fn)) {
     sep = "\t", header = FALSE
   )
   labels <- read.table(
-    paste0(
-      datadir,
-      "/clinical/bbcar_label_studyid_from_gatk_filenames.csv"
-    ),
+    "/projects/b1131/saya/new_bbcar/label_all.csv",
     sep = ",", header = TRUE, row.names = 1
   )
 

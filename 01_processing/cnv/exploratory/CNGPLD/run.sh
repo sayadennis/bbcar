@@ -8,12 +8,12 @@
 #SBATCH --job-name=cngpld
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --output=/projects/b1131/saya/bbcar/out/test_CNGPLD.out
+#SBATCH --output=/projects/b1131/saya/new_bbcar/out/test_CNGPLD.out
 
 module purge all
 module load R/4.1.1
 
 cd /projects/p30791/cngpld/
 
-Rscript --vanilla ~/bbcar/repo/01_processing/input/cnv/exploratory/CNGPLD/run.R
+Rscript --vanilla ~/bbcar/repo/01_processing/cnv/exploratory/CNGPLD/run.R
 
