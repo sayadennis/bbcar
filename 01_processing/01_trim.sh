@@ -56,11 +56,11 @@ function trim_reads() {
         fi  
     
         if [[ "${batch3[*]} " =~ " ${sampleid} " ]]; then
-            cropcommand="HEADCROP:6"
-            echo "Patient ID is in batch 3 - cropping the leading 6bp."
+            cropcommand="HEADCROP:5"
+            echo "Patient ID is in batch 3 - cropping the leading 5bp."
         else
-            cropcommand="CROP:72"
-            echo "Patient ID is not in batch 3 - cropping the trailing 2bp."
+            cropcommand=""
+            echo "Patient ID is not in batch 3 - no cropping will be performed."
         fi
 
         R1=${files_array[0]}

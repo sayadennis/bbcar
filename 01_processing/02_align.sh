@@ -4,12 +4,12 @@
 #SBATCH -t 24:00:00
 #SBATCH -N 1
 #SBATCH -n 5
-#SBATCH --array=0-239
+#SBATCH --array=37,148
 #SBATCH --mem=50G
-#SBATCH --job-name=bwa_tis%a
+#SBATCH --job-name=bwa
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --output=/projects/b1131/saya/new_bbcar/out/align_bwa_tissue%a.out
+#SBATCH --output=/projects/b1131/saya/new_bbcar/out/align_bwa_%a.out
 
 module purge all
 module load bwa
@@ -53,7 +53,7 @@ else
 fi
 
 ## Set the input and output directories
-fastqdir='/projects/b1131/saya/new_bbcar/data/fastq'
+fastqdir='/projects/b1131/saya/new_bbcar/data/00_trimmed'
 aligndir='/projects/b1131/saya/new_bbcar/data/01_alignment'
 
 mkdir -p $aligndir
@@ -75,16 +75,16 @@ function run_alignment() {
     aligned=${aligndir}/${tissuetype}/aligned
 
     # First, align the paired FASTQ reads
-    for fpattern in $(ls ${fastqdir}/${tissuetype}/${sampleid}_*.fastq.gz \
+    for fpattern in $(ls ${fastqdir}/${tissuetype}/${sampleid}_*_paired.fastq.gz \
         | xargs -n 1 basename \
         | awk -F'[_.]' '{print $1"_"$2"_"$3}' \
         | sed 's/_R[12]$//' \
         | sort -u);
     do  
-        readarray -t files_array <<< "$(ls ${fastqdir}/${tissuetype}/${fpattern}*)"
+        readarray -t files_array <<< "$(ls ${fastqdir}/${tissuetype}/${fpattern}_*_paired.fastq.gz)"
     
         if [[ ${#files_array[@]} -gt 2 ]]; then
-            echo "Error: there are more than 2 files that match file pattern: ${fastqdir}/${tissuetype}/${fpattern}"
+            echo "Error: there are more than 2 files that match file pattern: ${fastqdir}/${tissuetype}/${fpattern}_*_paired.fastq.gz"
             exit 1
         fi  
     
@@ -107,7 +107,7 @@ function run_alignment() {
         $(for x in $(ls -1 ${interim}/${sampleid}_*_sorted.bam); do echo -n "I=$x "; done) \
         O=${interim}/${sampleid}_final_sorted.bam
     
-    for fpattern in $(ls ${fastqdir}/${tissuetype}/${sampleid}_*.fastq.gz \
+    for fpattern in $(ls ${fastqdir}/${tissuetype}/${sampleid}_*_paired.fastq.gz \
         | xargs -n 1 basename \
         | awk -F'[_.]' '{print $1"_"$2"_"$3}' \
         | sed 's/_R[12]$//' \
@@ -154,16 +154,16 @@ function run_alignment() {
 #######################
 
 if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
-    echo '########## Running alignment on tissue sample reads for patient ID ${sampleid} ##########'
+    echo "########## Running alignment on tissue sample reads for patient ID ${sampleid} ##########"
     run_alignment ${sampleid} 'tissue' $tissue_interval
 else
-    echo '########## Patient ID ${sampleid} is not in the tissue sample list ##########'
+    echo "########## Patient ID ${sampleid} is not in the tissue sample list ##########"
 fi
 
 if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
-    echo '########## Running alignment on germline sample reads for patient ID ${sampleid} ##########'
+    echo "########## Running alignment on germline sample reads for patient ID ${sampleid} ##########"
     run_alignment ${sampleid} 'germline' $germline_interval
 else
-    echo '########## Patient ID ${sampleid} is not in the germline sample list ##########'
+    echo "########## Patient ID ${sampleid} is not in the germline sample list ##########"
 fi
 
