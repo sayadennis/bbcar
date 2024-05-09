@@ -6,7 +6,7 @@
 #SBATCH -n 1
 #SBATCH --array=0-239
 #SBATCH --mem=72G
-#SBATCH --job-name=allelcts%a
+#SBATCH --job-name=allelcts
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --output=/projects/b1131/saya/new_bbcar/out/collect_allelic_counts%a.out
@@ -31,8 +31,12 @@ ALLELIC_CTS_DIR="/projects/b1131/saya/new_bbcar/data/02b_cnv/05_allelic_counts"
 mkdir -p $ALLELIC_CTS_DIR
 
 ## Define input arguments for job array 
-IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_all.txt
 sampleid=${input_args[$SLURM_ARRAY_TASK_ID]}
+
+## Obtain IDs of samples that have germline
+IFS=$'\n' read -d '' -r -a tissue < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_germline.txt
 
 ## Obtain IDs of samples processed at U Chicago (need to use different interval file) 
 IFS=$'\n' read -d '' -r -a uchicago < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_batch_1.txt
@@ -49,11 +53,13 @@ IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_ar
 
 #### Run for tissue ####
 mkdir -p ${ALLELIC_CTS_DIR}/tissue/
-gatk --java-options "-Xmx72g" CollectAllelicCounts \
-    -L ${INTERVAL} \
-    -I ${TISSUE_BAM_DIR}/${sampleid}_bqsr.bam \
-    -R ${REF} \
-    -O ${ALLELIC_CTS_DIR}/tissue/${sampleid}.allelicCounts.tsv
+if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
+    gatk --java-options "-Xmx72g" CollectAllelicCounts \
+        -L ${INTERVAL} \
+        -I ${TISSUE_BAM_DIR}/${sampleid}_bqsr.bam \
+        -R ${REF} \
+        -O ${ALLELIC_CTS_DIR}/tissue/${sampleid}.allelicCounts.tsv
+fi
 
 #### Run for germline if present #### # note: germline is ALWAYS v6 interval!!
 mkdir -p ${ALLELIC_CTS_DIR}/germline/

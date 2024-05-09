@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH -A b1042
-#SBATCH -p genomics
+#SBATCH -A p31931
+#SBATCH -p normal
 #SBATCH -t 24:00:00
 #SBATCH -N 1
 #SBATCH -n 5
-#SBATCH --array=37,148
+#SBATCH --array=0-239
 #SBATCH --mem=50G
 #SBATCH --job-name=bwa
 #SBATCH --mail-user=sayarenedennis@northwestern.edu

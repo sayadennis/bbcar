@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -A b1042
-#SBATCH -p genomics
+#SBATCH -A p31931
+#SBATCH -p short
 #SBATCH -t 4:00:00
 #SBATCH -N 1
 #SBATCH -n 1
@@ -31,27 +31,30 @@ mkdir -p $CONTIGUOUS_CN_DIR/tissue_only/
 mkdir -p $CONTIGUOUS_CN_DIR/tissue_normal/
 
 ## Define input arguments for job array 
-IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_all.txt
 sampleid=${input_args[$SLURM_ARRAY_TASK_ID]}
+
+## Obtain IDs of samples that have germline
+IFS=$'\n' read -d '' -r -a tissue < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_germline.txt
 
 ## Obtain IDs of samples processed at U Chicago (need to use different interval file) 
 IFS=$'\n' read -d '' -r -a uchicago < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_batch_1.txt
 
-## Obtain IDs of samples that have germline
-IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_germline.txt
-
 #### Run tissue-only for all samples ####
-gatk --java-options "-Xmx72g" ModelSegments \
-    --denoised-copy-ratios ${DENOISED_CN_DIR}/${sampleid}.denoisedCR.tsv \
-    --allelic-counts ${ALLELIC_CTS_DIR}/tissue/${sampleid}.allelicCounts.tsv \
-    --output ${CONTIGUOUS_CN_DIR}/tissue_only \
-    --output-prefix ${sampleid} \
-    --number-of-changepoints-penalty-factor 3.0 \
-    --kernel-variance-allele-fraction 0.2 \
-    --kernel-variance-copy-ratio 0.2 \
-    --kernel-scaling-allele-fraction 0.75 \
-    --smoothing-credible-interval-threshold-allele-fraction 4.5 \
-    --smoothing-credible-interval-threshold-copy-ratio 4.5
+if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
+    gatk --java-options "-Xmx72g" ModelSegments \
+        --denoised-copy-ratios ${DENOISED_CN_DIR}/${sampleid}.denoisedCR.tsv \
+        --allelic-counts ${ALLELIC_CTS_DIR}/tissue/${sampleid}.allelicCounts.tsv \
+        --output ${CONTIGUOUS_CN_DIR}/tissue_only \
+        --output-prefix ${sampleid} \
+        --number-of-changepoints-penalty-factor 3.0 \
+        --kernel-variance-allele-fraction 0.025 \
+        --kernel-variance-copy-ratio 0.0 \
+        --kernel-scaling-allele-fraction 0.1 \
+        --smoothing-credible-interval-threshold-allele-fraction 2.0 \
+        --smoothing-credible-interval-threshold-copy-ratio 2.0
+fi
 
 #### Run for tissue-germline pairs if germline is present ####
 mkdir -p ${ALLELIC_CTS_DIR}/germline/
@@ -63,10 +66,10 @@ if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
         --output ${CONTIGUOUS_CN_DIR}/tissue_normal \
         --output-prefix ${sampleid} \
         --number-of-changepoints-penalty-factor 3.0 \
-        --kernel-variance-allele-fraction 0.2 \
-        --kernel-variance-copy-ratio 0.2 \
-        --kernel-scaling-allele-fraction 0.75 \
-        --smoothing-credible-interval-threshold-allele-fraction 4.5 \
-        --smoothing-credible-interval-threshold-copy-ratio 4.5
+        --kernel-variance-allele-fraction 0.025 \
+        --kernel-variance-copy-ratio 0.0 \
+        --kernel-scaling-allele-fraction 0.1 \
+        --smoothing-credible-interval-threshold-allele-fraction 2.0 \
+        --smoothing-credible-interval-threshold-copy-ratio 2.0
 fi
 

@@ -6,7 +6,7 @@
 #SBATCH -n 1
 #SBATCH --array=0-239
 #SBATCH --mem=3G
-#SBATCH --job-name=plotdenoise%a
+#SBATCH --job-name=plotdenoise
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --output=/projects/b1131/saya/new_bbcar/out/plot_denoised_copy_ratio%a.out
@@ -31,14 +31,19 @@ DICT="/projects/b1122/references/GRCH38/v0/Homo_sapiens_assembly38.dict"
 mkdir -p $PLOT_DIR
 
 ## Define input arguments for job array 
-IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_all.txt
 sampleid=${input_args[$SLURM_ARRAY_TASK_ID]}
 
-gatk PlotDenoisedCopyRatios \
-    --standardized-copy-ratios ${DENOISED_CTS_DIR}/${sampleid}.standardizedCR.tsv \
-    --denoised-copy-ratios ${DENOISED_CTS_DIR}/${sampleid}.denoisedCR.tsv \
-    --sequence-dictionary $DICT \
-    --minimum-contig-length 46709983 \
-    --output $PLOT_DIR \
-    --output-prefix ${sampleid};
+## Obtain IDs of samples that have germline
+IFS=$'\n' read -d '' -r -a tissue < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_germline.txt
 
+if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
+    gatk PlotDenoisedCopyRatios \
+        --standardized-copy-ratios ${DENOISED_CTS_DIR}/${sampleid}.standardizedCR.tsv \
+        --denoised-copy-ratios ${DENOISED_CTS_DIR}/${sampleid}.denoisedCR.tsv \
+        --sequence-dictionary $DICT \
+        --minimum-contig-length 46709983 \
+        --output $PLOT_DIR \
+        --output-prefix ${sampleid};
+fi

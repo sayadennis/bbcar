@@ -35,24 +35,27 @@ mkdir -p $PLOT_DIR/tissue_only/
 mkdir -p $PLOT_DIR/tissue_normal/
 
 ## Define input arguments for job array 
-IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_all.txt
 sampleid=${input_args[$SLURM_ARRAY_TASK_ID]}
+
+## Obtain IDs of samples that have germline
+IFS=$'\n' read -d '' -r -a tissue < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_germline.txt
 
 ## Obtain IDs of samples processed at U Chicago (need to use different interval file) 
 IFS=$'\n' read -d '' -r -a uchicago < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_batch_1.txt
 
-## Obtain IDs of samples that have germline
-IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_germline.txt
-
 #### Run tissue-only for all samples ####
-gatk PlotModeledSegments \
-    --denoised-copy-ratios ${DENOISED_CN_DIR}/${sampleid}.denoisedCR.tsv \
-    --allelic-counts ${CONTIGUOUS_CN_DIR}/tissue_only/${sampleid}.hets.tsv \
-    --segments ${CONTIGUOUS_CN_DIR}/tissue_only/${sampleid}.modelFinal.seg \
-    --sequence-dictionary ${DICT} \
-    --minimum-contig-length 46709983 \
-    --output ${PLOT_DIR}/tissue_only \
-    --output-prefix ${sampleid}
+if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
+    gatk PlotModeledSegments \
+        --denoised-copy-ratios ${DENOISED_CN_DIR}/${sampleid}.denoisedCR.tsv \
+        --allelic-counts ${CONTIGUOUS_CN_DIR}/tissue_only/${sampleid}.hets.tsv \
+        --segments ${CONTIGUOUS_CN_DIR}/tissue_only/${sampleid}.modelFinal.seg \
+        --sequence-dictionary ${DICT} \
+        --minimum-contig-length 46709983 \
+        --output ${PLOT_DIR}/tissue_only \
+        --output-prefix ${sampleid}
+fi
 
 #### Run for tissue-germline pairs if germline is present ####
 if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
