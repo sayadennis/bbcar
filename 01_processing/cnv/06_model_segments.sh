@@ -38,11 +38,10 @@ sampleid=${input_args[$SLURM_ARRAY_TASK_ID]}
 IFS=$'\n' read -d '' -r -a tissue < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
 IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_germline.txt
 
-## Obtain IDs of samples processed at U Chicago (need to use different interval file) 
-IFS=$'\n' read -d '' -r -a uchicago < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_batch_1.txt
-
 #### Run tissue-only for all samples ####
+mkdir -p ${ALLELIC_CTS_DIR}/tissue/
 if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
+    echo "########## Modeling segments for tissue sample ${sampleid} ##########"
     gatk --java-options "-Xmx72g" ModelSegments \
         --denoised-copy-ratios ${DENOISED_CN_DIR}/${sampleid}.denoisedCR.tsv \
         --allelic-counts ${ALLELIC_CTS_DIR}/tissue/${sampleid}.allelicCounts.tsv \
@@ -54,11 +53,13 @@ if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
         --kernel-scaling-allele-fraction 0.1 \
         --smoothing-credible-interval-threshold-allele-fraction 2.0 \
         --smoothing-credible-interval-threshold-copy-ratio 2.0
+else
+    "########## Patient ID ${sampleid} is not in the tissue sample list ##########"
 fi
 
 #### Run for tissue-germline pairs if germline is present ####
 mkdir -p ${ALLELIC_CTS_DIR}/germline/
-if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
+if [[ " ${germline[*]} " =~ " ${sampleid} " ]] && [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
     gatk --java-options "-Xmx72g" ModelSegments \
         --denoised-copy-ratios ${DENOISED_CN_DIR}/${sampleid}.denoisedCR.tsv \
         --allelic-counts ${ALLELIC_CTS_DIR}/tissue/${sampleid}.allelicCounts.tsv \
