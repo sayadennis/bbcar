@@ -47,8 +47,8 @@ if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
         --output ${CALLED_CNSEG_DIR}/tissue_only/${sampleid}.called.seg
 fi
 
-#### Run for tissue-germline pairs if germline is present ####
-if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
+#### Run for tissue-germline pairs ####
+if [[ " ${germline[*]} " =~ " ${sampleid} " ]] && [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
     gatk CallCopyRatioSegments \
         --input ${CONTIGUOUS_CN_DIR}/tissue_normal/${sampleid}.cr.seg \
         --output ${CALLED_CNSEG_DIR}/tissue_normal/${sampleid}.called.seg
