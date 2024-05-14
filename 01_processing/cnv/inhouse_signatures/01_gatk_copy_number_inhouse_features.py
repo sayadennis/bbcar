@@ -7,8 +7,8 @@ import os
 import numpy as np
 import pandas as pd
 
-din = "/projects/b1131/saya/bbcar/data/02b_cnv/01_gatk_analyzed_segments"
-dout = "/projects/b1131/saya/bbcar/data/02b_cnv/inhouse_signatures"
+din = "/projects/b1131/saya/new_bbcar/data/02b_cnv/07_called_cn_segs/tissue_only"
+dout = "/projects/b1131/saya/new_bbcar/data/02b_cnv/inhouse_signatures"
 
 if not os.path.exists(dout):
     os.makedirs(dout)
@@ -30,15 +30,19 @@ data = pd.DataFrame(
     ],
 )
 
-for fn in glob.glob(din + "/*.csv"):
-    samplen = fn.split("/")[-1].split(".")[0]  # example: '1004_Tissue'
-    sampledata = pd.read_csv(fn)  # data = GATK segment file
-    sampledata = sampledata.iloc[:, :7]  # only select columns necessary for GISTIC
+for fn in glob.glob(f"{din}/*.called.seg"):
+    patient_id = fn.rsplit("/", maxsplit=1)[-1].split(".")[0]  # example: '1004'
+    # First get the number of rows that are not TSV (annotation rows)
+    with open(fn, "r", encoding="utf-8") as f:
+        num_anno_rows = sum(line.startswith("@") for line in f.readlines())
+    # Next, read the segment TSV
+    sampledata = pd.read_csv(fn, sep="\t", skiprows=num_anno_rows)
     sampledata["name"] = list(
-        itertools.repeat(samplen, len(sampledata))
+        itertools.repeat(patient_id, len(sampledata))
     )  # add column indicating sample name
     data = pd.concat((data, sampledata))  # append this sample to data
 
+data.CALL = data.CALL.astype(str)
 data = data.iloc[data.CALL.values != "0", :]
 
 ##########################
