@@ -14,6 +14,6 @@ module purge all
 module load python-miniconda3/4.12.0
 source activate bbcarenv
 
-cd ${HOME}/bbcar/repo/01_processing/mutation/06_generate_ml_features/
+cd ${HOME}/bbcar/repo/01_processing/mutation/05_generate_ml_features/
 
 python 02_prep_input_target.py

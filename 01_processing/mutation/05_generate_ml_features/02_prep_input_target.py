@@ -225,6 +225,10 @@ Xy_matched = (
 X_matched = Xy_matched.iloc[:, :-1]
 y_matched = Xy_matched.iloc[:, -1]
 
+# Subsample to decrease model training time
+X_matched = X_matched.sample(n=int(2e5), replace=False, random_state=9)
+y_matched = y_matched.loc[X_matched.index, :]
+
 ## Create train and test indices
 
 train_ix, test_ix = train_test_split(

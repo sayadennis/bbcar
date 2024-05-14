@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH -A b1042
-#SBATCH -p genomicslong
+#SBATCH -p genomics-himem
 #SBATCH -n 1
-#SBATCH -t 240:00:00
-#SBATCH --mem=240G
+#SBATCH -t 168:00:00
+#SBATCH --mem=1950G
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name="pon"
-#SBATCH --output=/projects/b1131/saya/new_bbcar/out/generate_pon_sub58_step2.out
+#SBATCH --output=/projects/b1131/saya/new_bbcar/out/generate_pon_94_step2.out
 
 cd /projects/b1042/lyglab/saya/
 
@@ -17,8 +17,9 @@ dout='/projects/b1131/saya/new_bbcar/data/02a_mutation/02_variant_calls/germline
 interval='/projects/b1122/gannon/bbcar/RAW_data/int_lst/SureSelect_v6/hg38.preprocessed.interval_list'
 ref='/projects/p30791/hg38_ref/hg38.fa'
 
-IFS=$'\n' read -d '' -r -a pon < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_pon.txt
-num_samples=$(wc -l < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_pon.txt)
+pon_fn='/projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_germline.txt'
+IFS=$'\n' read -d '' -r -a pon < $pon_fn
+num_samples=$(wc -l < $pon_fn)
 
 module purge all
 module load singularity
@@ -33,11 +34,11 @@ gatk() {
 PON_TMP="/projects/b1042/lyglab/saya/new_bbcar/pon_tmp${num_samples}"
 PON_DB="/projects/b1042/lyglab/saya/new_bbcar/pon_db${num_samples}"
 
-mkdir -p ${PON_TMP}
-mkdir -p ${PON_DB}
+mkdir -p ${PON_TMP}/
+mkdir -p ${PON_DB}/
 
 rm -r ${PON_TMP}/*
-rm -rf ${PON_DB}
+rm -rf ${PON_DB}/
 
 gatk GenomicsDBImport \
     -R $ref \
@@ -54,6 +55,7 @@ gatk CreateSomaticPanelOfNormals \
     -R $ref \
     --output $dout/bbcar_pon${num_samples}.vcf.gz
 
-rm -rf ${PON_DB}
+rm -r ${PON_TMP}/*
+rm -rf ${PON_DB}/
 
 # --germline-resource /projects/b1131/saya/bbcar/genome_resources/GATK/af-only-gnomad.hg38.vcf.gz 

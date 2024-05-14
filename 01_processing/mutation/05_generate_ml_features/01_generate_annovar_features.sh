@@ -27,6 +27,7 @@ IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_ar
 
 ## Tissue only
 if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
+    echo "########## Patient ID ${sampleid} is in the tissue sample list ##########"
     python 01_generate_annovar_features.py $sampleid "tissue_only"
 else
     echo "########## Patient ID ${sampleid} is not in the tissue sample list ##########"
@@ -34,9 +35,15 @@ fi
 
 ## Tissue-normal and germline-only
 if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
-    python 01_generate_annovar_features.py $sampleid "tissue_normal"
+    echo "########## Patient ID ${sampleid} is in the germline sample list ##########"
     python 01_generate_annovar_features.py $sampleid "germline_only"
 else
     echo "########## Patient ID ${sampleid} is not in the germline sample list ##########"
+fi
+
+if [[ " ${germline[*]} " =~ " ${sampleid} " ]] && [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
+    python 01_generate_annovar_features.py $sampleid "tissue_normal"
+else
+    echo "########## Patient ID ${sampleid} does not have BOTH tissue AND germline ##########"
 fi
 
