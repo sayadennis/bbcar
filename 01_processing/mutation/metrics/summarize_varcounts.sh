@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### Note: First run the below on commandline 
-module purge all
+# module purge all
 module load bcftools/1.10.1
 
 var_dir="/projects/b1131/saya/new_bbcar/data/02a_mutation/02_variant_calls"

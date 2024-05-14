@@ -10,35 +10,38 @@ from sklearn import metrics
 ####################
 
 ## Data
-din = "/projects/b1131/saya/new_bbcar/data/02a_mutation/04_ml_features"
+din = "/projects/b1131/saya/bbcar/data/02a_mutation/04_ml_features"
 dout = "/projects/b1131/saya/new_bbcar/data/02a_mutation/06_ml_eval"
 
-X = pd.read_csv(f"{din}/input_matched.csv", index_col=0)
-y = pd.read_csv(f"{din}/target_matched.csv", index_col=0)
+X = pd.read_csv(f"{din}/input_matched_bbcar.csv", index_col=0)
+y = pd.read_csv(f"{din}/target_matched_bbcar.csv", index_col=0)
 
 meta = pd.read_csv(
-    f"{din}/features_imputed.csv"
+    f"{din}/04_imputed/features_imputed_bbcar.csv"
 )  # this contains meta information about each variant (variant exonic function etc.)
 
 ## Model
-mfn = "/projects/b1131/saya/bbcar/models/20221005_saved_best_XGB_input_matched.p"
+mfn = (
+    "/projects/b1131/saya/new_bbcar/model_interpretations/"
+    "somatic_prediction_3models/20240509_saved_best_XGB_input_matched_bbcar.p"
+)
 with open(mfn, "rb") as f:
     m = pickle.load(f)
 
 ## Indices
-train_ix = pd.read_csv(f"{din}/somatic_pred_ix/train_index.txt", header=None)
-test_ix = pd.read_csv(f"{din}/somatic_pred_ix/test_index.txt", header=None)
+train_ix = pd.read_csv(f"{din}/somatic_pred_ix/bbcar/train_index.txt", header=None)
+test_ix = pd.read_csv(f"{din}/somatic_pred_ix/bbcar/test_index.txt", header=None)
 
-X_train, X_test = X.loc[train_ix[0]], X.loc[test_ix[0]]
-y_train, y_test = y.loc[train_ix[0]], y.loc[test_ix[0]]
+X_train, X_test = X.loc[train_ix.values.ravel(), :], X.loc[test_ix.values.ravel(), :]
+y_train, y_test = y.loc[train_ix.values.ravel(), :], y.loc[test_ix.values.ravel(), :]
 
 ##################
 #### Evaluate ####
 ##################
 
-y_train_pred = m.predict(X_train.to_numpy())
-y_test_pred = m.predict(X_test.to_numpy())
-y_test_prob = m.predict_proba(X_test.to_numpy())[:, 1]
+y_train_pred = m.predict(X_train)
+y_test_pred = m.predict(X_test)
+y_test_prob = m.predict_proba(X_test)[:, 1]
 
 f_imp = pd.DataFrame(
     m["classifier"].feature_importances_, index=X.columns, columns=["score"]
@@ -85,9 +88,6 @@ for anno_category in [
 
 with open(f"{dout}/stratified_pf_dict.p", "wb") as f:
     pickle.dump(strat_dict, f)
-
-with open(f"{dout}/stratified_pf_dict.p", "rb") as f:
-    strat_dict = pickle.load(f)
 
 annotation_type = "Func.refGene"
 somatic_rate = pd.DataFrame(
@@ -144,10 +144,14 @@ with open(f"{dout}/{source}_stratified_pf_dict.p", "wb") as f:
 #### Predict somatic mutations ####
 ###################################
 
-dout = "/projects/b1131/saya/bbcar/data/02a_mutation/07_predicted_somatic"
+din = "/projects/b1131/saya/new_bbcar/data/02a_mutation/04_ml_features"
+dout = "/projects/b1131/saya/new_bbcar/data/02a_mutation/07_predicted_somatic"
+
+if not os.path.exists(f"{dout}/"):
+    os.makedirs(f"{dout}/")
 
 all_var = pd.read_csv(
-    f"{din}/04_imputed/features_imputed.csv"
+    f"{din}/features_imputed.csv"
 )  # this file has info on which sample has which var
 
 X_matched = pd.read_csv(f"{din}/input_matched.csv", index_col=0)
@@ -158,7 +162,7 @@ X_nonmatched = pd.read_csv(f"{din}/input_nonmatched.csv", index_col=0)
 print("Matrix column size matches:", str(X_matched.shape[1] == X_nonmatched.shape[1]))
 print("Matrix columns matche:", str(np.all(X_matched.columns == X_nonmatched.columns)))
 
-y_nonmatched = m.predict(X_nonmatched.to_numpy())
+y_nonmatched = m.predict(X_nonmatched)
 
 pd.DataFrame(y_nonmatched, index=X_nonmatched.index, columns=["somatic"]).to_csv(
     f"{dout}/nonmatched.csv"

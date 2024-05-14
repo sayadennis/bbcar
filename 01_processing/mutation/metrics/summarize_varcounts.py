@@ -70,5 +70,5 @@ for i, (mode, ctdict) in enumerate(plot_data.items()):
 fig.suptitle("Number of variants pre- and post-filters", fontsize=16)
 
 plt.tight_layout()
-fig.savefig("/home/srd6051/bbcar_varcounts_DPfilter_violin.png")
+fig.savefig("/home/srd6051/varcounts_DPfilter_violin.png")
 plt.close()
