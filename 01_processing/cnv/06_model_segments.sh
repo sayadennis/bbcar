@@ -6,7 +6,7 @@
 #SBATCH -n 1
 #SBATCH --array=0-239
 #SBATCH --mem=96G
-#SBATCH --job-name=modelseg%a
+#SBATCH --job-name=modelseg
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --output=/projects/b1131/saya/new_bbcar/out/model_segments%a.out
@@ -47,10 +47,10 @@ if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
         --allelic-counts ${ALLELIC_CTS_DIR}/tissue/${sampleid}.allelicCounts.tsv \
         --output ${CONTIGUOUS_CN_DIR}/tissue_only \
         --output-prefix ${sampleid} \
-        --number-of-changepoints-penalty-factor 3.0 \
+        --number-of-changepoints-penalty-factor 5.0 \
         --kernel-variance-allele-fraction 0.025 \
         --kernel-variance-copy-ratio 0.0 \
-        --kernel-scaling-allele-fraction 0.1 \
+        --kernel-scaling-allele-fraction 1.0 \
         --smoothing-credible-interval-threshold-allele-fraction 2.0 \
         --smoothing-credible-interval-threshold-copy-ratio 2.0
 else
@@ -66,10 +66,10 @@ if [[ " ${germline[*]} " =~ " ${sampleid} " ]] && [[ " ${tissue[*]} " =~ " ${sam
         --normal-allelic-counts ${ALLELIC_CTS_DIR}/germline/${sampleid}.allelicCounts.tsv \
         --output ${CONTIGUOUS_CN_DIR}/tissue_normal \
         --output-prefix ${sampleid} \
-        --number-of-changepoints-penalty-factor 3.0 \
+        --number-of-changepoints-penalty-factor 5.0 \
         --kernel-variance-allele-fraction 0.025 \
         --kernel-variance-copy-ratio 0.0 \
-        --kernel-scaling-allele-fraction 0.1 \
+        --kernel-scaling-allele-fraction 1.0 \
         --smoothing-credible-interval-threshold-allele-fraction 2.0 \
         --smoothing-credible-interval-threshold-copy-ratio 2.0
 fi
