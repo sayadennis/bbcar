@@ -16,13 +16,13 @@ source activate classical-ml
 
 cd /projects/b1131/saya/new_bbcar/
 
-inputdir='/projects/b1131/saya/new_bbcar/data/02b_cnv/10_cleaned_cnv'
+inputdir='/projects/b1131/saya/new_bbcar/data/02b_cnv/11_batcheffect_removed'
 labeldir='/projects/b1131/saya/new_bbcar'
 outdir='/projects/b1131/saya/new_bbcar/model_interpretations/breast_cancer_prediction/compare_gistic'
 
 mkdir -p $outdir
 
-for inputfn in "cyto_copy_conf90.csv" "cyto_thres_aber_conf90.csv" "reg_copy_conf90.csv" "reg_thres_conf90.csv"; do
+for inputfn in "cyto_copy.csv" "cyto_thres_aber.csv" "reg_copy.csv" "reg_thres.csv"; do
     python ~/classical-ml/ClassicalML/nested.py \
         ${inputdir}/${inputfn} \
         ${labeldir}/label_all.csv \
