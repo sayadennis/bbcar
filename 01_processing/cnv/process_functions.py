@@ -13,8 +13,6 @@ import os
 import numpy as np
 import pandas as pd
 
-# CNV processing functions
-
 
 def generate_gistic_features(gistic_dir, q_thres=0.05):
     """
@@ -45,7 +43,7 @@ def generate_gistic_features(gistic_dir, q_thres=0.05):
     )
     gene_thres = gene_thres.T.iloc[2:, :]  # remove 'Gene ID' and 'Cytoband'
     ## create region-level feature matrix
-    reg = pd.read_csv(f"{gistic_dir}/all_lesions.conf_90.txt", sep="\t", index_col=0)
+    reg = pd.read_csv(f"{gistic_dir}/all_lesions.conf_95.txt", sep="\t", index_col=0)
     reg = reg[
         reg["q values"] <= q_thres
     ]  # eliminate rows with non-significant q-values

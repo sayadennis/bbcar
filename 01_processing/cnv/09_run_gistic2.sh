@@ -5,7 +5,7 @@
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
 #SBATCH --job-name="gistic"
-#SBATCH --output=/projects/b1131/saya/new_bbcar/out/03_run_gistic2_conf90.out
+#SBATCH --output=/projects/b1131/saya/new_bbcar/out/03_run_gistic2_conf95.out
 
 module purge all
 module load python-miniconda3/4.12.0
@@ -22,7 +22,7 @@ python 09_process_gatk.py "/projects/b1131/saya/new_bbcar/data/02b_cnv/07_called
 #####################
 
 din="/projects/b1131/saya/new_bbcar/data/02b_cnv/07_called_cn_segs/tissue_only"
-dout="/projects/b1131/saya/new_bbcar/data/02b_cnv/09_gistic2_out_conf90"
+dout="/projects/b1131/saya/new_bbcar/data/02b_cnv/09_gistic2_out_conf95"
 
 mkdir -p $dout
 
@@ -37,7 +37,7 @@ refgenefile="./refgenefiles/hg38.UCSC.add_miR.160920.refgene.mat"
     -genegistic 0 \
     -smallmem 0 \
     -brlen 0.98 \
-    -conf 0.90 \
+    -conf 0.95 \
     -armpeel 0 \
     -savegene 1 \
     -gcm extreme
@@ -47,6 +47,6 @@ refgenefile="./refgenefiles/hg38.UCSC.add_miR.160920.refgene.mat"
 ###############################
 
 python ~/bbcar/repo/01_processing/cnv/09_gistic_to_model_features.py \
-    "/projects/b1131/saya/new_bbcar/data/02b_cnv/09_gistic2_out_conf90" \
+    "/projects/b1131/saya/new_bbcar/data/02b_cnv/09_gistic2_out_conf95" \
     "/projects/b1131/saya/new_bbcar/data/02b_cnv/10_cleaned_cnv"
 
