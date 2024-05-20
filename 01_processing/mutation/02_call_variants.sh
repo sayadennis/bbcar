@@ -139,16 +139,22 @@ if [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
     echo "########## Calling variants on tissue sample ${sampleid} ##########"
     call_variants ${sampleid} 'tissue_only' $intfile
 else
-    echo '########## Patient ID ${sampleid} is not in the tissue sample list ##########'
+    echo "########## Patient ID ${sampleid} is not in the tissue sample list ##########"
 fi
 
-## Tissue-normal and germline-only
+## Germline only
 if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
-    echo "########## Calling variants on tissue-germline pair of sample ${sampleid} ##########"
-    call_variants ${sampleid} 'tissue_normal' $intfile
     echo "########## Calling variants on germline sample ${sampleid} ##########"
     call_variants ${sampleid} 'germline_only' $intfile
 else
-    echo '########## Patient ID ${sampleid} is not in the germline sample list ##########'
+    echo "########## Patient ID ${sampleid} is not in the germline sample list ##########"
+fi
+
+## Tissue-germline pairs
+if [[ " ${germline[*]} " =~ " ${sampleid} " ]] && [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
+    echo "########## Calling variants on tissue-germline pair of sample ${sampleid} ##########"
+    call_variants ${sampleid} 'tissue_normal' $intfile
+else
+    echo "########## Patient ID ${sampleid} does not have tissue-germline pair ##########"
 fi
 
