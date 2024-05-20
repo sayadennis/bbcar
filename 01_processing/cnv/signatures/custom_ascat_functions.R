@@ -241,6 +241,7 @@ custom_getBAFsAndLogRs <- function(tissue_name, germline_name, dout,
     write.table(tissue.LogR, file = tissueLogR_file, row.names = T, quote = F, sep = "\t", col.names = NA)
     write.table(tissue.BAF, file = tissueBAF_file, row.names = T, quote = F, sep = "\t", col.names = NA)
     write.table(normal.LogR, file = normalLogR_file, row.names = T, quote = F, sep = "\t", col.names = NA)
+    write.table(normal.BAF, file = normalBAF_file, row.names = T, quote = F, sep = "\t", col.names = NA)
   }
 }
 

@@ -1,5 +1,5 @@
 library(ASCAT)
-source("~/bbcar/repo/01_processing/input/cnv/signatures/custom_ascat_functions.R")
+source("~/bbcar/repo/01_processing/cnv/signatures/custom_ascat_functions.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 sampleid <- args[1]
@@ -7,8 +7,8 @@ sampleid <- args[1]
 tissue_name <- paste0(sampleid, "_tissue")
 germline_name <- paste0(sampleid, "_germline")
 
-din <- "/projects/b1131/saya/bbcar/data/02b_cnv/signatures/01_alleleCounts"
-dout <- "/projects/b1131/saya/bbcar/data/02b_cnv/signatures/02_logR_BAF"
+din <- "/projects/b1131/saya/new_bbcar/data/02b_cnv/signatures/01_alleleCounts"
+dout <- "/projects/b1131/saya/new_bbcar/data/02b_cnv/signatures/02_logR_BAF"
 
 if (!file.exists(paste0(dout, "/tissue_normal"))) {
   dir.create(paste0(dout, "/tissue_normal"))

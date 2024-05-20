@@ -2,8 +2,8 @@
 
 from SigProfilerExtractor import sigpro as sig
 
-din = "/projects/b1131/saya/bbcar/data/02b_cnv/signatures/03_ASCAT_obj/tissue_normal"
-dout = "/projects/b1131/saya/bbcar/data/02b_cnv/signatures/04_signatures"
+din = "/projects/b1131/saya/new_bbcar/data/02b_cnv/signatures/03_ASCAT_obj"
+dout = "/projects/b1131/saya/new_bbcar/data/02b_cnv/signatures/04_signatures"
 
 if __name__ == "__main__":
     sig.sigProfilerExtractor(

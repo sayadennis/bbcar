@@ -3,31 +3,35 @@
 #SBATCH -p short
 #SBATCH -t 1:00:00
 #SBATCH -N 1
-#SBATCH --array=0-201
+#SBATCH --array=0-239
 #SBATCH --mem=2G
-#SBATCH --job-name=alleleCount%a
+#SBATCH --job-name=alleleCount
 #SBATCH --mail-user=sayarenedennis@northwestern.edu
 #SBATCH --mail-type=END,FAIL
-#SBATCH --output=/projects/b1131/saya/bbcar/out/run_alleleCounter%a.out
+#SBATCH --output=/projects/b1131/saya/new_bbcar/out/run_alleleCounter%a.out
 
 module purge all
-module use mymodules/
+module use ${HOME}/mymodules/
 module load alleleCounter
 
 ## Define input arguments for job array 
-IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/bbcar/data/sample_ids_all_tissue.txt
+IFS=$'\n' read -d '' -r -a input_args < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_all.txt
 sampleid=${input_args[$SLURM_ARRAY_TASK_ID]}
 
-## Obtain IDs of samples processed at U Chicago (need to use different interval file) 
-IFS=$'\n' read -d '' -r -a uchicago < /projects/b1131/saya/bbcar/data/sample_ids_uchicago.txt
+## Obtain IDs of samples that have germline
+IFS=$'\n' read -d '' -r -a tissue < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_germline.txt
 
-outdir=/projects/b1131/saya/bbcar/data/02b_cnv/signatures/01_alleleCounts
+## Obtain IDs of samples processed at U Chicago (need to use different interval file) 
+IFS=$'\n' read -d '' -r -a uchicago < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_batch_1.txt
+
+outdir=/projects/b1131/saya/new_bbcar/data/02b_cnv/signatures/01_alleleCounts
+mkdir -p $outdir
+
 ref_fasta=/projects/p30791/hg38_ref/hg38.fa
 
-tissue_seqfile=/projects/b1131/saya/bbcar/data/01_alignment/tissue/aligned/${sampleid}_bqsr.bam
-germline_seqfile=/projects/b1131/saya/bbcar/data/01_alignment/germline/aligned/${sampleid}_bqsr.bam
-tissue_name="${sampleid}_tissue"
-germline_name="${sampleid}_germline"
+tissue_seqfile=/projects/b1131/saya/new_bbcar/data/01_alignment/tissue/aligned/${sampleid}_bqsr.bam
+germline_seqfile=/projects/b1131/saya/new_bbcar/data/01_alignment/germline/aligned/${sampleid}_bqsr.bam
 
 ## Select the correct interval based on samples sequenced at U of Chicago (TREAT GERMLINE DIFFERENTLY?! - CHECK ALIGNMENT SCRIPT)
 if [[ " ${uchicago[*]} " =~ " ${sampleid} " ]]; then
@@ -48,26 +52,22 @@ else
 fi
 
 ## Run alleleCounter for tissue and germline 
-if [ -f $tissue_seqfile ]
-then
+if [[ " ${germline[*]} " =~ " ${sampleid} " ]] && [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
     echo "Running alleleCounter for tissue sequences $tissue_seqfile"
     alleleCounter \
         -b $tissue_seqfile \
         -l $loci_file \
-        -o ${outdir}/${tissue_name}_alleleFrequencies.txt \
+        -o ${outdir}/${sampleid}_tissue_alleleFrequencies.txt \
         -m 20 \
         -q 35 \
         --dense-snps \
         -r $ref_fasta
-fi
 
-if [ -f $germline_seqfile ]
-then
     echo "Running alleleCounter for germline sequences $germline_seqfile"
     alleleCounter \
         -b $germline_seqfile \
         -l $loci_file \
-        -o ${outdir}/${germline_name}_alleleFrequencies.txt \
+        -o ${outdir}/${sampleid}_germline_alleleFrequencies.txt \
         -m 20 \
         -q 35 \
         --dense-snps \
