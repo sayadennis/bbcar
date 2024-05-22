@@ -225,18 +225,27 @@ Xy_matched = (
 X_matched = Xy_matched.iloc[:, :-1]
 y_matched = Xy_matched.iloc[:, -1]
 
+# Remove duplicate rows from X
+mask = ~X_matched.index.duplicated(keep="first")
+X_matched = X_matched[mask]
+
+# For y (target), take majority vote on label for duplicate rows
+y_uniq = y_matched[~y_matched.index.duplicated(keep="first")]
+y_dups = y_matched.loc[y_matched.index.duplicated()]
+y_dups.reset_index(drop=False, inplace=True)
+y_dups_voted = y_dups.groupby("var_id").mean().round()  # majority vote
+y_matched = pd.concat((y_uniq, y_dups_voted))
+
 # Subsample to decrease model training time
 X_matched = X_matched.sample(n=int(2e5), replace=False, random_state=9)
 y_matched = y_matched.loc[X_matched.index]
 
 ## Create train and test indices
-
 train_ix, test_ix = train_test_split(
     X_matched.index, test_size=0.2, random_state=43, shuffle=True
 )
 
 ## Save
-
 X_matched.to_csv(f"{dout}/input_matched.csv", index=True, header=True)
 y_matched.to_csv(f"{dout}/target_matched.csv", index=True, header=True)
 
