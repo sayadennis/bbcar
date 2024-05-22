@@ -40,6 +40,7 @@ refgenefile="./refgenefiles/hg38.UCSC.add_miR.160920.refgene.mat"
     -conf 0.95 \
     -armpeel 0 \
     -savegene 1 \
+    -qv_thresh 0.05 \
     -gcm extreme
 
 ###############################
