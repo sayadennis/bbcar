@@ -1,9 +1,11 @@
 # pylint: disable=import-error
+import sys
 
 from SigProfilerExtractor import sigpro as sig
 
-din = "/projects/b1131/saya/new_bbcar/data/02b_cnv/signatures/03_ASCAT_obj"
-dout = "/projects/b1131/saya/new_bbcar/data/02b_cnv/signatures/04_signatures"
+din = sys.argv[1]
+dout = sys.argv[2]
+n_cpu = int(sys.argv[3])
 
 if __name__ == "__main__":
     sig.sigProfilerExtractor(
@@ -12,7 +14,7 @@ if __name__ == "__main__":
         input_data=f"{din}/all_ASCAT_segs_concat.txt",
         reference_genome="GRCh38",
         minimum_signatures=1,
-        maximum_signatures=10,
+        maximum_signatures=12,
         nmf_replicates=100,
-        cpu=32,
+        cpu=n_cpu,
     )

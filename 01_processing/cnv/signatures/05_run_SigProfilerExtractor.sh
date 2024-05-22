@@ -16,4 +16,7 @@ source activate SigProfilerExtractor
 
 cd /projects/b1131/saya/new_bbcar/data/02b_cnv/
 
-python ~/bbcar/repo/01_processing/cnv/signatures/05_run_SigProfilerExtractor.py
+python ~/bbcar/repo/01_processing/cnv/signatures/05_run_SigProfilerExtractor.py \
+    "/projects/b1131/saya/new_bbcar/data/02b_cnv/signatures/03_ASCAT_obj" \
+    "/projects/b1131/saya/new_bbcar/data/02b_cnv/signatures/04_signatures" \
+    ${SLURM_NTASKS}
