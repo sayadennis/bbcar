@@ -9,6 +9,9 @@ import pandas as pd
 din = sys.argv[
     1
 ]  # "/projects/b1131/saya/new_bbcar/data/02b_cnv/07_called_cn_segs/tissue_only"
+meta_fn = sys.argv[2]
+
+meta = pd.read_csv(meta_fn)
 
 allmx = pd.DataFrame(
     None,
@@ -39,3 +42,10 @@ allmx["MEAN_LOG2_COPY_RATIO"] = allmx["MEAN_LOG2_COPY_RATIO"] - 1
 
 # Save the combined matrix
 allmx.to_csv(f"{din}/gistic_input_all.tsv", sep="\t", header=False, index=False)
+
+# Save case-control separated matrix
+for y, label in enumerate(["control", "case"]):
+    patient_ids = meta.iloc[meta.label.values == y, :].patient_id.unique()
+    submx = allmx.iloc[[x in patient_ids for x in allmx[0]], :]
+    print(label, "-- Number of patients:", len(submx[0].unique()))
+    submx.to_csv(f"{din}/gistic_input_{label}.tsv", sep="\t", header=False, index=False)

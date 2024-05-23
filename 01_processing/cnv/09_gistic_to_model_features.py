@@ -18,7 +18,7 @@ if not os.path.isdir(dout):
     os.mkdir(dout)
 
 for key, df in cnv_dict.items():
-    df.to_csv(f"{dout}/{key}_conf90.csv", header=True, index=True)
+    df.to_csv(f"{dout}/{key}.csv", header=True, index=True)
 
 
 ###############################################################
