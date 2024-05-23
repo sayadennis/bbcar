@@ -230,8 +230,8 @@ mask = ~X_matched.index.duplicated(keep="first")
 X_matched = X_matched[mask]
 
 # For y (target), take majority vote on label for duplicate rows
-y_uniq = y_matched[~y_matched.index.duplicated(keep="first")]
-y_dups = y_matched.loc[y_matched.index.duplicated()]
+y_uniq = y_matched[~y_matched.index.duplicated(keep=False)].to_frame()
+y_dups = y_matched.loc[y_matched.index.duplicated(keep=False)].to_frame()
 y_dups = y_dups.reset_index(drop=False)
 y_dups_voted = y_dups.groupby("var_id").mean().round()  # majority vote
 y_matched = pd.concat((y_uniq, y_dups_voted))
