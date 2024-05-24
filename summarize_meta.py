@@ -18,6 +18,12 @@ for dirname in [argfiles_dir, summary_dir]:
         os.makedirs(dirname)
 
 meta = pd.read_csv(meta_fn)
+clin = pd.read_csv(
+    (
+        "/projects/b1131/saya/new_bbcar/data/clinical"
+        "/BBCaRDatabaseNU09B2_DATA_2023-04-04_0551.csv"
+    ),
+)
 
 #########################################
 #### Create job array argument files ####
@@ -129,3 +135,20 @@ summary_table.loc["Sequencing ctrl samples", "All"] = len(
 summary_table.to_csv(
     f"{summary_dir}/patient_sample_composition.csv", index=True, header=True
 )
+
+############################
+#### Biopsy information ####
+############################
+
+clin = clin[["study_id", "age", "bbxage", "benignbxyear", "followup"]]
+clin.index = [int(x.split("-")[0].replace("BBC", "")) for x in clin.study_id.values]
+
+meta_tissue = meta.iloc[(meta.tissue.values == 1) & (meta.seq_ctrl.values == 0), :]
+meta_tissue.set_index("patient_id", inplace=True)
+
+merged = pd.merge(meta_tissue, clin, how="left", left_index=True, right_index=True)
+
+print(
+    f"Biopsy year: {int(min(merged.benignbxyear.values))}-{int(max(merged.benignbxyear))}"
+)
+print(f"BBX age: {merged.bbxage.mean():.1f} (SD±{merged.bbxage.std():.2f})")
