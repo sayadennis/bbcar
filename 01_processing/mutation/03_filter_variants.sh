@@ -70,13 +70,19 @@ else
     echo "########## Patient ID ${sampleid} is not in the tissue sample list ##########"
 fi
 
-## Tissue-normal and germline-only
+## Germline-only
 if [[ " ${germline[*]} " =~ " ${sampleid} " ]]; then
-    echo "########## Filtering variants on tissue-germline pair of sample ${sampleid} ##########"
-    split_dp_filter ${sampleid} 'tissue_normal'
     echo "########## Filtering variants on germline sample ${sampleid} ##########"
     split_dp_filter ${sampleid} 'germline_only'
 else
     echo "########## Patient ID ${sampleid} is not in the germline sample list ##########"
+fi
+
+# Tissue-normal
+if [[ " ${germline[*]} " =~ " ${sampleid} " ]] && [[ " ${tissue[*]} " =~ " ${sampleid} " ]]; then
+    echo "########## Filtering variants on tissue-germline pair of sample ${sampleid} ##########"
+    split_dp_filter ${sampleid} 'tissue_normal'
+else
+    echo "########## Patient ID ${sampleid} does not have tissue-germline pair ##########"
 fi
 
