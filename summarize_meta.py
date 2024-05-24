@@ -136,6 +136,50 @@ summary_table.to_csv(
     f"{summary_dir}/patient_sample_composition.csv", index=True, header=True
 )
 
+meta = meta.iloc[meta.seq_ctrl.values == 0, :]  # Remove sequencing controls for now
+slide_table = pd.DataFrame(
+    index=["Case", "Control", "Total"],
+    columns=["Tissue-only", "Tissue-germline", "Total"],
+)
+slide_table.loc["Case", "Tissue-only"] = len(
+    meta.iloc[
+        (meta.label.values == 1)
+        & (meta.tissue.values == 1)
+        & (meta.germline.values == 0),
+        :,
+    ].patient_id.unique()
+)
+slide_table.loc["Control", "Tissue-only"] = len(
+    meta.iloc[
+        (meta.label.values == 0)
+        & (meta.tissue.values == 1)
+        & (meta.germline.values == 0),
+        :,
+    ].patient_id.unique()
+)
+
+slide_table.loc["Case", "Tissue-germline"] = len(
+    meta.iloc[
+        (meta.label.values == 1)
+        & (meta.tissue.values == 0)
+        & (meta.germline.values == 1),
+        :,
+    ].patient_id.unique()
+)
+slide_table.loc["Control", "Tissue-germline"] = len(
+    meta.iloc[
+        (meta.label.values == 0)
+        & (meta.tissue.values == 0)
+        & (meta.germline.values == 1),
+        :,
+    ].patient_id.unique()
+)
+
+slide_table["Total"] = slide_table.sum(axis=1)
+slide_table.loc["Total", :] = slide_table.sum(axis=0)
+
+print(slide_table)
+
 ############################
 #### Biopsy information ####
 ############################
