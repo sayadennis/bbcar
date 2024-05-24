@@ -17,7 +17,7 @@ X = pd.read_csv(f"{din}/input_matched.csv", index_col=0)
 y = pd.read_csv(f"{din}/target_matched.csv", index_col=0)
 
 meta = pd.read_csv(
-    f"{din}/features_imputed_bbcar.csv"
+    f"{din}/features_imputed.csv"
 )  # this contains meta information about each variant (variant exonic function etc.)
 
 ## Model
@@ -27,8 +27,8 @@ with open(mfn, "rb") as f:
     m = pickle.load(f)
 
 ## Indices
-train_ix = pd.read_csv(f"{din}/somatic_pred_ix/bbcar/train_index.txt", header=None)
-test_ix = pd.read_csv(f"{din}/somatic_pred_ix/bbcar/test_index.txt", header=None)
+train_ix = pd.read_csv(f"{din}/somatic_pred_ix/train_index.txt", header=None)
+test_ix = pd.read_csv(f"{din}/somatic_pred_ix/test_index.txt", header=None)
 
 X_train, X_test = X.loc[train_ix.values.ravel(), :], X.loc[test_ix.values.ravel(), :]
 y_train, y_test = y.loc[train_ix.values.ravel(), :], y.loc[test_ix.values.ravel(), :]
