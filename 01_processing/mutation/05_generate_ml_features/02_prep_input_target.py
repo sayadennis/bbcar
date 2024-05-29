@@ -180,6 +180,7 @@ with open(f"{dout}/germline_var_id.txt", "w") as f:
 variables = [
     "var_id",
     # 'AF',
+    "bbcar_freq",
     "avsnp150",
     "ExAC_ALL",
     "SIFT_score",
@@ -237,7 +238,7 @@ y_dups_voted = y_dups.groupby("var_id").mean().round()  # majority vote
 y_matched = pd.concat((y_uniq, y_dups_voted))
 
 # Subsample to decrease model training time
-X_matched = X_matched.sample(n=int(2e5), replace=False, random_state=9)
+X_matched = X_matched.sample(n=int(4e5), replace=False, random_state=9)
 y_matched = y_matched.loc[X_matched.index]
 
 ## Create train and test indices

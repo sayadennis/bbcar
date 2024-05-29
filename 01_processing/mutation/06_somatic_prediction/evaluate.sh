@@ -18,7 +18,7 @@ cd ${HOME}/classical-ml/ClassicalML/
 
 inputdir='/projects/b1131/saya/new_bbcar/data/02a_mutation/04_ml_features'
 outputdir='/projects/b1131/saya/new_bbcar/model_interpretations/somatic_prediction_3models'
-model_fn='/projects/b1131/saya/new_bbcar/model_interpretations/somatic_prediction_3models/20240523_saved_best_XGB_input_matched.p'
+model_fn='/projects/b1131/saya/new_bbcar/model_interpretations/somatic_prediction_3models/20240524_saved_best_XGB_input_matched.p'
 
 cd ${HOME}/bbcar/repo/01_processing/mutation/06_somatic_prediction/
 
