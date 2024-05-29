@@ -6,16 +6,15 @@ sns.set_theme(color_codes=True)
 from sklearn.preprocessing import StandardScaler
 
 proj_dir = "/projects/b1131/saya/new_bbcar"
-sig_results_dir = f"{proj_dir}/data/02a_mutation/08_feature_matrix/signature_results"
+sig_results_dir = f"{proj_dir}/data/02a_mutation/08_feature_matrix"
 dout = f"{proj_dir}/plots/mutation"
 
 data = {}
 
 for valtype in ["SBS96", "DBS78", "ID83"]:
     data[valtype] = pd.read_csv(
-        f"{sig_results_dir}/{valtype}/Samples.txt", sep="\t", index_col=0
-    ).T
-    data[valtype].index = [int(x.split("_")[0]) for x in data[valtype].index]
+        f"{sig_results_dir}/raw_{valtype}_features.csv", index_col=0
+    )
 
 ## Import labels
 meta = pd.read_csv("/projects/b1131/saya/new_bbcar/meta.csv")
