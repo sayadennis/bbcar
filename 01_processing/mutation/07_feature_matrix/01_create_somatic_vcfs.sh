@@ -16,15 +16,18 @@ source activate bbcarenv
 
 cd /projects/b1131/saya/new_bbcar/
 
-#### Copy the tissue-normal matched calls (100% somatic) ####
+## Obtain IDs of samples that have tissue or germline
+IFS=$'\n' read -d '' -r -a tissue < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_tissue.txt
+IFS=$'\n' read -d '' -r -a germline < /projects/b1131/saya/new_bbcar/jobarray_args/patient_ids_germline.txt
 
+#### Copy the tissue-normal matched calls (100% somatic) ####
 din="/projects/b1131/saya/new_bbcar/data/02a_mutation/02_variant_calls"
 dout="/projects/b1131/saya/new_bbcar/data/02a_mutation/07_predicted_somatic/vcfs"
 
 mkdir -p ${dout}
 
-# cp ${din}/tumor_normal/*_DPfiltered.vcf ${dout}/
+cp ${din}/tissue_normal/*_DPfiltered_classicalAF.vcf ${dout}/
 
 #### Filter the tissue-only calls and select predicted-somatic ####
-python ~/bbcar/repo/01_processing/mutation/07_feature_matrix/create_somatic_vcfs.py
+python ~/bbcar/repo/01_processing/mutation/07_feature_matrix/01_create_somatic_vcfs.py
 

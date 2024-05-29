@@ -30,7 +30,7 @@ done
 
 ## Tissue only - predicted somatic
 rm ${var_dir}/tissue_only/varcounts_predicted_somatic.txt
-for fn in $(ls /projects/b1131/saya/new_bbcar/data/02a_mutation/07_predicted_somatic/vcfs/*_somatic.vcf); do
+for fn in $(ls /projects/b1131/saya/new_bbcar/data/02a_mutation/07_predicted_somatic/vcfs/*.vcf); do
     bcftools stats $fn | grep "number of records:" >> ${var_dir}/tissue_only/varcounts_predicted_somatic.txt;
 done
 
