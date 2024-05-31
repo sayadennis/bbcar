@@ -1,8 +1,13 @@
+# pylint: disable=too-many-arguments
+
 import itertools
 
+import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib_venn import venn2
 
 din = "/projects/b1131/saya/new_bbcar/data/02b_cnv"
+dout = "/projects/b1131/saya/new_bbcar/plots/cnv"
 
 ######################################
 #### Load regions and their genes ####
@@ -16,9 +21,10 @@ regions = {
 }
 
 for group, df in regions.items():
-    regions[group] = df.iloc[df["q values"].values < 0.01, :]
     regions[group] = df.iloc[
-        [x.endswith(" - CN values") for x in df["Unique Name"].values], :
+        (df["q values"].values < 0.01)
+        & [x.endswith(" - CN values") for x in df["Unique Name"].values],
+        :,
     ]
     regions[group]["chrom"] = [
         x.split(":")[0] for x in regions[group]["Wide Peak Limits"].values
@@ -41,6 +47,69 @@ region_genes = {
     }
     for group in ["case", "control"]
 }
+
+#################################################################
+#### Identify overlap between case/control-recurrent regions ####
+#################################################################
+
+
+def check_overlap(
+    chr1: str,
+    start1: int,
+    end1: int,
+    chr2: str,
+    start2: int,
+    end2: int,
+    min_overlap: int = 1000,
+) -> bool:
+    if chr1 == chr2:
+        # Find the overlap boundaries
+        overlap_start = max(start1, start2)
+        overlap_end = min(end1, end2)
+        # Calculate the overlap length
+        overlap_length = overlap_end - overlap_start + 1
+        # Check if the overlap length meets criteria
+        overlapping = overlap_length >= min_overlap
+    else:
+        overlapping = False
+    return overlapping
+
+
+for trend in ["Amp", "Del"]:
+    case_regions = regions["case"].iloc[
+        [x.startswith(trend) for x in regions["case"]["Unique Name"]]
+    ]
+    control_regions = regions["control"].iloc[
+        [x.startswith(trend) for x in regions["control"]["Unique Name"]]
+    ]
+    ct_overlap = 0
+    for i in case_regions.index:
+        for j in control_regions.index:
+            if check_overlap(
+                case_regions.loc[i, "chrom"],
+                case_regions.loc[i, "start"],
+                case_regions.loc[i, "end"],
+                control_regions.loc[j, "chrom"],
+                control_regions.loc[j, "start"],
+                control_regions.loc[j, "end"],
+            ):
+                ct_overlap += 1
+    case_only = case_regions.shape[0] - ct_overlap
+    control_only = control_regions.shape[0] - ct_overlap
+    venn = venn2(
+        subsets=(case_only, control_only, ct_overlap),
+        set_labels=("Case Regions", "Control Regions"),
+    )
+    for subset in venn.subset_labels:
+        if subset:  # Check if the subset label is not None
+            subset.set_fontsize(24)
+    # Change font size for set labels
+    for label in venn.set_labels:
+        if label:  # Check if the set label is not None
+            label.set_fontsize(24)
+    plt.title("Amplifications" if trend == "Amp" else "Deletions", fontsize=26)
+    plt.savefig(f"{dout}/case_control_region_overlap_{trend}.png")
+    plt.close()
 
 ################################################################################
 #### For visually identified case- or control-unique cytobands, print genes ####
