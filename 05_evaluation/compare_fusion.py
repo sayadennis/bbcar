@@ -17,11 +17,9 @@ performances = {
     "No fusion mutation": pd.read_csv(
         f"{din}/no_fusion_mutation_orig.csv", index_col=0
     ),
-    "No fusion cnv": pd.read_csv(
-        f"{din}/no_fusion_cnv_inhouse_cn_features.csv", index_col=0
-    ),
-    "Early fusion": pd.read_csv(f"{din}/early_fusion_cnv_inhouse.csv", index_col=0),
-    "Late fusion": pd.read_csv(f"{din}/late_fusion_cnv_inhouse.csv", index_col=0),
+    "No fusion cnv": pd.read_csv(f"{din}/no_fusion_cnv_cytothres.csv", index_col=0),
+    "Early fusion": pd.read_csv(f"{din}/early_fusion_cnv_cytothres.csv", index_col=0),
+    "Late fusion": pd.read_csv(f"{din}/late_fusion_cnv_cytothres.csv", index_col=0),
     "Mid fusion supervised": pd.read_csv(
         f"{din}/mid_fusion_supervised_cnv_cytothres.csv",
         index_col=0,

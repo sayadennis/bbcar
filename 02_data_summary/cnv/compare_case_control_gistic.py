@@ -82,6 +82,8 @@ for trend in ["Amp", "Del"]:
     control_regions = regions["control"].iloc[
         [x.startswith(trend) for x in regions["control"]["Unique Name"]]
     ]
+    case_regions["overlap"] = 0
+    control_regions["overlap"] = 0
     ct_overlap = 0
     for i in case_regions.index:
         for j in control_regions.index:
@@ -94,6 +96,8 @@ for trend in ["Amp", "Del"]:
                 control_regions.loc[j, "end"],
             ):
                 ct_overlap += 1
+                case_regions.loc[i, "overlap"] = 1
+                control_regions.loc[j, "overlap"] = 1
     case_only = case_regions.shape[0] - ct_overlap
     control_only = control_regions.shape[0] - ct_overlap
     venn = venn2(
