@@ -184,7 +184,7 @@ print(slide_table)
 #### Biopsy information ####
 ############################
 
-clin = clin[["study_id", "age", "bbxage", "benignbxyear", "followup"]]
+clin = clin[["study_id", "age", "bbxage", "benignbxyear", "followup", "hrpositive"]]
 clin.index = [int(x.split("-")[0].replace("BBC", "")) for x in clin.study_id.values]
 
 meta_tissue = meta.iloc[(meta.tissue.values == 1) & (meta.seq_ctrl.values == 0), :]
@@ -196,3 +196,20 @@ print(
     f"Biopsy year: {int(min(merged.benignbxyear.values))}-{int(max(merged.benignbxyear))}"
 )
 print(f"BBX age: {merged.bbxage.mean():.1f} (SD±{merged.bbxage.std():.2f})")
+
+##############################################
+#### Create hormone receptor status label ####
+##############################################
+
+labeldir = meta_fn.rsplit("/", maxsplit=1)[0]
+
+hr_mapping = {1: "No", 2: "Yes", 3: "N/A", 4: "Unknown"}
+merged.hrpositive = merged.hrpositive.map(hr_mapping)
+
+# first create label where both HR- and controls are negative
+hr_label = (merged["hrpositive"] == "Yes").astype(float).to_frame(name="label")
+hr_label.to_csv(f"{labeldir}/label_er_with_cont.csv")
+
+# next create label where controls are removed entirely
+case_ids = merged.iloc[merged.label.values == 1, :].index
+hr_label.loc[case_ids, :].to_csv(f"{labeldir}/label_er_without_cont.csv")
