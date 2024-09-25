@@ -62,3 +62,23 @@ meta_tissue.set_index("patient_id", inplace=True)
 merged = pd.merge(meta_tissue, clin, how="left", left_index=True, right_index=True)
 
 print(merged.loc[impossibles, :])
+
+
+# Check age and biopsy year correlation
+from scipy.stats import f_oneway
+
+# Check alignment metrics
+metrics = pd.read_csv("/projects/b1131/saya/new_bbcar/metrics/alignment_metrics.csv")
+
+for i in merged.index:
+    sample_id = merged.loc[i, "sample_id"]
+    merged.loc[i, "est_library_size"] = metrics.iloc[
+        [x == sample_id for x in metrics.sample_id], :
+    ]["ESTIMATED_LIBRARY_SIZE"].item()
+
+for varname in ["bbxage", "benignbxyear", "est_library_size"]:
+    f, p = f_oneway(
+        merged.iloc[[x not in impossibles for x in merged.index], :][varname],
+        merged.loc[impossibles, :][varname],
+    )
+    print(f"{varname}: F={f:.2f}, p={p:.3f}")
