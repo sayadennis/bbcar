@@ -95,7 +95,7 @@ for (group in c("case", "control")) {
 
   cytobands <- cytoband_by_g(g, gis.scores, g_thres)
 
-  png(paste0("gistic_chrom_plot_", group, ".png"), width = 1000, height = 500, res = 150)
+  png(paste0("gistic_chrom_plot_", group, ".png"), width = 1500, height = 500, res = 150)
   gisticChromPlot(
     gistic = laml.gistic,
     fdrCutOff = fdr,
